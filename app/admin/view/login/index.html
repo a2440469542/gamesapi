@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>登录</title>
+    <link rel="stylesheet" href="/static/css/ele/index.css">
+    <link rel="stylesheet" href="/static/css/ele/home.css">
+    <script src="/static/js/ele/vue.js"></script>
+    <script src="/static/js/ele/index.js"></script>
+    <script src="/static/js/ele/axios.min.js"></script>
+    <script src="/static/js/ele/request.js"></script>
+    <script src="/static/js/jquery.js"></script>
+    <style>
+        #app, body, html {
+            width: 100%;
+            height: 100%;
+        }
+        .login {
+            width: 100%;
+            height: 100%;
+            background-image: url(../../img/login-bg.jpg);
+            background-size: cover;
+            background-position: 50%;
+            position: relative;
+        }
+        .login-con {
+            position: absolute;
+            right: 160px;
+            top: 50%;
+            -webkit-transform: translateY(-60%);
+            transform: translateY(-60%);
+            width: 360px;
+        }
+        .ivu-card {
+            background: #fff;
+            border-radius: 4px;
+            font-size: 14px;
+            position: relative;
+            -webkit-transition: all .2s ease-in-out;
+            transition: all .2s ease-in-out;
+        }
+        .ivu-card-head {
+            border-bottom: 1px solid #e8eaec;
+            padding: 14px 16px;
+            line-height: 1;
+        }
+        .ivu-card-head-inner, .ivu-card-head p {
+            display: inline-block;
+            width: 100%;
+            height: 20px;
+            line-height: 20px;
+            font-size: 14px;
+            color: #17233d;
+            font-weight: 700;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .ivu-card-head p i, .ivu-card-head p span {
+            vertical-align: middle;
+        }
+
+        .ivu-icon {
+            display: inline-block;
+            font-family: Ionicons;
+            speak: none;
+            font-style: normal;
+            font-weight: 400;
+            font-variant: normal;
+            text-transform: none;
+            text-rendering: auto;
+            line-height: 1;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            vertical-align: middle;
+        }
+        .ivu-card-head p i, .ivu-card-head p span {
+            vertical-align: middle;
+        }
+        .ivu-card-body {
+            padding: 16px 0;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <div class="login">
+        <div class="login-con">
+            <div class="ivu-card">
+                <div class="ivu-card-head">
+                    <p>
+                        <i class="ivu-icon ivu-icon-log-in"></i>
+                        <span>欢迎登录</span>
+                    </p>
+                </div>
+                <!---->
+                <div class="ivu-card-body">
+                    <el-form :model="form" :rules="rules" ref="ruleForm">
+                        <el-form-item label="账号" :label-width="'70px'" prop="user_name">
+                            <el-input v-model="form.user_name" autocomplete="off" style="width: 210px"></el-input>
+                        </el-form-item>
+                        <el-form-item label="密码" :label-width="'70px'" prop="password">
+                            <el-input type="password" v-model="form.password" style="width: 210px" autocomplete="off"></el-input>
+                        </el-form-item>
+                        <el-form-item label="验证码" :label-width="'70px'" prop="code">
+                            <el-input v-model="form.code" style="width: 90px" autocomplete="off"></el-input>
+                            <img :src="code" @click="refCode()" style="width: 130px;cursor: pointer;" />
+                        </el-form-item>
+                    </el-form>
+                    <div slot="footer" class="dialog-footer" style="text-align: center;">
+                        <el-button type="primary"  @click="submitForm('ruleForm')">确 定</el-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script>
+    var Main = {
+        methods: {
+            refCode(){
+                this.code = "/admin/login/verify?"+Math.floor(Math.random() * 101);
+            },
+            resetForm(formName) {
+                this.$refs[formName].resetFields();
+                this.form.user_name = ""
+                this.form.password = ""
+                this.form.code = ""
+            },
+            async submitForm(formName) {
+                var form_name = formName
+                this.$refs[form_name].validate(async (valid) => {
+                    if (valid) {
+                        let prams = this.form
+                        const response = await fetchData('/admin/login/login','post',prams)
+                        if (response.code === 0) {
+                            this.$message.success('登录成功');
+                            localStorage.setItem('token',response.data.token)
+                            window.location.href = '/admin/index/index'
+                        } else {
+                            this.$message.error(response.msg);
+                            this.refCode()
+                        }
+                        console.log(response)
+                    } else {
+                        return false;
+                    }
+                });
+            },
+        },
+        data() {
+            return {
+                code:"/admin/login/verify",
+                form: {
+                    user_name: '',
+                    password: '',
+                    code:'',
+                },
+                rules: {
+                    user_name: [
+                        { required: true, message: '请输入账号', trigger: 'blur' },
+                    ],
+                    password: [
+                        { required: true, message: '请输入密码', trigger: 'blur' }
+                    ],
+                    code: [
+                        { required: true, message: '请输入验证码', trigger: 'blur' }
+                    ],
+                },
+
+            }
+        }
+    }
+    var Ctor = Vue.extend(Main)
+    new Ctor().$mount('#app')
+</script>
+</html>

@@ -1,0 +1,130 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Administrator
+ * Date: 2019/2/1
+ * Time: 20:46
+ */
+namespace app\common\model;
+use app\admin\model\Base;
+use hg\apidoc\annotation\Field;
+use hg\apidoc\annotation\AddField;
+
+class UserStat extends Base
+{
+    protected $pk = 'id';
+    /**
+     * @Field("id,user,aid,admin_name,tk_id,pid,money")
+     * @AddField("token",type="string",desc="用户token")
+     */
+    public function add($data){
+        $uid = $data['uid'];
+        $date = date("Y-m-d",time());
+        $where = [
+            ['date',"=",$date],
+            ["uid","=",$uid]
+        ];
+        $this->setPartition($data['cid']);
+        $stat = self::where($where)->partition($this->partition)->lock(true)->find();
+        if(empty($stat)){
+            $data['date'] = $date;
+            self::insert($data);
+        }else{
+            $update = [];
+            foreach($data as $key=>$val){
+                if($key === 'cid') continue;
+                if($key === 'uid') continue;
+                if($key === 'mobile') continue;
+                $update[$key] = $stat[$key] + $val;
+            }
+            self::where("id","=",$stat['id'])->partition($this->partition)->update($update);
+        }
+        return true;
+    }
+    public function lists($where, $limit=10, $orderBy='id desc'){
+        $uid = self::alias("uid,sum(invite_user) as invite_user")
+            ->where($where)
+            ->partition($this->partition)
+            ->group('uid')
+            ->select();
+        $list = [];
+        foreach($uid as $key=>$val){
+            $filed = 'sum(cz_money) as total_deposit, 
+            sum(cz_num) as cz_num, 
+            sum(bet_money) as bet_money, 
+            sum(win_money) as win_money, 
+            sum(cash_money) as cash_money,
+            sum(cash_num) as cash_num ,
+            sum(box_money) as box_money';
+            $summary = self::alias("us")
+                ->leftJoin("cp_user PARTITION({$this->partition}) `u`","us.uid = u.uid")
+                ->where('u.pid', '=', $val['uid'])
+                ->field($filed)
+                ->partition($this->partition)
+                ->find();
+            $list[] = array_merge($val,$summary);
+        }
+        return $list;
+    }
+    //根据条件获取当前下级的统计信息
+    /**
+     * @Field("uid,date,bet_money,cz_money")
+     */
+    public function team($where){
+        $list = self::alias("us")
+            ->field("us.date,us.uid,us.bet_money,us.cz_money")
+            ->leftJoin("cp_user PARTITION({$this->partition}) `u`","us.uid = u.uid")
+            ->where($where)
+            ->partition($this->partition)
+            ->select();
+        return $list;
+    }
+    //根据条件获取当前下级满足宝箱的人数
+    public function get_box_num($where,$cz_money,$bet){
+        $count = self::alias("us")
+            ->leftJoin("cp_user u","us.uid = u.uid")
+            ->where($where)
+            ->partition($this->partition)
+            ->group('us.uid')
+            ->having("sum(cz_money) >= {$cz_money} AND sum(bet_money) >= {$bet}")
+            ->count();
+        return $count;
+    }
+    //根据条件获取当前下级的存款人数
+    public function get_deposit_num($where){
+        $where[] = ['cz_money',">",0];
+        $count = self::alias("us")
+            ->leftJoin("cp_user PARTITION({$this->partition}) `u`","us.uid = u.uid")
+            ->where($where)
+            ->partition($this->partition)
+            ->count();
+        return $count;
+    }
+    //根据条件获取当前下级的总存款和总投注
+    public function get_deposit_and_bet($where){
+        $result = self::alias("us")
+            ->field("sum(cz_money) as cz_money, sum(bet_money) as bet_money")
+            ->leftJoin("cp_user PARTITION({$this->partition}) `u`","us.uid = u.uid")
+            ->where($where)
+            ->partition($this->partition)
+            ->find();
+        return $result;
+    }
+    //获取某个用户的数据汇总
+    public function get_user_summary($uid){
+        $filed = 'uid,mobile,
+        sum(invite_user) as invite_user,
+        sum(cz_money) as total_deposit, 
+        sum(cz_num) as cz_num, 
+        sum(bet_money) as bet_money, 
+        sum(win_money) as win_money, 
+        sum(cash_money) as cash_money,
+        sum(cash_num) as cash_num ,
+        sum(box_money) as box_money';
+        $summary = self::where('uid', '=', $uid)
+            ->field($filed)
+            ->partition($this->partition)
+            ->find();
+        return $summary;
+    }
+}

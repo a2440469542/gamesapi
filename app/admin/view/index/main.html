@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="/static/css/ele/index.css">
+    <link rel="stylesheet" href="/static/css/ele/home.css">
+    <script src="/static/js/ele/vue.js"></script>
+    <script src="/static/js/ele/index.js"></script>
+    <script src="/static/js/ele/axios.min.js"></script>
+    <script src="/static/js/ele/request.js"></script>
+    <script src="/static/js/jquery.js"></script>
+</head>
+<body>
+<div id="app">
+    <!--<el-card shadow="hover" style="width: 100%;margin-top: 25px;">数据统计</el-card>
+    <el-card shadow="hover" style="width: 100%;margin-top: 25px;">
+        <el-row :gutter="20">
+            <el-col :span="6">
+                <div class="icon-box">
+                    <div class="icon-item" style="background-color: red">
+                        <i class="el-icon-user-solid"></i>
+                    </div>
+                    <el-statistic style="width:auto;"
+                            title="今日访问数量" group-separator=","
+                            :precision="0"
+                            :value="info.total">
+                    </el-statistic>
+                </div>
+            </el-col>
+            <el-col :span="6">
+                <div class="icon-box">
+                    <div class="icon-item" style="background-color: #7266ba">
+                        <i class="el-icon-s-platform"></i>
+                    </div>
+                    <el-statistic style="width:auto;"
+                                  title="今日独立IP数量" group-separator=","
+                                  :precision="0"
+                                  :value="info.ip_num">
+                    </el-statistic>
+                </div>
+            </el-col>
+            <el-col :span="6">
+                <div class="icon-box">
+                    <div class="icon-item" style="background-color: #23b7e5">
+                        <i class="el-icon-s-marketing"></i>
+                    </div>
+                    <el-statistic style="width:auto;"
+                            title="今日新增数量" group-separator=","
+                            :precision="0"
+                            :value="info.new_ip">
+                    </el-statistic>
+                </div>
+            </el-col>
+            <el-col :span="6">
+                <div class="icon-box">
+                    <div class="icon-item" style="background-color: #27C24C">
+                        <i class="el-icon-s-flag"></i>
+                    </div>
+                    <el-statistic style="width:auto;"
+                            title="七日活跃数量" group-separator=","
+                            :precision="0"
+                            :value="info.seven_num">
+                    </el-statistic>
+                </div>
+            </el-col>
+        </el-row>
+    </el-card>
+    <el-card shadow="hover" style="width: 100%;margin-top: 25px;">
+        <el-row :gutter="20">
+            <el-col :span="6">
+                <div class="icon-box">
+                    <div class="icon-item" style="background-color: red">
+                        <i class="el-icon-s-flag"></i>
+                    </div>
+                    <el-statistic style="width:auto;"
+                                  title="月活跃数量" group-separator=","
+                                  :precision="0"
+                                  :value="info.month_num">
+                    </el-statistic>
+                </div>
+            </el-col>
+        </el-row>
+    </el-card>-->
+</div>
+<script>
+    var Main = {
+        created(){
+            //this.get_data()
+        },
+        methods: {
+            goBack(){},
+            async get_data() {
+                let prams = {}
+                const response = await fetchData('/admin/index/home','post',prams)
+                if(response.code == 0){
+                    this.info = response.data
+                    this.total = response.data.total
+                }else{
+                    this.$message({
+                        showClose: true,
+                        message: response.msg,
+                        type: 'error'
+                    });
+                }
+            },
+        },
+        data() {
+            return {
+                info:{}
+            }
+        }
+    }
+    var Ctor = Vue.extend(Main)
+    new Ctor().$mount('#app')
+</script>
+<style lang="scss">
+    .icon-item{
+        width: 60px;
+        height: 60px;
+        display: inline-block;
+        line-height: 60px;
+        text-align: center;
+        font-size: 30px;
+        background: #eee;
+        border-radius: 5px;
+        float: left;
+        margin-right: 10px;
+        color: #fff;
+    }
+    .icon-box{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+</style>
+</body>
+</html>

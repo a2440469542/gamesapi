@@ -1,0 +1,68 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Administrator
+ * Date: 2019/2/1
+ * Time: 20:46
+ */
+namespace app\common\model;
+use app\admin\model\Base;
+use hg\apidoc\annotation\Field;
+use hg\apidoc\annotation\AddField;
+use think\facade\Cache;
+use think\facade\Db;
+
+class Cash extends Base
+{
+    protected $pk = 'id';
+    public function add($cid,$uid,$order_sn,$type,$account,$pix,$name,$money){
+        $data = [
+            'uid' => $uid,
+            'cid' => $cid,
+            'order_sn' => $order_sn,
+            'type' => $type,
+            'account' => $account,
+            'pix' => $pix,
+            'name' => $name,
+            'money' => $money,
+            'status' => 0,
+            'add_time' => time(),
+        ];
+        return self::partition($this->partition)->insertGetId($data);
+    }
+    public function getAddTimeAttr($value): string
+    {
+        return date("Y-m-d H:i:s",$value);
+    }
+    public function lists($where=[], $limit=10, $order='id desc'){
+        $list = self::alias("c")
+            ->field("c.*,u.mobile")
+            ->leftJoin("cp_user PARTITION({$this->partition}) `u`","c.uid = u.uid")
+            ->where($where)
+            ->order($order)
+            ->partition($this->partition)
+            ->paginate($limit)->toArray();
+        return $list;
+    }
+    public function getList($where=[], $limit=10, $order='id desc'){
+        $list = self::where($where)
+            ->order($order)
+            ->partition($this->partition)
+            ->paginate($limit)->toArray();
+        return $list;
+    }
+    public function getInfo($order_sn){
+        $row = self::where('order_sn',"=",$order_sn)->partition($this->partition)->find();
+        return $row;
+    }
+    public function update_order($data){
+        $row = self::where('id',"=",$data['id'])->partition($this->partition)->update($data);
+        return $row;
+    }
+    //获取当前用户是否有提现记录
+    public function hasCashRecord($uid): bool
+    {
+        $count = self::where('uid', '=', $uid)->where('status', 'BETWEEN', [0,1])->partition($this->partition)->count();
+        return $count > 0;
+    }
+}

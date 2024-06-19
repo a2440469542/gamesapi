@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>活动后台</title>
+    <link rel="stylesheet" href="/static/layui/css/layui.css">
+    <link rel="stylesheet" href="/static/css/zadmin.css">
+    <link rel="stylesheet" href="/static/css/common.css">
+    <link rel="stylesheet" href="/static/font/iconfont.css">
+</head>
+
+<body class="layui-layout-body">
+
+<div id="app" class="layui-layout layui-layout-admin">
+
+    <div class="layui-header">
+        <!-- logo 区域 -->
+        <div class="layui-logo">
+            <cite>&nbsp;活动后台&emsp;</cite>
+        </div>
+
+        <!-- 头部区域 -->
+        <ul class="layui-nav layui-layout-left">
+            <li class="layui-nav-item" lay-unselect>
+                <a lay-event="flexible" title="侧边伸缩">
+                    <i class="layui-icon layui-icon-shrink-right"></i>
+                </a>
+            </li>
+            <!-- 面包屑 -->
+            <span class="layui-breadcrumb layui-anim layui-anim-up">
+                <a>
+                    <cite>首页</cite>
+                </a>
+            </span>
+        </ul>
+
+        <!-- 头像区域 -->
+    </div>
+
+    <!-- 左侧导航区域 -->
+    <div class="layui-side ">
+        <div class="layui-side-scroll">
+            <ul class="layui-nav layui-nav-tree" lay-filter="lay-nav" lay-accordion="true">
+                <li class="layui-nav-item">
+                    <a lay-url="/admin/index/main.html" lay-id="home">
+                        <i class="zadmin-icon zadmin-icon-shouye"></i>&emsp;<cite>数据统计</cite>
+                    </a>
+                </li>
+                {foreach $menu as $item}
+                <li class="layui-nav-item">
+                    {if $item.child == 1}
+                    <a lay-id="#" lay-url="#">
+                        <i class="zadmin-icon zadmin-icon-quanxian"></i>&emsp;<cite>{$item.name}</cite>
+                    </a>
+                    <dl class="layui-nav-child">
+                        {foreach $item['children'] as $child}
+                        <dd>
+                            <a lay-url="/admin/{$child.controllers}/{$child.methods}.html" lay-id="{$child.controllers}" >
+                                <i class="zadmin-icon zadmin-icon-quanxian"></i>&emsp;<cite>{$child.name}</cite>
+                            </a>
+                        </dd>
+                        {/foreach}
+                    </dl>
+                    {else/}
+                    <a lay-id="{$item['controllers']}" lay-url="/admin/{$item.controllers}/{$item.methods}.html'">
+                        <i class="zadmin-icon zadmin-icon-quanxian"></i>&emsp;<cite>{$item.name}</cite>
+                    </a>
+                    {/if}
+                </li>
+                {/foreach}
+            </ul>
+        </div>
+    </div>
+
+    <div class="layui-body">
+        <div class="layui-pagetabs">
+            <div class="layui-icon admin-tabs-control layui-icon-refresh-3" lay-event="refresh"></div>
+            <div class="layui-tab" lay-unauto lay-allowclose="true" lay-filter="lay-tab">
+                <ul class="layui-tab-title">
+                    <li lay-id="home" lay-url="/admin/statis/index.html" class="layui-this"><i
+                            class="layui-icon layui-icon-home"></i></li>
+                </ul>
+                <div class="layui-tab-content">
+                    <div class="layui-tab-item layui-show">
+                        <iframe id="myiframe" src="/admin/index/main.html" class="layui-iframe"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部固定区域 -->
+    <div class="layui-footer">
+        copyright © 2019 Z-Admin all rights reserved.
+    </div>
+
+    <!-- 移动端遮罩 -->
+    <div class="site-mobile-shade"></div>
+</div>
+<script src="/static/layui/layui.js"></script>
+<script src="/static/js/jquery.js"></script>
+<script src="/static/js/common.js"></script>
+</body>
+</html>

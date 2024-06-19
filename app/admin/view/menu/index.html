@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>系统数据</title>
+    <link rel="stylesheet" href="/static/css/ele/index.css">
+    <link rel="stylesheet" href="/static/css/ele/home.css">
+    <script src="/static/js/ele/vue.js"></script>
+    <script src="/static/js/ele/index.js"></script>
+    <script src="/static/js/ele/axios.min.js"></script>
+    <script src="/static/js/ele/request.js"></script>
+    <script src="/static/js/jquery.js"></script>
+</head>
+<body>
+<div id="app">
+    <el-row class="create">
+        <el-button type="primary" @click="dialogFormVisible = true">添加菜单</el-button>
+    </el-row>
+    <template>
+        <el-table
+                :data="tableData"
+                row-key="id"
+                :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
+                border
+                align="center"
+                style="width: 100%">
+            <el-table-column
+                    prop="id"
+                    align="center"
+                    label="菜单ID">
+            </el-table-column>
+            <el-table-column
+                    prop="name"
+                    align="center"
+                    label="菜单名称">
+            </el-table-column>
+            <el-table-column
+                    prop="controllers"
+                    align="center"
+                    label="菜单控制器">
+            </el-table-column>
+            <el-table-column
+                    prop="methods"
+                    align="center"
+                    label="菜单方法">
+            </el-table-column>
+            <el-table-column
+                    prop="sort"
+                    align="center"
+                    label="排序">
+            </el-table-column>
+            <el-table-column
+                    fixed="right"
+                    label="操作">
+                <template slot-scope="scope">
+                    <el-button @click="handleUpdate(scope.row)" type="primary" size="small">修改</el-button>
+                    <el-button @click="handleDel(scope.row)" type="danger" size="small">删除</el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+    </template>
+    <el-dialog title="编辑菜单" :visible.sync="dialogFormVisible" :width="'30%'">
+        <!--添加-->
+        <el-form :model="form" :rules="rules" ref="ruleForm">
+            <el-form-item label="上级菜单" :label-width="'90px'" prop="cat_name">
+                <el-cascader
+                        v-model="form.pid"
+                        :props="{ checkStrictly: true }"
+                        :options="options">
+                </el-cascader>
+            </el-form-item>
+            <el-form-item label="菜单名称" :label-width="'90px'" prop="name">
+                <el-input v-model="form.name" autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="菜单控制器" :label-width="'90px'" prop="controller">
+                <el-input v-model="form.controllers" autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="菜单方法" :label-width="'90px'" prop="method">
+                <el-input v-model="form.methods" autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="是否菜单" :label-width="'90px'" prop="method">
+                <el-switch
+                        v-model="form.is_menu"
+                        active-text="是"
+                        inactive-text="不是"
+                        :active-value="1"
+                        :inactive-value="0"	>
+                </el-switch>
+            </el-form-item>
+            <el-form-item label="排序" :label-width="'90px'" prop="method">
+                <el-input v-model="form.sort" autocomplete="off"></el-input>
+            </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer" style="text-align: center;">
+            <el-button type="primary"  @click="submitForm('ruleForm')">确 定</el-button>
+            <el-button @click="resetForm('ruleForm')">取 消</el-button>
+        </div>
+    </el-dialog>
+</div>
+<script>
+    var Main = {
+        created(){
+            this.get_list()
+            this.get_all()
+        },
+        methods: {
+            getToken(){
+                let token = localStorage.getItem('token')
+                return token
+            },
+            async get_list(){
+                let prams = {};
+                const response = await fetchData('/admin/menu/index','post',prams)
+                if(response.code === 0){
+                    this.tableData = response.data
+                }else{
+                    this.$message({
+                        showClose: true,
+                        message: response.msg,
+                        type: 'error'
+                    });
+                }
+            },
+            async get_all(){
+                let prams = {};
+                const response = await fetchData('/admin/menu/all_list','post',prams)
+                if(response.code === 0){
+                    this.options = response.data
+                }else{
+                    this.$message({
+                        showClose: true,
+                        message: response.msg,
+                        type: 'error'
+                    });
+                }
+            },
+            handleSizeChange(val) {
+                this.limit = val
+                this.get_list()
+            },
+            handleCurrentChange(val) {
+                this.page = val;
+                this.get_list()
+                console.log(`当前页: ${val}`);
+            },
+            handleUpdate(row){
+                this.form.id = row.id
+                if(row.pid === 0){
+                    this.form.pid = [row.pid]
+                }else{
+                    this.form.pid = row.pid
+                }
+                this.form.name = row.name
+                this.form.controllers = row.controllers
+                this.form.methods = row.methods
+                this.form.is_menu = row.is_menu
+                this.form.sort = row.sort
+                this.dialogFormVisible = true
+            },
+            async handleDel(row){
+                let prams={
+                    id:row.id
+                };
+                const response = await fetchData('/admin/menu/del','post',prams)
+                if(response.code === 0){
+                    this.$message.success(response.msg);
+                    this.get_list()
+                }else{
+                    this.$message.error(response.msg);
+                }
+            },
+            resetForm(formName) {
+                this.$refs[formName].resetFields();
+                this.form.id = 0
+                this.form.pid =[0]
+                this.form.name = ""
+                this.form.controllers = ""
+                this.form.methods = ""
+                this.form.is_menu = 1
+                this.form.sort = 1
+                this.dialogFormVisible = false
+            },
+            async submitForm(formName) {
+                this.$refs[formName].validate(async (valid) => {
+                    if (valid) {
+                        let prams = this.form
+                        const response = await fetchData('/admin/menu/add','post',prams)
+                        if (response.code === 0) {
+                            this.$message.success('编辑成功');
+                            this.resetForm(formName)
+                            this.get_list()
+                            this.get_all()
+                        } else {
+                            this.$message.error(response.msg);
+                        }
+                    } else {
+                        return false;
+                    }
+                });
+            },
+        },
+        data() {
+            return {
+                tableData: [],
+                options:[],
+                dialogFormVisible: false,
+                form: {
+                    id:0,
+                    pid:[0],
+                    name:'',
+                    controllers:'',
+                    methods:'',
+                    is_menu:1,
+                    sort:1
+                },
+                rules: {
+                    name:[
+                        { required: true, message: '请输入菜单名称', trigger: 'blur' },
+                    ]
+                },
+            }
+        }
+    }
+    var Ctor = Vue.extend(Main)
+    new Ctor().$mount('#app')
+</script>
+</body>
+</html>

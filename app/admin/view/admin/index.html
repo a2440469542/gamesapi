@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>系统数据</title>
+    <link rel="stylesheet" href="/static/css/ele/index.css">
+    <link rel="stylesheet" href="/static/css/ele/home.css">
+    <script src="/static/js/ele/vue.js"></script>
+    <script src="/static/js/ele/index.js"></script>
+    <script src="/static/js/ele/axios.min.js"></script>
+    <script src="/static/js/ele/request.js"></script>
+    <script src="/static/js/jquery.js"></script>
+    <style>
+        #editor—wrapper {
+            border: 1px solid #ccc;
+            z-index: 100; /* 按需定义 */
+        }
+        #toolbar-container { border-bottom: 1px solid #ccc; }
+        #editor-container { height: 500px; }
+        #editor—wrapper-pot {
+            border: 1px solid #ccc;
+            z-index: 100; /* 按需定义 */
+        }
+        #toolbar-container-pot { border-bottom: 1px solid #ccc; }
+        #editor-container-pot { height: 500px; }
+    </style>
+</head>
+<body>
+<div id="app">
+    <el-row class="create" style="text-align: left;margin-right: 100px">
+        <el-form :inline="true" :model="formInline" class="demo-form-inline">
+            <el-button type="success" style="margin-right: 30px;" @click="dialogFormVisible = true">添加账号</el-button>
+
+            <el-form-item label="账号：">
+                <el-input v-model="formInline.keyword" placeholder="请输入管理员账号"></el-input>
+            </el-form-item>
+            <el-form-item>
+                <el-button type="primary" @click="onSeach">查询</el-button>
+            </el-form-item>
+        </el-form>
+    </el-row>
+    <template>
+        <el-table
+                :data="tableData"
+                border
+                align="center"
+                style="width: 100%">
+            <el-table-column
+                    prop="user_name"
+                    align="center"
+                    label="账号">
+            </el-table-column>
+            <el-table-column
+                    prop="name"
+                    align="center"
+                    label="角色">
+            </el-table-column>
+            <el-table-column
+                    prop="created_at"
+                    align="center"
+                    label="创建时间">
+            </el-table-column>
+            <el-table-column
+                    prop="last_login_at"
+                    align="center"
+                    label="最后登录时间">
+            </el-table-column>
+            <el-table-column
+                    prop="last_login_ip"
+                    align="center"
+                    label="最后登录IP">
+            </el-table-column>
+            <el-table-column
+                    fixed="right"
+                    label="操作">
+                <template slot-scope="scope">
+                    <el-button @click="handleUpdate(scope.row)" type="primary" size="small">修改</el-button>
+                    <el-button v-show="scope.row.id > 10000" @click="handleDelete(scope.row)" type="danger" size="small">删除</el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+    </template>
+    <div class="block">
+        <el-pagination
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+                :current-page="page"
+                :page-sizes="[10, 20, 30, 50,100,200]"
+                :page-size="10"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="total">
+        </el-pagination>
+    </div>
+    <el-dialog title="编辑游戏" :visible.sync="dialogFormVisible" :width="'50%'">
+        <!--添加-->
+        <el-form :model="form" :rules="rules" ref="ruleForm">
+            <el-form-item label="账号" :label-width="'120px'" prop="name">
+                <el-input v-model="form.user_name" :disabled="form.id > 0" autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="密码" :label-width="'120px'" prop="password">
+                <el-input type="password" v-model="form.password" autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="管理员角色" :label-width="'150px'">
+                <el-select v-model="form.rid" placeholder="请选择">
+                    <el-option
+                            v-for="item in roles"
+                            :key="item.rid"
+                            :label="item.name"
+                            :value="item.rid">
+                    </el-option>
+                </el-select>
+            </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer" style="text-align: center;">
+            <el-button type="primary"  @click="submitForm('ruleForm')">确 定</el-button>
+            <el-button @click="resetForm('ruleForm')">取 消</el-button>
+        </div>
+    </el-dialog>
+</div>
+<script>
+    var Main = {
+        data() {
+            return {
+                page:1,
+                limit:10,
+                tableData: [],
+                total:0,
+                dialogFormVisible: false,
+                formInline:{
+                    keyword:"",
+                },
+                roles:[],
+                form: {
+                    id:0,
+                    user_name:'',
+                    password:'',
+                    rid:1,
+                },
+                rules: {
+                    user_name:[
+                        { required: true, message: '请输入账号', trigger: 'blur' },
+                    ],
+                },
+            }
+        },
+        mounted() {
+            // 在页面加载完成后执行的代码
+            console.log('页面加载完成！');
+        },
+        created(){
+            this.get_list()
+            this.get_roles()
+        },
+        methods: {
+            getToken(){
+                let token = localStorage.getItem('token')
+                return token
+            },
+            onSeach(){
+                this.page = 1
+                this.get_list()
+                this.get_roles()
+            },
+            async get_list(){
+                let prams = {
+                    page:this.page,
+                    limit:this.limit,
+                    keyword:this.formInline.keyword,
+                };
+                const response = await fetchData('/admin/admin/index','post',prams)
+                if(response.code == 0){
+                    this.tableData = response.data.data
+                    this.total = response.data.total
+                }else{
+                    this.$message({
+                        showClose: true,
+                        message: response.msg,
+                        type: 'error'
+                    });
+                }
+            },
+            async get_roles(){
+                let prams = {
+                    page:this.page,
+                    limit:this.limit,
+                    keyword:this.formInline.keyword,
+                };
+                const response = await fetchData('/admin/roles/index','post',prams)
+                if(response.code === 0){
+                    this.roles = response.data
+                }else{
+                    this.$message({
+                        showClose: true,
+                        message: response.msg,
+                        type: 'error'
+                    });
+                }
+            },
+            handleSizeChange(val) {
+                this.page = val
+                this.get_list()
+            },
+            handleCurrentChange(val) {
+                this.page = val;
+                this.get_list()
+                console.log(`当前页: ${val}`);
+            },
+            handleUploadSuccess(res, file){
+                console.log(res,file)
+                if(res.code == 0){
+                    this.form.img = res.data.path;
+                }else{
+                    this.$message({
+                        showClose: true,
+                        message: res.msg,
+                        type: 'error'
+                    });
+                }
+            },
+            handleUpdate(row){
+                this.form.id = row.id
+                this.form.user_name = row.user_name
+                this.form.rid = row.rid
+                this.dialogFormVisible = true
+                this.setHmtls()
+            },
+            async handleStatus(row,status){
+                let prams={
+                    id:row.id,
+                    status:status
+                };
+                const response = await fetchData('/admin/game/handle_status','post',prams)
+                if(response.code === 0){
+                    this.$message.success(response.msg);
+                    this.get_list()
+                }else{
+                    this.$message.error(response.msg);
+                }
+            },
+            async handleDel(row){
+                let prams={
+                    id:row.id
+                };
+                const response = await fetchData('/admin/admin/del','post',prams)
+                if(response.code === 0){
+                    this.$message.success(response.msg);
+                    this.get_list()
+                }else{
+                    this.$message.error(response.msg);
+                }
+            },
+            resetForm(formName) {
+                this.$refs[formName].resetFields();
+                this.form.id = 0
+                this.form.user_name = ""
+                this.form.rid = 1
+                this.dialogFormVisible = false
+            },
+            async submitForm(formName) {
+                this.$refs[formName].validate(async (valid) => {
+                    if (valid) {
+                        let prams = this.form
+                        const response = await fetchData('/admin/admin/add','post',prams)
+                        if (response.code === 0) {
+                            this.$message.success('编辑成功');
+                            this.resetForm(formName)
+                            this.get_list()
+                        } else {
+                            this.$message.error(response.msg);
+                        }
+                    } else {
+                        return false;
+                    }
+                });
+            },
+        }
+    }
+    var Ctor = Vue.extend(Main)
+    new Ctor().$mount('#app')
+</script>
+</body>
+</html>

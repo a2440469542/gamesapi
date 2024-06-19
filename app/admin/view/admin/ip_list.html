@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>数据管理</title>
+    <link rel="stylesheet" href="/static/css/ele/index.css">
+    <link rel="stylesheet" href="/static/css/ele/home.css">
+    <script src="/static/js/ele/vue.js"></script>
+    <script src="/static/js/ele/index.js"></script>
+    <script src="/static/js/jquery.js"></script>
+</head>
+<body>
+<div id="app">
+    <el-row class="create">
+        <el-button type="primary" @click="dialogFormVisible = true">添加IP</el-button>
+    </el-row>
+    <template>
+        <el-table
+                :data="tableData"
+                border
+                align="center"
+                style="width: 100%">
+            <el-table-column
+                    prop="ip"
+                    align="center"
+                    label="IP">
+            </el-table-column>
+            <el-table-column
+                    fixed="right"
+                    label="操作">
+                <template slot-scope="scope">
+                    <el-button @click="handleDel(scope.row)" type="text" size="small">删除</el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+    </template>
+    <div class="block">
+        <el-pagination
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+                :current-page="page"
+                :page-sizes="[10, 20, 30, 50,100,200]"
+                :page-size="10"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="total">
+        </el-pagination>
+    </div>
+
+    <el-dialog title="编辑IP" :visible.sync="dialogFormVisible" :width="'20%'">
+        <el-row class="create">
+            <div class="" style="text-align: center">
+                <h1>
+                    IP白名单添加
+                </h1>
+            </div>
+        </el-row>
+        <!--添加-->
+        <el-form :model="form" :rules="rules" ref="ruleForm">
+            <el-form-item label="IP" :label-width="'120px'" prop="ip">
+                <el-input v-model="form.ip" autocomplete="off"></el-input>
+            </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer" style="text-align: center;">
+            <el-button type="primary"  @click="submitForm('ruleForm')">确 定</el-button>
+            <el-button @click="resetForm('ruleForm')">取 消</el-button>
+        </div>
+    </el-dialog>
+</div>
+<script>
+    var Main = {
+        created(){
+            console.log(111111)
+            this.get_list()
+        },
+        methods: {
+            get_list(){
+                let prams = {
+                    page:this.page,
+                    limit:this.limit
+                };
+                let that = this;
+                $.post('',prams,function (res){
+                    if(res.code == 200){
+                        that.total = res.data.total
+                        that.tableData = res.data.data
+                    }else{
+                        that.$message({
+                            showClose: true,
+                            message: res.msg,
+                            type: 'error'
+                        });
+                    }
+                },'json')
+            },
+            handleSizeChange(val) {
+                this.page = val
+                this.get_list()
+            },
+            handleCurrentChange(val) {
+                this.page = val;
+                this.get_list()
+                console.log(`当前页: ${val}`);
+            },
+
+            handleUpdate(row){
+                this.form.id = row.id
+                this.form.ip = row.ip
+                this.dialogFormVisible = true
+            },
+            handleDel(row){
+                let prams={
+                    id:row.id
+                };
+                let that = this;
+                $.post('/admin/del_ip',prams,function (res){
+                    if(res.code == 200){
+                        that.get_list()
+                        that.$message({
+                            message: '删除成功',
+                            type: 'success'
+                        });
+                    }else{
+                        that.$message({
+                            showClose: true,
+                            message: res.msg,
+                            type: 'error'
+                        });
+                    }
+                },'json')
+            },
+
+
+            resetForm(formName) {
+                this.$refs[formName].resetFields();
+                this.form.id = 0
+                this.form.ip = ""
+                this.dialogFormVisible = false
+            },
+            submitForm(formName) {
+                var form_name = formName
+                this.$refs[form_name].validate((valid) => {
+                    if (valid) {
+                        let that = this;
+                        let prams = that.form
+                        $.post('/admin/ip_add',prams,function (res){
+                            if(res.code == 200){
+                                that.$message({
+                                    message: '编辑成功',
+                                    type: 'success'
+                                });
+                                that.$refs[form_name].resetFields();
+                                that.form.id = 0
+                                that.form.ip = ""
+                                that.dialogFormVisible = false
+                                that.page = 1;
+                                that.get_list();
+                            }else{
+                                that.$message({
+                                    showClose: true,
+                                    message: res.msg,
+                                    type: 'error'
+                                });
+                            }
+                        },'json')
+                    } else {
+                        return false;
+                    }
+                });
+            },
+        },
+        data() {
+            return {
+                page:1,
+                limit:10,
+                tableData: [],
+                total:0,
+                dialogFormVisible: false,
+                form: {
+                    id:0,
+                    ip: '',
+                },
+                rules: {
+                    ip: [
+                        { required: true, message: '请输入账号', trigger: 'blur' },
+                    ],
+                },
+            }
+        }
+    }
+    var Ctor = Vue.extend(Main)
+    new Ctor().$mount('#app')
+</script>
+</body>
+</html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>系统数据</title>
+    <link rel="stylesheet" href="/static/css/ele/index.css">
+    <link rel="stylesheet" href="/static/css/ele/home.css">
+    <script src="/static/js/ele/vue.js"></script>
+    <script src="/static/js/ele/index.js"></script>
+    <script src="/static/js/ele/axios.min.js"></script>
+    <script src="/static/js/ele/request.js"></script>
+    <script src="/static/js/jquery.js"></script>
+</head>
+<body>
+<div id="app">
+    <el-row class="create">
+        <el-button type="primary" @click="dialogFormVisible = true">添加角色</el-button>
+    </el-row>
+    <template>
+        <el-table
+                :data="tableData"
+                border
+                align="center"
+                style="width: 100%">
+            <el-table-column
+                    prop="rid"
+                    align="center"
+                    label="角色ID">
+            </el-table-column>
+            <el-table-column
+                    prop="name"
+                    align="center"
+                    label="角色名称">
+            </el-table-column>
+            <el-table-column
+                    fixed="right"
+                    label="操作">
+                <template slot-scope="scope">
+                    <el-button v-if="scope.row.rid !== 1" @click="handleUpdate(scope.row)" type="primary" size="small">修改</el-button>
+                    <el-button v-if="scope.row.rid !== 1" @click="handleDel(scope.row)" type="danger" size="small">删除</el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+    </template>
+    <el-dialog title="编辑角色" :visible.sync="dialogFormVisible" :width="'30%'">
+        <!--添加-->
+        <el-form :model="form" :rules="rules" ref="ruleForm">
+            <el-form-item label="角色名称" :label-width="'130px'" prop="name">
+                <el-input v-model="form.name" autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="角色权限" :label-width="'130px'" prop="rule">
+                <el-tree
+                        :data="menuData"
+                        show-checkbox
+                        node-key="value"
+                        :default-checked-keys="form.rule"
+                        @check-change="handleCheckChange"
+                        ref="tree"
+                ></el-tree>
+            </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer" style="text-align: center;">
+            <el-button type="primary"  @click="submitForm('ruleForm')">确 定</el-button>
+            <el-button @click="resetForm('ruleForm')">取 消</el-button>
+        </div>
+    </el-dialog>
+</div>
+<script>
+    var Main = {
+        created(){
+            this.get_list()
+            this.get_menu()
+        },
+        watch: {
+            // 监听树节点选中状态的变化，并更新表单模型
+            defaultCheckedKeys: {
+                handler(newVal) {
+                    console.log(newVal);
+                    this.form.rule = newVal;
+                },
+                immediate: true // 立即执行一次handler函数
+            }
+        },
+        methods: {
+            getToken(){
+                let token = localStorage.getItem('token')
+                return token
+            },
+            async get_list(){
+                let prams = {
+                    page:this.page,
+                    limit:this.limit
+                };
+                const response = await fetchData('/admin/roles/index','post',prams)
+                if(response.code === 0){
+                    this.tableData = response.data
+                }else{
+                    this.$message({
+                        showClose: true,
+                        message: response.msg,
+                        type: 'error'
+                    });
+                }
+            },
+            async get_menu(){
+                const response = await fetchData('/admin/roles/menu_list','post', {})
+                if(response.code === 0){
+                    this.menuData = response.data
+                }else{
+                    this.$message({showClose: true, message: response.msg, type: 'error'});
+                }
+            },
+            handleCheckChange(data, checked, indeterminate) {
+                // 当节点被选中或取消选中时更新表单模型
+                console.log(data, checked, indeterminate);
+                let checkedNodes = this.$refs.tree.getCheckedNodes().map(node => node.value);
+                console.log(checkedNodes);
+                this.form.rule = checkedNodes;
+            },
+            handleUpdate(row){
+                this.form.rid = row.rid
+                this.form.name = row.name
+                this.form.rule = row.rule
+                this.dialogFormVisible = true
+            },
+            async handleDel(row){
+                let prams={
+                    rid:row.rid
+                };
+                const response = await fetchData('/admin/roles/del','post',prams)
+                if(response.code === 0){
+                    this.$message.success(response.msg);
+                    this.get_list()
+                }else{
+                    this.$message.error(response.msg);
+                }
+            },
+            resetForm(formName) {
+                this.$refs[formName].resetFields();
+                this.form.rid = 0
+                this.form.name = ""
+                this.form.rule = []
+                this.dialogFormVisible = false
+            },
+            async submitForm(formName) {
+                this.$refs[formName].validate(async (valid) => {
+                    if (valid) {
+                        let prams = this.form
+                        const response = await fetchData('/admin/roles/edit','post',prams)
+                        if (response.code === 0) {
+                            this.$message.success('编辑成功');
+                            this.resetForm(formName)
+                            this.get_list()
+                        } else {
+                            this.$message.error(response.msg);
+                        }
+                    } else {
+                        return false;
+                    }
+                });
+            },
+        },
+        data() {
+            return {
+                tableData: [],
+                dialogFormVisible: false,
+                menuData:[],
+                form: {
+                    rid:0,
+                    name:'',
+                    rule:[]
+                },
+                rules: {
+                    name:[
+                        { required: true, message: '请输入角色名称', trigger: 'blur' },
+                    ]
+                },
+            }
+        }
+    }
+    var Ctor = Vue.extend(Main)
+    new Ctor().$mount('#app')
+</script>
+</body>
+</html>
