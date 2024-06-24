@@ -35,7 +35,7 @@ class Bill extends Base
         }
         return $type_text;
     }
-    public function getTypeTextAttr($value=''): array|string
+    public function getTypeAttr($value=''): array|string
     {
         $type_text = [
             self::GAME_BET    => '游戏下注输赢',    //游戏下注输赢
@@ -90,7 +90,6 @@ class Bill extends Base
             ->where($where)
             ->order($order)
             ->partition($this->partition)
-            ->append(['type_text'])
             ->paginate($limit)->toArray();
         return $list;
     }

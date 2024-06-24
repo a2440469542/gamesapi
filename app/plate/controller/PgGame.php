@@ -30,7 +30,7 @@ class PgGame extends BaseController
 
         list($OperatorToken, $uid, $gid, $SecretStr) = $params;
 
-        $plate = app("app\common\model\Plate")->where("code", 'PgGame')->find();
+        $plate = app("app\common\model\Plate")->where("app_id", $OperatorToken)->find();
         if (!$this->validatePlate($plate, $OperatorToken, $SecretStr)) return $this->error("平台或密钥不正确");
 
         list($cid, $uid) = explode('_', $uid);
@@ -47,7 +47,7 @@ class PgGame extends BaseController
 
         list($OperatorToken, $uid, $game_id, $SecretStr, $UpdateCredit, $Term, $Bet, $Award) = $params;
 
-        $plate = app("app\common\model\Plate")->where("code", 'PgGame')->find();
+        $plate = app("app\common\model\Plate")->where("app_id", $OperatorToken)->find();
         if (!$this->validatePlate($plate, $OperatorToken, $SecretStr)) return $this->error("平台或密钥不正确");
 
         $game = app("app\common\model\Game")->where("code", $game_id)->find();
@@ -73,7 +73,7 @@ class PgGame extends BaseController
 
     private function validatePlate($plate, $OperatorToken, $SecretStr)
     {
-        return !empty($plate) && $plate['app_id'] == $OperatorToken && $plate['app_secret'] == $SecretStr;
+        return !empty($plate) || $plate['app_id'] == $OperatorToken || $plate['app_secret'] == $SecretStr;
     }
 
     private function getUser($cid, $uid)

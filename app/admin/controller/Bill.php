@@ -38,7 +38,7 @@ class Bill extends Base{
             }
             if($order_sn !== '') $where[] = ['order_sn', '=', $order_sn];
             if($mobile !== '') $where[] = ['mobile', '=', $mobile];
-            if($type !== '')$where[] = ['type', '=', $type];
+            if($type !== '') $where[] = ['type', '=', $type];
             $BillModel = model('app\common\model\Bill',$cid);
             $list = $BillModel->lists($where, $limit, $orderBy);
             return success("获取成功", $list);
@@ -54,7 +54,7 @@ class Bill extends Base{
      */
     public function get_type(){
         $BillModel = app('app\common\model\Bill');
-        $list = $BillModel->getTypeTextAttr();
+        $list = $BillModel->getTypeAttr();
         return success("获取成功", $list);
     }
     /**
