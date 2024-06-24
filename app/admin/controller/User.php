@@ -21,6 +21,7 @@ class User extends Base{
      * @Apidoc\Param("user", type="string",require=false, desc="用户名：搜索时候传")
      * @Apidoc\Param("mobile", type="string",require=false, desc="手机：搜索时候传")
      * @Apidoc\Param("cid", type="int",require=true, desc="渠道ID")
+     * @Apidoc\Param("uid", type="int",require=false, desc="用户ID：搜索时候传")
      * @Apidoc\Returned(ref="pageReturn")
      * @Apidoc\Returned("data",type="array",desc="用户列表",table="cp_user")
      */
@@ -30,12 +31,16 @@ class User extends Base{
         $cid = input("cid", 0);
         $mobile = input("mobile", '');
         $user = input("user", '');
-        $orderBy = input("orderBy", 'id desc');
+        $uid = input("uid", 0);
+        $orderBy = input("orderBy", 'uid desc');
         if ($mobile) {
             $where[] = ['mobile', "=", $mobile];
         }
         if ($user) {
             $where[] = ['user', "LIKE", "%{$user}%"];
+        }
+        if ($uid > 0) {
+            $where[] = ['uid', "=", $uid];
         }
         if($cid === 0){
             return error("请选择渠道");

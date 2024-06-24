@@ -18,7 +18,7 @@ class GameLog extends Base{
      * @Apidoc\Param("cid", type="int",require=true, desc="渠道ID")
      * @Apidoc\Param("mobile", type="string",require=false, desc="用户手机号：搜索时候传")
      * @Apidoc\Returned(ref="pageReturn")
-     * @Apidoc\Returned("data",type="array",desc="充值记录相关",table="cp_order",children={
+     * @Apidoc\Returned("data",type="array",desc="充值记录相关",table="cp_game_log",children={
      *          @Apidoc\Returned("mobile",type="string",desc="用户手机号")
      *     })
      */
@@ -37,15 +37,10 @@ class GameLog extends Base{
             if($order_sn !== '') $where[] = ['order_sn', '=', $order_sn];
             if($mobile !== '') $where[] = ['mobile', '=', $mobile];
             if($type !== '')$where[] = ['type', '=', $type];
-            $BillModel = model('app\common\model\Bill',$cid);
-            $list = $BillModel->lists($where, $limit, $orderBy);
+            $GameLogModel = model('app\common\model\GameLog',$cid);
+            $list = $GameLogModel->getList($where, $limit, $orderBy);
             return success("获取成功", $list);
         }
         return view();
-    }
-    public function get_type(){
-        $BillModel = app('app\common\model\Bill');
-        $list = $BillModel->getTypeListText();
-        return success("获取成功", $list);
     }
 }

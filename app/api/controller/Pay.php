@@ -63,11 +63,14 @@ class Pay extends Base
         $merOrderNo = $cid.'_'.getSn("CZ");
         $id = model('app\common\model\Order',$cid)->add($cid,$uid,$merOrderNo,$money,$gifts);
         if(!$id) return error('Falha na geração do pedido');    //订单生成失败
-        $BetcatPay = app('app\service\pay\BetcatPay');
+        $BetcatPay = app('app\service\pay\KirinPay');
         $res = $BetcatPay->pay($merOrderNo,$money);
-        $res = json_decode($res,true);
+        //$res = json_decode($res,true);
         if($res['code'] == 0){
-            return success("Pedido criado com sucesso",$res['data']['params']);    //创建订单成功
+            $data = [
+                'url' => $res['data']['paymentLinkUrl'],
+            ];
+            return success("Pedido criado com sucesso",$data);    //创建订单成功
         }else{
             return error($res['msg']);
         }

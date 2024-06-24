@@ -49,7 +49,8 @@ class UserStat extends Base
             ->select();
         $list = [];
         foreach($uid as $key=>$val){
-            $filed = 'sum(cz_money) as total_deposit, 
+            $filed = 'sum(cz_money) as cz_money, 
+            AVG(cz_money) as avg_cz_money,
             sum(cz_num) as cz_num, 
             sum(bet_money) as bet_money, 
             sum(win_money) as win_money, 
@@ -82,7 +83,7 @@ class UserStat extends Base
     //根据条件获取当前下级满足宝箱的人数
     public function get_box_num($where,$cz_money,$bet){
         $count = self::alias("us")
-            ->leftJoin("cp_user u","us.uid = u.uid")
+            ->leftJoin("cp_user PARTITION({$this->partition}) `u`","us.uid = u.uid")
             ->where($where)
             ->partition($this->partition)
             ->group('us.uid')

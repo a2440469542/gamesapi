@@ -16,7 +16,7 @@ class Admin extends Base
     protected $pk = 'id';
     protected $json = ['rule'];
     /**
-     * @Field("id,aid,user_name,role_id,password,nickname,mobile,avatar,status")
+     * @Field("id,aid,user_name,rid,password,nickname,mobile,avatar,status")
      */
     public static function add(){
 

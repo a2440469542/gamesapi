@@ -19,6 +19,7 @@ class UserStat extends Base{
      * @Apidoc\Param("mobile", type="string",require=false, desc="手机：搜索时候传")
      * @Apidoc\Param("cid", type="int",require=true, desc="渠道ID")
      * @Apidoc\Returned(type="array",desc="用户统计管理相关接口",table="cp_user_stat")
+     * @Apidoc\Returned("avg_cz_money",type="float",desc="平均充值金额")
      */
     public function index(){
         $where = [];

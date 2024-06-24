@@ -30,7 +30,7 @@ class Game extends Base
     /**
      * @AddField("role_name",type="string",desc="用户权限名称")
      */
-    public function lists($where=[], $limit=10, $order='gid desc'){
+    public function lists($where=[], $limit=10, $order='sort asc'){
         $list = self::where($where)
             ->order($order)
             ->paginate($limit)->toArray();

@@ -30,9 +30,9 @@ class Login extends Base
         if(empty($mobile) || empty($pwd)){
             return error("Erro de parâmetro",500);   //参数错误
         }
-        /*if(!isPhoneNumber($mobile)){
+        if(!isPhoneNumber($mobile)){
             return error("Número de telefone incorreto",500);    //手机号格式错误
-        }*/
+        }
         $data = [
             'cid' => $this->cid,
             'user' => $mobile,

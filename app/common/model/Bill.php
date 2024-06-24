@@ -19,6 +19,8 @@ class Bill extends Base
     const   PAY_MONEY = 101;   //用户充值
     const   CASH_MONEY = 102;  //用户提现
     const   BOX_MONEY = 103;  //开启宝箱获得
+    const   ADMIN_MONEY = 104;  //管理员操作
+
     public function getTypeText($type=0): array|string
     {
         $type_text = [
@@ -26,6 +28,7 @@ class Bill extends Base
             self::PAY_MONEY         => 'Recarga do usuário',                         //用户充值
             self::CASH_MONEY        => 'Retirada do usuário',                        //用户提现
             self::BOX_MONEY         => 'Abra o baú do tesouro para obter',           //宝箱
+            self::ADMIN_MONEY       => 'Operações de Administrador',                 //管理员操作
         ];
         if(isset($type_text[$type])){
             return $type_text[$type];
@@ -39,6 +42,7 @@ class Bill extends Base
             self::PAY_MONEY   => '用户充值',       //用户充值
             self::CASH_MONEY  => '用户提现',       //用户提现
             self::BOX_MONEY   => '宝箱奖励',       //宝箱
+            self::ADMIN_MONEY => '管理员修改',     //管理员操作
         ];
         return $type_text;
     }

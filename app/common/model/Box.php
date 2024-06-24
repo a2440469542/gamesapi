@@ -18,18 +18,23 @@ class Box extends Base
     protected $json = ['user_num'];
     protected $jsonAssoc = true;
 
+    /**
+     * @throws \Exception
+     */
     public static function add($data){
         $cid = $data['cid'];
         $channel['cz_money']  = $data['cz_money'];
         $channel['bet_money'] = $data['bet_money'];
-        channel::where('cid',"=",$cid)->update($channel);
-        $box = self::where('cid',"=",$cid)->column('box');
+        Channel::where('cid',"=",$cid)->update($channel);
+        $box = self::where('cid',"=",$cid)->column('id');
         $del = $update = $insert = $data_id = [];
         foreach($data['box'] as $k=>$v){
-            if($v['id'] > 0){
+            $v['user_num'] = explode(",", $v['user_num']);
+            if(isset($v['id']) && $v['id'] > 0){
                 $update[] = $v;
                 $data_id[] = $v['id'];
             }else {
+                $v['cid'] = $cid;
                 $insert[] = $v;
             }
         }
@@ -42,7 +47,7 @@ class Box extends Base
             self::where('id',"in",$del)->delete();
         }
         $row = self::insertAll($insert);
-        $row = self::saveAll($update);
+        $row = (new Box)->saveAll($update);
         if($row){
             return success("保存成功");
         }else{

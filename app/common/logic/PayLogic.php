@@ -5,37 +5,31 @@ use think\facade\Db;
 
 class PayLogic {
     public function pay($post) {
-        $pay_class = app('app\service\pay\BetcatPay');
+        $pay_class = app('app\service\pay\KirinPay');
         $sign = $pay_class->check_pay_sign($post);
         if ($sign !== true) return false;
-
-        $order_sn = explode('_', $post['merOrderNo']);
+        $data = $post['data'];
+        $order_sn = explode('_', $data['merchantOrderNo']);
         $cid = $order_sn[0];
         $OrderModel = model('app\common\model\Order', $cid);
-        $order = $OrderModel->getInfo($post['merOrderNo']);
+        $order = $OrderModel->getInfo($data['merchantOrderNo']);
 
         if (empty($order)) {
             $this->logError("订单不存在", 'pay');
             return false;
         }
 
-        if ($order['status'] != 1) {
-            $this->logError("订单状态错误", 'pay');
-            return false;
-        }
-
         Db::startTrans();
         try {
-            if ($post['orderStatus'] == 2) {
-                return $this->handleSuccessfulPayment($OrderModel,$post, $order, $cid);
-            } elseif ($post['orderStatus'] < 0) {
-                return $this->handleFailedPayment($OrderModel,$post, $order);
+            if ($data['status'] == 'SUCCESS') {
+                return $this->handleSuccessfulPayment($OrderModel,$data, $order, $cid);
             } else {
-                return true;
+                $this->logError($data['status'], 'pay');
+                return false;
             }
         } catch (\Exception $e) {
             Db::rollback();
-            $this->logError($e->getMessage(), 'cash');
+            $this->logError($e->getMessage(), 'pay');
             return false;
         }
     }
@@ -95,31 +89,26 @@ class PayLogic {
     private function logError($message, $type) {
         write_log("====错误信息=====\n" . $message . "\n", $type);
     }
-    public function cash_out($post) {
-        $pay_class = app('app\service\pay\BetcatPay');
-        $sign = $pay_class->check_cash_sign($post);
+    public function cash_out($data) {
+        $pay_class = app('app\service\pay\KirinPay');
+        $sign = $pay_class->check_pay_sign($data,"cash");
         if ($sign !== true) return false;
-        $order_sn = explode('_', $post['merOrderNo']);
+        $post = $data['data'];
+        $order_sn = explode('_', $post['merchantOrderNo']);
         $cid = $order_sn[0];
         $OrderModel = model('app\common\model\Cash', $cid);
-        $order = $OrderModel->getInfo($post['merOrderNo']);
+        $order = $OrderModel->getInfo($post['merchantOrderNo']);
 
         if (empty($order)) {
             $this->logError("订单不存在", 'cash');
             return false;
         }
-
-        if ($order['status'] != 1) {
-            $this->logError("订单状态错误", 'cash');
-            return false;
-        }
-
         Db::startTrans();
         try {
-            if ($post['orderStatus'] == 2) {
-                return $this->handleSuccessfulPayment($OrderModel,$post, $order, $cid);
-            } elseif ($post['orderStatus'] < 0) {
-                return $this->handleFailedPayment($OrderModel,$post, $order);
+            if ($data['status'] == "SUCCESS") {
+                return $this->handleSuccessfulCash($OrderModel,$post, $order, $cid);
+            } elseif ($data['status'] == "FAILURE" ||  $data['status'] == "FAIL") {
+                return $this->handleFailedCash($OrderModel,$post, $order);
             } else {
                 return true;
             }
@@ -139,7 +128,7 @@ class PayLogic {
         $UserModel = model('app\common\model\User', $cid);
         $user = $UserModel->getInfo($order['uid']);
         if (empty($user)) {
-            $this->logError("用户不存在", 'pay');
+            $this->logError("用户不存在", 'cash');
             return false;
         }
 

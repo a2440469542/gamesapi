@@ -1,6 +1,7 @@
 <?php
 namespace app\admin\controller;
 use hg\apidoc\annotation as Apidoc;
+use think\facade\Db;
 /**
  * 账变相关接口
  * @Apidoc\Title("账变相关接口")
@@ -53,7 +54,41 @@ class Bill extends Base{
      */
     public function get_type(){
         $BillModel = app('app\common\model\Bill');
-        $list = $BillModel->getTypeListText();
+        $list = $BillModel->getTypeTextAttr();
         return success("获取成功", $list);
+    }
+    /**
+     * @Apidoc\Title("用户余额修改")
+     * @Apidoc\Desc("用户余额修改")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("")
+     * @Apidoc\Tag("用户余额修改")
+     * @Apidoc\Param("cid", type="int",require=true, desc="渠道ID")
+     * @Apidoc\Param("uid", type="int",require=true, desc="用户uid")
+     * @Apidoc\Param("money", type="float",require=true, desc="账变金额：增加正数；扣除负数")
+     */
+    public function bill(){
+        $uid = input("uid", 0);
+        $cid  = input("cid", '');
+        $money = input("money", '');
+        if($uid === 0) return error("用户ID不能为空");
+        if($cid === '') return error("渠道ID不能为空");
+        if($money === '') return error("金额不能为空");
+        $BillModel = model('app\common\model\Bill',$cid);
+        $user = model('app\common\model\User',$cid);
+        $user_info = $user->getInfo($uid);
+        if(!$user_info) return error("用户不存在");
+        if($money < 0 && $user_info['money'] < abs($money)) return error("余额不足");
+        // 启动事务
+        Db::startTrans();
+        try {
+            $BillModel->addIntvie($user,$BillModel::ADMIN_MONEY,$money);
+            // 提交事务
+            Db::commit();
+        } catch (\Exception $e) {
+            // 回滚事务
+            Db::rollback();
+        }
+        return success("操作成功");
     }
 }

@@ -15,21 +15,31 @@ class Box extends Base{
      * @Apidoc\Author("")
      * @Apidoc\Tag("渠道宝箱")
      * @Apidoc\Param("cid", type="int",require=true, desc="渠道ID")
-     * @Apidoc\Returned(type="array",desc="渠道宝箱列表",table="cp_box")
+     * @Apidoc\Returned("cz_money",type="float",desc="有效玩家累计充值")
+     * @Apidoc\Returned("bet_money",type="float",desc="有效玩家累计投注")
+     * @Apidoc\Returned("box",type="array",desc="渠道宝箱列表",table="cp_box")
      */
     public function index(){
         $where = [];
         $limit = input("limit");
-        $orderBy = input("orderBy", 'id desc');
+        $orderBy = input("orderBy", 'id asc');
         $cid = input("cid",0);
         if($cid === 0){
             return error("请选择渠道");
         }else{
             $where[] = ['cid',"=",$cid];
         }
+        $channel = app('app\common\model\Channel')->where("cid","=",$cid)->find();
+        if(empty($channel)) return error("渠道不存在");
         $BoxModel = app("app\common\model\Box");
         $list = $BoxModel->lists($where, $limit, $orderBy);
-        return success("获取成功", $list);
+        foreach ($list as &$v){
+            $v['user_num'] = implode(",", $v['user_num']);
+        }
+        $data['cz_money'] = $channel['cz_money'];
+        $data['bet_money'] = $channel['bet_money'];
+        $data['box'] = $list;
+        return success("获取成功", $data);
     }
     /**
      * @Apidoc\Title("添加编辑渠道宝箱")

@@ -27,7 +27,7 @@ class Menu extends Base{
                 $roles = Roles::find($admin->rid);
                 $where[] = ['id', "IN", $roles->rule];
             }
-            $menu = MenuModel::where($where)->order("sort asc")->select();
+            $menu = MenuModel::where($where)->order("sort asc")->select()->toArray();
             $menu = MenuModel::auth_menu($menu, 0);
             return success("获取成功", $menu);
         }

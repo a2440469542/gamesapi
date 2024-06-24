@@ -103,7 +103,7 @@ class Admin extends Base{
      */
     public function userInfo(){
         $aid =  $this->request->aid;
-        $user = AdminModel::field("id,user_name,nickname,avatar")->find($aid);
+        $user = AdminModel::find($aid);
         if($user){
             return success("获取成功",$user);
         }else{
@@ -118,7 +118,7 @@ class Admin extends Base{
      * @Apidoc\Tag("管理员")
      */
     public function logout(){
-        $token = $this->request->header("token");
+        $token = $this->request->header("authorization");
         try {
             Cache::delete($token);
         }catch (\Throwable $e) {

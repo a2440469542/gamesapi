@@ -31,6 +31,9 @@ class Game extends Base
             $where[] = ['name', 'like', '%'.$keyword.'%'];
         }
         $list = model('app\common\model\Game')->lists($where, $limit, $orderBy);
+        foreach ($list['data'] as &$v){
+            $v['img'] = SITE_URL.$v['img'];
+        }
         return success("obter sucesso", $list);  //获取成功
     }
     /**

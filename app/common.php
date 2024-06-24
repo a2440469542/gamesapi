@@ -99,8 +99,11 @@ if(!function_exists('is_mobile')){
 }
 if(!function_exists('isPhoneNumber')){
     function isPhoneNumber($phone){
-        $pattern = '/^55([1-9][0-9])?9[0-9]{8}$/';
-        return preg_match($pattern, $phone);
+        if (!ctype_digit($phone)) {
+            return false;
+        }
+        $length = strlen($phone);
+        return $length >= 12 && $length <= 13;
     }
 }
 /**

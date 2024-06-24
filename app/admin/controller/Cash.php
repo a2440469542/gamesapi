@@ -35,7 +35,7 @@ class Cash extends Base{
             if($mobile) {
                 $where[] = ['mobile', '=', $mobile];
             }
-            $CashModel = model('app\common\model\GameLog',$cid);
+            $CashModel = model('app\common\model\Cash',$cid);
             $list = $CashModel->getList($where, $limit, $orderBy);
             return success("获取成功", $list);
         }

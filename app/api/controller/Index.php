@@ -43,6 +43,9 @@ class Index extends Base
         $url = input("url","");
         if($cid == 0 && $url == "") return error("O ID do canal não pode ficar vazio");  //渠道ID不能为空
         $channel = model('app\common\model\Channel')->info($cid,$url);
+        if (!$channel) {
+            return error("O canal não existe",10001);//渠道不存在
+        }
         $channel['icon'] = SITE_URL.$channel['icon'];
         $channel['logo'] = SITE_URL.$channel['logo'];
         return success("obter sucesso",$channel);    //获取成功

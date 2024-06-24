@@ -23,7 +23,7 @@ class Game extends Base{
         if($this->request->isPost()) {
             $where = [];
             $limit = input("limit");
-            $orderBy = input("orderBy", 'gid desc');
+            $orderBy = input("orderBy", 'sort desc');
             $keyword = input("keyword");
             if ($keyword) {
                 $where[] = ['name', 'like', '%' . $keyword . '%'];
@@ -68,7 +68,7 @@ class Game extends Base{
             return error("请选择要删除的数据");
         }
         $GameModel = app("app\common\model\Game");
-        $res = $GameModel->where('id', $gid)->delete();
+        $res = $GameModel->where('gid',"=", $gid)->delete();
         if($res){
             return success("删除成功");
         }else{

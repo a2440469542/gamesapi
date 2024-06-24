@@ -91,13 +91,13 @@ class Cash extends Base
             if($user['money'] < $money) return error('Saldo insuficiente');   //余额不足
             if($user['is_rebot'] === 1) return error('O robô não pode fazer retiradas');  //测试账号不能提现
             $order_sn = $cid.'_'.getSn("TX");
-            $account = $row['type'] == 'CPF' ? $row['pix'] : $row['mobile'];
+            $account = $row['type'] == 'CPF' ? $row['pix'] : '+'.$row['mobile'];
             $res = $CashModel->add($cid,$uid,$order_sn,$row['type'],$account,$row['pix'],$row['name'],$money);
             if($res){
-                $BetcatPay = app('app\service\pay\BetcatPay');
-                $res = $BetcatPay->cash_out($order_sn ,"BRL",$money,$row['type'],$account,$row['pix'],$row['pix'],$user);
+                $BetcatPay = app('app\service\pay\KirinPay');
+                $res = $BetcatPay->cash_out($order_sn ,$money,$row['type'],$account,$row['pix'],$user);
                 $res = json_decode($res,true);
-                if($res['code'] != 0) return error($res['error']);
+                if($res['code'] != 0) return error($res['msg']);
                 return success('Retirada com sucesso'); //提现成功
             }else{
                 return error('Falha na retirada');   //提现失败
