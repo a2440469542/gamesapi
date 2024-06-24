@@ -15,8 +15,7 @@ class Ad extends Base{
      * @Apidoc\Author("")
      * @Apidoc\Tag("轮播图")
      * @Apidoc\Param(ref="pagingParam",desc="分页参数")
-     * @Apidoc\Param("orderBy", type="string",require=false, desc="字段排序")
-     * @Apidoc\Param("keyword", type="string",require=false, desc="登录名：搜索时候传")
+     * @Apidoc\Param("cid", type="string",require=false, desc="字段排序")
      * @Apidoc\Returned(ref="pageReturn")
      * @Apidoc\Returned("data",type="array",desc="轮播图列表",table="cp_ad")
      */
@@ -24,6 +23,8 @@ class Ad extends Base{
         $where = [];
         $limit = input("limit");
         $orderBy = input("orderBy", 'id desc');
+        $cid = input("cid");
+        if($cid) $where[] = ['cid',"=",$cid];
         $adModel = app("app\common\model\Ad");
         $list = $adModel->lists($where, $limit, $orderBy);
         return success("获取成功", $list);

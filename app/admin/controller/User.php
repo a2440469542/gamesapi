@@ -50,15 +50,7 @@ class User extends Base{
         $list = $userModel->lists($where, $limit, $orderBy);
         return success("获取成功", $list);
     }
-    /**
-     * @Apidoc\Title("添加编辑用户")
-     * @Apidoc\Desc("添加编辑用户")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("")
-     * @Apidoc\Tag("用户")
-     * @Apidoc\Param("",type="object",table="cp_user")
-     */
-    public function edit(){
+    /*public function edit(){
         $data = input("post.");
         if(!isset($data['cid']) || !$data['cid']){
             return error("请选择渠道");
@@ -72,8 +64,39 @@ class User extends Base{
         $userModel = app("app\common\model\User");
         $userModel->setPartition($data['cid']);
         return $userModel->add($data);
+    }*/
+    /**
+     * @Apidoc\Title("修改密码")
+     * @Apidoc\Desc("修改密码")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("")
+     * @Apidoc\Tag("修改密码")
+     * @Apidoc\Param("cid", type="int",require=true, desc="渠道ID")
+     * @Apidoc\Param("uid", type="int",require=true, desc="用户ID")
+     * @Apidoc\Param("pwd", type="string",require=true, desc="用户密码")
+     */
+    public function update_pwd(){
+        $uid = input("uid");
+        $cid = input("cid");
+        $pwd = input("pwd");
+        if(!$uid){
+            return error("请选择要修改的用户");
+        }
+        if(!$cid){
+            return  error("缺少参数cid");
+        }
+        if(!$pwd){
+            return  error("请输入密码");
+        }
+        $userModel = app('app\common\model\User');
+        $userModel->setPartition($cid);
+        $res = $userModel->update_pwd($uid,$pwd);
+        if($res){
+            return success("修改成功");
+        }else{
+            return error("修改失败");
+        }
     }
-
     /**
      * @Apidoc\Title("删除用户")
      * @Apidoc\Desc("删除用户")

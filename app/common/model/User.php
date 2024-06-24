@@ -45,7 +45,10 @@ class User extends Base
             return ['code' => 500, 'msg' => 'o login falhou'];
         }
     }
-
+    public function update_pwd($uid,$pwd){
+        $data['pwd'] = md5($pwd);
+        return $row = self::where('uid',"=",$uid)->partition($this->partition)->update($data);
+    }
     /**
      * @param $data  Object   用户登录信息
      */
