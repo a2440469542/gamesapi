@@ -90,6 +90,7 @@ class Bill extends Base
             ->where($where)
             ->order($order)
             ->partition($this->partition)
+            ->append(['type_text'])
             ->paginate($limit)->toArray();
         return $list;
     }
