@@ -94,6 +94,13 @@ class User extends Base
             ->find();
         return $info;
     }
+    public function decWater($uid,$num)
+    {
+        $info = self::where('uid', "=", $uid)
+            ->partition($this->partition)
+            ->dec("water",$num)->update();
+        return $info;
+    }
     public function get_inv_info($inv_code){
         $info = self::where('inv_code', "=", $inv_code)
             ->partition($this->partition)

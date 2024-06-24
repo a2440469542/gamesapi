@@ -72,7 +72,7 @@ class Channel extends Base{
         if(!$id){
             return error("请选择要删除的数据");
         }
-        $res = ChannelModel::where("id","=",$id)->update(['is_del'=>1]);
+        $res = ChannelModel::where("cid","=",$id)->update(['is_del'=>1]);
         if($res){
             return success("删除成功");
         }else{

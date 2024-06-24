@@ -100,12 +100,16 @@ class PgGame extends BaseController
             }
             $GameLog = app('app\common\model\GameLog');
             $GameLog->add($cid, $uid, $user['mobile'],$bid, $game['gid'],$game['name'], $UpdateCredit, $game['code'], $Term, $Bet, $Award);
+            if($user['water'] > 0){
+                $UserModel = model('app\common\model\User',$cid);
+                $UserModel->decWater($uid,$Bet);
+            }
             //数据统计
             $UserStatModel = model('app\common\model\UserStat',$cid);
             $stat = [
-                'uid' => $user['uid'],
-                'cid' => $user['cid'],
-                'mobile' => $user['mobile'],
+                'uid'       => $user['uid'],
+                'cid'       => $user['cid'],
+                'mobile'    => $user['mobile'],
                 'bet_money' => $Bet,
                 'win_money' => $UpdateCredit
             ];
