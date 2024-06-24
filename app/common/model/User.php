@@ -65,6 +65,11 @@ class User extends Base
                 $updata['last_login_ip'] = get_real_ip__();
                 self::where('uid',$user->uid)->partition($this->partition)->update($updata);
                 Cache::set($token, $user->toArray(), 0); // 设置缓存，过期时间为1天
+                $old_token = Cache::get($user['cid']."_".$user['uid']);
+                if($old_token) {
+                    Cache::delete($old_token);
+                }
+                Cache::set($user['cid']."_".$user['uid'],$token);
                 return success('Logem bem sucedido',$user);
             }else{
                 return error('O nome de usuário ou a senha é incorrecta, por favor reintroduza!');
