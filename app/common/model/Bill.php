@@ -35,7 +35,7 @@ class Bill extends Base
         }
         return $type_text;
     }
-    public function getTypeTextAttr(): array
+    public function getTypeTextAttr($value=''): array|string
     {
         $type_text = [
             self::GAME_BET    => '游戏下注输赢',    //游戏下注输赢
@@ -44,6 +44,9 @@ class Bill extends Base
             self::BOX_MONEY   => '宝箱奖励',       //宝箱
             self::ADMIN_MONEY => '管理员修改',     //管理员操作
         ];
+        if(isset($type_text[$value])){
+            return $type_text[$value];
+        }
         return $type_text;
     }
     public function getAddTimeAttr($value): string
