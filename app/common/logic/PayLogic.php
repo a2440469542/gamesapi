@@ -105,9 +105,9 @@ class PayLogic {
         }
         Db::startTrans();
         try {
-            if ($data['status'] == "SUCCESS") {
+            if ($post['status'] == "SUCCESS") {
                 return $this->handleSuccessfulCash($OrderModel,$post, $order, $cid);
-            } elseif ($data['status'] == "FAILURE" ||  $data['status'] == "FAIL") {
+            } elseif ($post['status'] == "FAILURE" ||  $post['status'] == "FAIL") {
                 return $this->handleFailedCash($OrderModel,$post, $order);
             } else {
                 return true;

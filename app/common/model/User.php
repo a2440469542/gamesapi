@@ -15,6 +15,14 @@ use think\facade\Db;
 class User extends Base
 {
     protected $pk = 'uid';
+    public function getRegTimeAttr($value): string
+    {
+        return date("Y-m-d H:i:s",$value);
+    }
+    public function getLastLoginTimeAttr($value): string
+    {
+        return date("Y-m-d H:i:s",$value);
+    }
     public function add($data){
         $this->setPartition($data['cid']);
         if(isset($data['uid']) && $data['uid'] > 0){

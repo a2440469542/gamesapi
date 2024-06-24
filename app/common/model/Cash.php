@@ -25,7 +25,7 @@ class Cash extends Base
             'pix' => $pix,
             'name' => $name,
             'money' => $money,
-            'status' => 0,
+            'status' => 1,
             'add_time' => time(),
         ];
         return self::partition($this->partition)->insertGetId($data);

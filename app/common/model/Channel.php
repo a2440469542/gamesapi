@@ -37,6 +37,10 @@ class Channel extends Base
         }
         return $row;
     }
+    public function getAddTimeAttr($value): string
+    {
+        return date("Y-m-d H:i:s",$value);
+    }
     protected static function checkTablePartition($tableName, $partitionName) {
         // 查询分区信息
         $sql = "SELECT PARTITION_NAME FROM INFORMATION_SCHEMA.PARTITIONS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :table AND PARTITION_NAME = :partition";

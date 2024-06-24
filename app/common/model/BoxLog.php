@@ -42,7 +42,7 @@ class BoxLog extends Base
             ['uid','=',$uid],
             ['cid','=',$cid]
         ];
-        $info = self::where($where)->order('add_time desc')->find();
+        $info = self::where($where)->order('id desc,add_time desc')->find();
         if($info){
             return $info->toArray();
         }

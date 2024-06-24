@@ -42,11 +42,11 @@ class UserStat extends Base
         return true;
     }
     public function lists($where, $limit=10, $orderBy='id desc'){
-        $uid = self::alias("uid,sum(invite_user) as invite_user")
+        $uid = self::field("uid,cid,mobile,sum(invite_user) as invite_user")
             ->where($where)
             ->partition($this->partition)
             ->group('uid')
-            ->select();
+            ->select()->toArray();
         $list = [];
         foreach($uid as $key=>$val){
             $filed = 'sum(cz_money) as cz_money, 
@@ -62,8 +62,16 @@ class UserStat extends Base
                 ->where('u.pid', '=', $val['uid'])
                 ->field($filed)
                 ->partition($this->partition)
-                ->find();
-            $list[] = array_merge($val,$summary);
+                ->find()->toArray();
+            $val['cz_money'] = $summary['cz_money'] ?? '0.00';
+            $val['avg_cz_money'] = $summary['avg_cz_money'] ?? '0.00';
+            $val['cz_num'] = $summary['cz_num'] ?? '0.00';
+            $val['bet_money'] = $summary['bet_money'] ?? '0.00';
+            $val['win_money'] = $summary['win_money'] ?? '0.00';
+            $val['cash_money'] = $summary['cash_money'] ?? '0.00';
+            $val['cash_num'] = $summary['cash_num'] ?? '0.00';
+            $val['box_money'] = $summary['box_money'] ?? '0.00';
+            $list[] = $val;
         }
         return $list;
     }

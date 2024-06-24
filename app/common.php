@@ -293,7 +293,7 @@ function httpRequest($url, $method="GET", $postfields = null, $headers = array()
 function write_log($data,$file_name){
     $years = date('Y');
     //设置路径目录信息
-    $url = 'runtime/command/'.$years.'/'.date("m").'/'.date('d').'/'.$file_name.'.txt';
+    $url = 'log/'.$years.'/'.date("m").'/'.date('d').'/'.$file_name.'.txt';
     $dir_name = dirname($url);
 
     //目录不存在就创建

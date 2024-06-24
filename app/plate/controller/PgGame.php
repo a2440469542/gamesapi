@@ -143,11 +143,10 @@ class PgGame extends BaseController
         return json([
             'data' => [
                 'currency_code' => 'BRL',
-                'balance_amount' => $money * 1000,
+                'balance_amount' => round($money * 1000),
                 'updated_time' => $milliseconds,
-                'error' => 'None',
             ],
-            'error' => 0
+            'error' => null
         ]);
     }
 }

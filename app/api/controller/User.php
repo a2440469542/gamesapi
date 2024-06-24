@@ -2,6 +2,7 @@
 
 namespace app\api\controller;
 use hg\apidoc\annotation as Apidoc;
+use think\facade\Cache;
 use think\facade\Db;
 
 /**
@@ -50,7 +51,7 @@ class User extends Base
         $where[] = ['cid',"=",$cid];
         list($UserStat, $box_num) = $this->extracted($cid, $uid);
         $BoxLogModel = app('app\common\model\BoxLog');
-        $log = $BoxLogModel->getLastTask($uid,$cid);
+        $log = $BoxLogModel->getLastTask($cid,$uid);
         if($log){
             $task = $log['task'];
             foreach ($task as $k => &$v) {
@@ -100,45 +101,55 @@ class User extends Base
         $uid = $this->request->uid;
         $user = $this->request->user;
         if($user['is_rebot'] === 1) return error('A conta de teste não pode ser reivindicada');  //测试账号不能领取
-        list($UserStat, $box_num) = $this->extracted($cid, $uid);
-        $BoxLogModel = model('app\common\model\BoxLog');
-        $log = $BoxLogModel->getLastTask($uid,$cid);
-        if(empty($log)) return error("Baú do tesouro não existe",0);        //宝箱不存在
-        $money = 0;
-        $task = $log['task'];
-        foreach ($task as &$v) {
-            if($box_num >= $v['user_num'] && $v['status'] == 0){
-                $money = $v['money'];
-                $v['is_get'] = 1;
-                $v['status'] = 1;
-                break;
-            }
+        $redis = Cache::store('redis')->handler();
+        $lockKey = "user_receive_box_lock_{$uid}";
+        if ($redis->exists($lockKey)) {
+            return error('O pedido está sendo atualmente processado, por favor tente de novo mais tarde');
         }
-        if($money == 0) return error("Nenhum peito de tesouro para afirmar",0);        //宝箱不存在
-        Db::startTrans();
+        $redis->set($lockKey, true, 5); // 设置锁，60秒后过期
         try {
-            $UserModel = model('app\common\model\User', $cid);
-            $user = $UserModel->getInfo($uid);
-            $BillModel = model('app\common\model\Bill', $cid);
-            $BillModel->addIntvie($user, $BillModel::BOX_MONEY, $money);
-            $row = $BoxLogModel->add($cid,$uid,$task,$money,$log['num']+1);
-            if(!$row) {
-                Db::rollback();
-                return error("obter falha",0);//获取失败
+            list($UserStat, $box_num) = $this->extracted($cid, $uid);
+            $BoxLogModel = model('app\common\model\BoxLog');
+            $log = $BoxLogModel->getLastTask($cid, $uid);
+            if (empty($log)) return error("Baú do tesouro não existe", 0);        //宝箱不存在
+            $money = 0;
+            $task = $log['task'];
+            foreach ($task as &$v) {
+                if ($box_num >= $v['user_num'] && $v['status'] == 0) {
+                    $money = $v['money'];
+                    $v['is_get'] = 1;
+                    $v['status'] = 1;
+                    break;
+                }
             }
-            $user_stat = [
-                'uid' => $user['uid'],
-                'cid' => $user['cid'],
-                'mobile' => $user['mobile'],
-                'box_money' => $money,
-            ];
-            $UserStat->add($user_stat);
-            Db::commit();
-        } catch (\Exception $e) {
-            Db::rollback();
-            return error($e->getMessage(), 'cash');
+            if ($money == 0) return error("Nenhum peito de tesouro para afirmar", 500);        //宝箱不存在
+            Db::startTrans();
+            try {
+                $UserModel = model('app\common\model\User', $cid);
+                $user = $UserModel->getInfo($uid);
+                $BillModel = model('app\common\model\Bill', $cid);
+                $BillModel->addIntvie($user, $BillModel::BOX_MONEY, $money);
+                $row = $BoxLogModel->add($cid, $uid, $task, $money, $log['num'] + 1);
+                if (!$row) {
+                    Db::rollback();
+                    return error("obter falha", 0);//获取失败
+                }
+                $user_stat = [
+                    'uid' => $user['uid'],
+                    'cid' => $user['cid'],
+                    'mobile' => $user['mobile'],
+                    'box_money' => $money,
+                ];
+                $UserStat->add($user_stat);
+                Db::commit();
+            } catch (\Exception $e) {
+                Db::rollback();
+                return error($e->getMessage(), 'cash');
+            }
+            return success("obter sucesso", $task);//获取成功
+        }finally {
+            $redis->del($lockKey); // 处理完成后删除锁
         }
-        return success("obter sucesso",$task);//获取成功
     }
     /**
      * @Apidoc\Title("获取当前用户的团队统计数据")
@@ -180,8 +191,8 @@ class User extends Base
             'invite' => $invite,
             'box_num' => $box_num,
             'recharge' => $recharge,
-            'cz_money' => $cz_bet['cz_money'] ?? 0,
-            'bet_money' => $cz_bet['bet_money'] ?? 0,
+            'cz_money' => $cz_bet['cz_money'] ?? '0.00',
+            'bet_money' => $cz_bet['bet_money'] ?? '0.00',
         ];
         return success("obter sucesso",$data);//获取成功
     }
