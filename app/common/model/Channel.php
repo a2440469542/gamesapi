@@ -85,4 +85,8 @@ class Channel extends Base
         }
         return $info;
     }
+    public function getDetail($name){
+        $info = self::where('name','=',$name)->find();
+        return $info;
+    }
 }
