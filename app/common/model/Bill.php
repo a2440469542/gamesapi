@@ -20,7 +20,8 @@ class Bill extends Base
     const   CASH_MONEY = 102;  //用户提现
     const   BOX_MONEY = 103;  //开启宝箱获得
     const   ADMIN_MONEY = 104;  //管理员操作
-
+    const   WAGES_BOZHU = 105;  //博主工资
+    const   WAGES_DAILI = 106;  //代理工资
     public function getTypeText($type=0): array|string
     {
         $type_text = [
@@ -29,6 +30,8 @@ class Bill extends Base
             self::CASH_MONEY        => 'Retirada do usuário',                        //用户提现
             self::BOX_MONEY         => 'Abra o baú do tesouro para obter',           //宝箱
             self::ADMIN_MONEY       => 'Operações de Administrador',                 //管理员操作
+            self::WAGES_BOZHU       => 'O salário do blogueiro',                     //博主工资
+            self::WAGES_DAILI       => 'Salário da agência',                         //代理工资
         ];
         if(isset($type_text[$type])){
             return $type_text[$type];
@@ -38,11 +41,13 @@ class Bill extends Base
     public function getTypeAttr($value=''): array|string
     {
         $type_text = [
-            self::GAME_BET    => '游戏下注输赢',    //游戏下注输赢
-            self::PAY_MONEY   => '用户充值',       //用户充值
-            self::CASH_MONEY  => '用户提现',       //用户提现
-            self::BOX_MONEY   => '宝箱奖励',       //宝箱
-            self::ADMIN_MONEY => '管理员修改',     //管理员操作
+            self::GAME_BET    => '游戏下注输赢',     //游戏下注输赢
+            self::PAY_MONEY   => '用户充值',        //用户充值
+            self::CASH_MONEY  => '用户提现',        //用户提现
+            self::BOX_MONEY   => '宝箱奖励',        //宝箱
+            self::ADMIN_MONEY => '管理员修改',      //管理员操作
+            self::WAGES_BOZHU => '博主工资',       //博主工资
+            self::WAGES_DAILI => '代理工资',       //代理工资
         ];
         if(isset($type_text[$value])){
             return $type_text[$value];

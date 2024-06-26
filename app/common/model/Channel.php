@@ -27,12 +27,13 @@ class Channel extends Base
             $data['add_time'] = time();
             $row = $id = self::insertGetId($data);
             if($id > 0){
-                self::createPartition('cp_user',$id);
-                self::createPartition('cp_bill',$id);
-                self::createPartition('cp_game_log',$id);
-                self::createPartition('cp_user_stat',$id);
-                self::createPartition('cp_order',$id);
-                self::createPartition('cp_cash',$id);
+                self::createPartition('cp_user',$id);       //用户表
+                self::createPartition('cp_bill',$id);       //账单表
+                self::createPartition('cp_game_log',$id);   //游戏记录表
+                self::createPartition('cp_user_stat',$id);  //数据统计表
+                self::createPartition('cp_order',$id);      //充值表
+                self::createPartition('cp_cash',$id);       //提现表
+                self::createPartition('cp_wages',$id);      //工资表
             }
         }
         return $row;

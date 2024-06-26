@@ -1,0 +1,155 @@
+<?php
+namespace app\api\controller;
+
+use hg\apidoc\annotation as Apidoc;
+use think\facade\Cache;
+use think\facade\Db;
+
+/**
+ * 工资相关接口
+ * @Apidoc\Title("用户相关接口")
+ * @Apidoc\Group("base")
+ * @Apidoc\Sort(4)
+ */
+class Wages extends Base
+{
+    /**
+     * @Apidoc\Title("工资信息")
+     * @Apidoc\Desc("工资信息获取")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("")
+     * @Apidoc\Tag("用户信息")
+     * @Apidoc\Returned("money", type="float", desc="已获得的工资")
+     * @Apidoc\Returned("un_money", type="int", desc="未获得的工资")
+     */
+    public function get_wages()
+    {
+        $cid = $this->request->cid;
+        $uid = $this->request->uid;
+
+        $user = $this->getUserInfo($cid, $uid);
+        if (!$user) {
+            return error("Usuário não existe");//用户不存在
+        }
+
+        $wages = $this->getWagesInfo($cid, $uid);
+        $config = $this->getWagesConfig($cid);
+        $czInfo = $this->getCzInfo($cid, $uid, $config);
+
+        $data = [
+            'money' => $wages['bozhu'] + $wages['daili'],
+            'un_money' => ($czInfo['bozhu_money'] + $czInfo['daili_money']) - $wages['bozhu'] - $wages['daili']
+        ];
+
+        return success("obter sucesso",$data);//获取成功
+    }
+
+    /**
+     * @Apidoc\Title("领取工资")
+     * @Apidoc\Desc("领取工资")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("")
+     * @Apidoc\Tag("领取工资")
+     */
+    public function receive_wages()
+    {
+        $cid = $this->request->cid;
+        $uid = $this->request->uid;
+        $redis = Cache::store('redis')->handler();
+        $lockKey = "user_receive_box_lock_{$uid}";
+        if ($redis->exists($lockKey)) {
+            return error('O pedido está sendo atualmente processado, por favor tente de novo mais tarde');
+        }
+        $redis->set($lockKey, true, 5); // 设置锁，60秒后过期
+        try{
+            $user = $this->getUserInfo($cid, $uid);
+            if (!$user) {
+                return error("o usuário não existe");
+            }
+
+            $wages = $this->getWagesInfo($cid, $uid);
+            $config = $this->getWagesConfig($cid);
+            if (!$config) {
+                return error("A configuração salarial não existe");
+            }
+
+            $czInfo = $this->getCzInfo($cid, $uid, $config);
+
+            Db::startTrans();
+            try {
+                $this->processWages($user, $wages, $czInfo, $config);
+                Db::commit();
+            } catch (\Exception $e) {
+                Db::rollback();
+                return error($e->getMessage(), 500);
+            }
+            return success("obter sucesso");//获取成功
+        }  finally {
+            $redis->del($lockKey); // 处理完成后删除锁
+        }
+    }
+
+    private function getUserInfo($cid, $uid)
+    {
+        $UserModel = model('app\common\model\User', $cid);
+        return $UserModel->getInfo($uid);
+    }
+
+    private function getWagesInfo($cid, $uid)
+    {
+        $WagesModel = model('app\common\model\Wages', $cid);
+        return $WagesModel->get_money($uid);
+    }
+
+    private function getWagesConfig($cid)
+    {
+        $WagesConfig = model('app\common\model\WagesConfig');
+        return $WagesConfig->getInfo($cid);
+    }
+
+    private function getCzInfo($cid, $uid, $config)
+    {
+        $UserStat = model('app\common\model\UserStat', $cid);
+
+        $czNumBozhu = $UserStat->get_deposit_num([['u.pid', '=', $uid]]);
+        $czMoneyBozhu = $UserStat->get_deposit_and_bet([['u.pid', '=', $uid]])['cz_money'] ?? 0.00;
+
+        $czNumDaili = $UserStat->get_deposit_num([['u.ppid', '=', $uid]]);
+        $czMoneyDaili = $UserStat->get_deposit_and_bet([['u.ppid', '=', $uid]])['cz_money'] ?? 0.00;
+
+        $bozhuMoney = $dailiMoney = 0;
+        if ($config['type'] == 1) {
+            $bozhuMoney = $this->calculateSalary($czNumBozhu, $czMoneyBozhu, $config) * $config['bozhu'];
+            $dailiMoney = $this->calculateSalary($czNumDaili, $czMoneyDaili, $config) * $config['daili'];
+        } elseif ($czNumBozhu >= $config['cz_num']) {
+            $bozhuMoney = $czMoneyBozhu * ($config['bozhu'] / 100);
+            $dailiMoney = $czMoneyDaili * ($config['daili'] / 100);
+        }
+
+        return ['bozhu_money' => $bozhuMoney, 'daili_money' => $dailiMoney];
+    }
+
+    private function processWages($user, $wages, $czInfo, $config)
+    {
+        $BillModel = model('app\common\model\Bill', $user['cid']);
+        $WagesModel = model('app\common\model\Wages', $user['cid']);
+
+        $bozhuUnMoney = $czInfo['bozhu_money'] - $wages['bozhu'];
+        $dailiUnMoney = $czInfo['daili_money'] - $wages['daili'];
+
+        if ($bozhuUnMoney > 0) {
+            $BillModel->addIntvie($user, $BillModel::WAGES_BOZHU, $bozhuUnMoney);
+            $WagesModel->add($user, $bozhuUnMoney, 1, $config['type']);
+        }
+
+        if ($dailiUnMoney > 0) {
+            $BillModel->addIntvie($user, $BillModel::WAGES_DAILI, $dailiUnMoney);
+            $WagesModel->add($user, $dailiUnMoney, 2, $config['type']);
+        }
+    }
+
+    private function calculateSalary($czNum, $czMoney, $config)
+    {
+        // 计算工资的逻辑
+    }
+}

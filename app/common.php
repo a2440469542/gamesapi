@@ -666,3 +666,23 @@ function searchValueInMultiArray($search, $array) {
     });
     return $found;
 }
+
+/**
+ * @param $totalCustomers   int 充值人数
+ * @param $totalRecharge    float 充值金额
+ * @param $config   array   配置信息
+ * @return int|mixed
+ */
+function calculateSalary($totalCustomers, $totalRecharge, $config) {
+    $bonus = 0;
+    if($totalCustomers == 0 ){
+        return $bonus;
+    }
+    $cz_num = $config['cz_num'] ?? 10;//达到充值人数
+    $cz_money = $config['ave_value'] ?? 100;//达到充值金额
+    // 计算可以组成的完整组数
+    $fullSets = floor($totalCustomers / $cz_num);
+    // 在有足够的充值金额的情况下，计算每种奖金的次数
+    $setsFor220Bonus = min(floor($totalRecharge / $cz_money), $fullSets);
+    return $setsFor220Bonus;
+}

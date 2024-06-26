@@ -82,12 +82,13 @@ class Bill extends Base{
         // 启动事务
         Db::startTrans();
         try {
-            $BillModel->addIntvie($user,$BillModel::ADMIN_MONEY,$money);
+            $BillModel->addIntvie($user_info,$BillModel::ADMIN_MONEY,$money);
             // 提交事务
             Db::commit();
         } catch (\Exception $e) {
             // 回滚事务
             Db::rollback();
+            return error($e->getMessage());
         }
         return success("操作成功");
     }
