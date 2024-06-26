@@ -33,6 +33,7 @@ class Order extends Base
         $limit = input("limit",10);
         $OrderModel = model('app\common\model\Order',$cid);
         $where[] = ['uid',"=",$uid];
+        $where[] = ['status',"=",2];
         $date_where = $this->get_time($date);
         if($date_where){
             $where[] = $date_where;

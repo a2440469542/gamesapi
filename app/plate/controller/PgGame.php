@@ -110,14 +110,8 @@ class PgGame extends BaseController
             }
             //数据统计
             $UserStatModel = model('app\common\model\UserStat',$cid);
-            $stat = [
-                'uid'       => $user['uid'],
-                'cid'       => $user['cid'],
-                'mobile'    => $user['mobile'],
-                'bet_money' => $Bet,
-                'win_money' => $UpdateCredit
-            ];
-            $UserStatModel->add($stat);
+            $stat = ['bet_money' => $Bet, 'win_money' => $UpdateCredit];
+            $UserStatModel->add($user,$stat);
             Db::commit();
             return $this->success($user['money']);
         } catch (\Exception $e) {

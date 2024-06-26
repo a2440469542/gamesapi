@@ -87,7 +87,7 @@ class User extends Base
         }
     }
     protected function get_inv_code(){
-        $inv_code = strtoupper(str_rand(6,2));
+        $inv_code = strtoupper(randomNumeric(6));
         if(self::where('inv_code',$inv_code)->partition($this->partition)->count() > 0){
             return $this->get_inv_code();
         }

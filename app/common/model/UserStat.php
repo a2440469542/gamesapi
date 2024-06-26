@@ -17,7 +17,7 @@ class UserStat extends Base
      * @Field("id,user,aid,admin_name,tk_id,pid,money")
      * @AddField("token",type="string",desc="用户token")
      */
-    public function add($data){
+    public function add($user,$data){
         $uid = $data['uid'];
         $date = date("Y-m-d",time());
         $where = [
@@ -28,6 +28,10 @@ class UserStat extends Base
         $stat = self::where($where)->partition($this->partition)->lock(true)->find();
         if(empty($stat)){
             $data['date'] = $date;
+            $data['cid'] = $user['cid'];
+            $data['uid'] = $user['uid'];
+            $data['mobile'] = $user['mobile'];
+            $data['inv_code'] = $user['inv_code'];
             self::insert($data);
         }else{
             $update = [];
@@ -37,6 +41,11 @@ class UserStat extends Base
                 if($key === 'mobile') continue;
                 $update[$key] = $stat[$key] + $val;
             }
+            $update['date'] = $date;
+            $update['cid'] = $user['cid'];
+            $update['uid'] = $user['uid'];
+            $update['mobile'] = $user['mobile'];
+            $update['inv_code'] = $user['inv_code'];
             self::where("id","=",$stat['id'])->partition($this->partition)->update($update);
         }
         return true;
@@ -63,14 +72,14 @@ class UserStat extends Base
                 ->field($filed)
                 ->partition($this->partition)
                 ->find()->toArray();
-            $val['cz_money'] = $summary['cz_money'] ?? '0.00';
-            $val['avg_cz_money'] = $summary['avg_cz_money'] ?? '0.00';
-            $val['cz_num'] = $summary['cz_num'] ?? '0.00';
-            $val['bet_money'] = $summary['bet_money'] ?? '0.00';
-            $val['win_money'] = $summary['win_money'] ?? '0.00';
-            $val['cash_money'] = $summary['cash_money'] ?? '0.00';
-            $val['cash_num'] = $summary['cash_num'] ?? '0.00';
-            $val['box_money'] = $summary['box_money'] ?? '0.00';
+            $val['cz_money'] = round($summary['cz_money'] ?? '0.00',2);
+            $val['avg_cz_money'] = round($summary['avg_cz_money'] ?? '0.00',2);
+            $val['cz_num'] = round($summary['cz_num'] ?? '0.00',2);
+            $val['bet_money'] = round($summary['bet_money'] ?? '0.00',2);
+            $val['win_money'] = round($summary['win_money'] ?? '0.00',2);
+            $val['cash_money'] = round($summary['cash_money'] ?? '0.00',2);
+            $val['cash_num'] = round($summary['cash_num'] ?? '0.00',2);
+            $val['box_money'] = round($summary['box_money'] ?? '0.00',2);
             $list[] = $val;
         }
         return $list;
@@ -81,7 +90,7 @@ class UserStat extends Base
      */
     public function team($where){
         $list = self::alias("us")
-            ->field("us.date,us.uid,us.bet_money,us.cz_money")
+            ->field("us.date,us.uid,us.bet_money,us.cz_money,u.inv_code")
             ->leftJoin("cp_user PARTITION({$this->partition}) `u`","us.uid = u.uid")
             ->where($where)
             ->partition($this->partition)

@@ -44,7 +44,7 @@ class Login extends Base
         $UserModel = model('app\common\model\User',$this->cid);
         $user = null;
         if($inv_code){
-            $user = $UserModel->getInfo($inv_code);    //获取上级的信息
+            $user = $UserModel->get_inv_info($inv_code);    //获取上级的信息
             if($user){
                 $data['pid']   = $user['uid'];
                 $data['ppid']  = $user['pid'];
@@ -59,13 +59,8 @@ class Login extends Base
         //数据统计
         if($user != null){
             $UserStatModel = model('app\common\model\UserStat',$this->cid);
-            $stat = [
-                'uid'    => $user['uid'],
-                'cid'    => $user['cid'],
-                'mobile' => $user['mobile'],
-                'invite_user' => 1,
-            ];
-            $UserStatModel->add($stat);
+            $stat = ['invite_user' => 1];
+            $UserStatModel->add($user,$stat);
         }
         do {
             $token = "api_".bin2hex(random_bytes(16));

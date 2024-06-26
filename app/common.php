@@ -46,6 +46,21 @@ if (!function_exists('random')) {
         return $string;
     }
 }
+if (!function_exists('randomNumeric')) {
+    function randomNumeric($length = 16)
+    {
+        $string = '';
+        while (($len = strlen($string)) < $length) {
+            $size = $length - $len;
+            $bytes = random_bytes($size);
+            // 将字节转换为数字
+            $numericString = preg_replace('/\D/', '', base64_encode($bytes));
+            $string .= substr($numericString, 0, $size);
+        }
+        // 如果生成的字符串长度不足，继续生成直到长度满足要求
+        return substr($string, 0, $length);
+    }
+}
 /**
  * 递归分类
  */

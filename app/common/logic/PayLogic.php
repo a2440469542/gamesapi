@@ -52,14 +52,8 @@ class PayLogic {
         $BillModel->addIntvie($user, $BillModel::PAY_MONEY, $order['money'] + $order['gifts']);
 
         $UserStatModel = model('app\common\model\UserStat', $cid);
-        $user_stat = [
-            'uid' => $user['uid'],
-            'cid' => $user['cid'],
-            'mobile' => $user['mobile'],
-            'cz_money' => $order['money'] + $order['gifts'],
-            'cz_num' => 1,
-        ];
-        $UserStatModel->add($user_stat);
+        $user_stat = ['cz_money' => $order['money'], 'cz_num' => 1];
+        $UserStatModel->add($user,$user_stat);
 
         if ($OrderModel->update_order($update)) {
             Db::commit();
@@ -136,14 +130,8 @@ class PayLogic {
         $BillModel->addIntvie($user, $BillModel::CASH_MONEY, -$order['money']);
 
         $UserStatModel = model('app\common\model\UserStat', $cid);
-        $user_stat = [
-            'uid' => $user['uid'],
-            'cid' => $user['cid'],
-            'mobile' => $user['mobile'],
-            'cash_money' => $order['money'],
-            'cash_num' => 1,
-        ];
-        $UserStatModel->add($user_stat);
+        $user_stat = ['cash_money' => $order['money'], 'cash_num' => 1,];
+        $UserStatModel->add($user,$user_stat);
 
         if ($CashModel->update_order($update)) {
             Db::commit();

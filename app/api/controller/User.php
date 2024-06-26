@@ -80,7 +80,7 @@ class User extends Base
                     ];
                 }
             }
-            $BoxLogModel->add($uid,$cid,$task);
+            $BoxLogModel->add($cid,$uid,$task);
         }
         return success("obter sucesso",$task);//获取成功
     }
@@ -111,7 +111,7 @@ class User extends Base
             list($UserStat, $box_num) = $this->extracted($cid, $uid);
             $BoxLogModel = model('app\common\model\BoxLog');
             $log = $BoxLogModel->getLastTask($cid, $uid);
-            if (empty($log)) return error("Baú do tesouro não existe", 0);        //宝箱不存在
+            if (empty($log)) return error("Baú do tesouro não existe");        //宝箱不存在
             $money = 0;
             $task = $log['task'];
             foreach ($task as &$v) {
@@ -134,13 +134,8 @@ class User extends Base
                     Db::rollback();
                     return error("obter falha", 0);//获取失败
                 }
-                $user_stat = [
-                    'uid' => $user['uid'],
-                    'cid' => $user['cid'],
-                    'mobile' => $user['mobile'],
-                    'box_money' => $money,
-                ];
-                $UserStat->add($user_stat);
+                $user_stat = ['box_money' => $money];
+                $UserStat->add($user,$user_stat);
                 Db::commit();
             } catch (\Exception $e) {
                 Db::rollback();
@@ -191,8 +186,8 @@ class User extends Base
             'invite' => $invite,
             'box_num' => $box_num,
             'recharge' => $recharge,
-            'cz_money' => $cz_bet['cz_money'] ?? '0.00',
-            'bet_money' => $cz_bet['bet_money'] ?? '0.00',
+            'cz_money' => $cz_bet['cz_money'] ? round($cz_bet['cz_money'],2) : '0.00',
+            'bet_money' => $cz_bet['bet_money'] ? round($cz_bet['bet_money'],2) : '0.00',
         ];
         return success("obter sucesso",$data);//获取成功
     }
