@@ -38,7 +38,7 @@ class Admin extends Base
      * @AddField("token",type="string",desc="用户token")
      */
     public function login($data){
-        //if (!Captcha::check($data['code'])) return error('验证码不正确');
+        if (!Captcha::check($data['code'])) return error('验证码不正确');
         $admin = self::where('user_name',$data['user_name'])->find();
         if($admin) {
             if ($admin['status'] == 2) return error('帐号被禁用，请联系管理员');

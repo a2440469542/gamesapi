@@ -18,13 +18,13 @@ class UserStat extends Base
      * @AddField("token",type="string",desc="用户token")
      */
     public function add($user,$data){
-        $uid = $data['uid'];
+        $uid = $user['uid'];
         $date = date("Y-m-d",time());
         $where = [
             ['date',"=",$date],
             ["uid","=",$uid]
         ];
-        $this->setPartition($data['cid']);
+        $this->setPartition($user['cid']);
         $stat = self::where($where)->partition($this->partition)->lock(true)->find();
         if(empty($stat)){
             $data['date'] = $date;

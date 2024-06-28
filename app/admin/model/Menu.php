@@ -81,6 +81,7 @@ class Menu extends Base
             if(isset($val['pid']) && $val['pid']==$pid){
                 $children = self::auth_menu($menu,$val['id']);
                 $val['child'] = false;
+                $val['meta'] = ['title'=>$val['name'],'icon'=>$val['icon']];
                 if($children){
                     $val['children'] = $children;
                     $val['child'] = true;

@@ -17,8 +17,8 @@ class WagesConfig extends Base
     protected $pk = 'id';
 
     public static function add($data){
-        if(isset($data['cid']) && $data['cid']  > 0){
-            $row = self::where('cid',"=",$data['cid'])->update($data);
+        if(isset($data['id']) && $data['id']  > 0){
+            $row = self::where('id',"=",$data['id'])->update($data);
         }else{
             $row = self::insert($data);
         }

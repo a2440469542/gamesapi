@@ -19,7 +19,7 @@ class Wages extends Base
     public function add($user,$money,$type=1,$wages_type=1){
         $data = [
             'cid' => $user['cid'],
-            'uid' => $user['id'],
+            'uid' => $user['uid'],
             'mobile' => $user['mobile'],
             'inv_code' => $user['inv_code'],
             'money' => $money,

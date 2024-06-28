@@ -57,6 +57,10 @@ class User extends Base
         $data['pwd'] = md5($pwd);
         return $row = self::where('uid',"=",$uid)->partition($this->partition)->update($data);
     }
+    public function set_kol($uid,$is_kol){
+        $data['is_kol'] = $is_kol;
+        return $row = self::where('uid',"=",$uid)->partition($this->partition)->update($data);
+    }
     /**
      * @param $data  Object   用户登录信息
      */

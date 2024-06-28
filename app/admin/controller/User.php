@@ -22,6 +22,7 @@ class User extends Base{
      * @Apidoc\Param("mobile", type="string",require=false, desc="手机：搜索时候传")
      * @Apidoc\Param("cid", type="int",require=true, desc="渠道ID")
      * @Apidoc\Param("uid", type="int",require=false, desc="用户ID：搜索时候传")
+     * @Apidoc\Param("inv_code", type="string",require=false, desc="用户邀请码：搜索时候传")
      * @Apidoc\Returned(ref="pageReturn")
      * @Apidoc\Returned("data",type="array",desc="用户列表",table="cp_user")
      */
@@ -32,6 +33,7 @@ class User extends Base{
         $mobile = input("mobile", '');
         $user = input("user", '');
         $uid = input("uid", 0);
+        $inv_code = input("inv_code", '');
         $orderBy = input("orderBy", 'uid desc');
         if ($mobile) {
             $where[] = ['mobile', "=", $mobile];
@@ -42,6 +44,10 @@ class User extends Base{
         if ($uid > 0) {
             $where[] = ['uid', "=", $uid];
         }
+        if($inv_code) {
+            $where[] = ['inv_code', "=", $inv_code];
+        }
+
         if($cid === 0){
             return error("请选择渠道");
         }
@@ -122,6 +128,25 @@ class User extends Base{
             return success("删除成功");
         }else{
             return error("删除失败");
+        }
+    }
+    public function set_kol(){
+        $uid = input("uid");
+        $cid = input("cid");
+        $is_kol = input("is_kol",0);
+        if(!$uid){
+            return error("请选择要修改的用户");
+        }
+        if(!$cid){
+            return  error("缺少参数cid");
+        }
+        $userModel = app('app\common\model\User');
+        $userModel->setPartition($cid);
+        $res = $userModel->set_kol($uid,$is_kol);
+        if($res){
+            return success("修改成功");
+        }else{
+            return error("修改失败");
         }
     }
 }

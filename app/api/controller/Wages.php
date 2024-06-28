@@ -7,7 +7,7 @@ use think\facade\Db;
 
 /**
  * 工资相关接口
- * @Apidoc\Title("用户相关接口")
+ * @Apidoc\Title("工资相关接口")
  * @Apidoc\Group("base")
  * @Apidoc\Sort(4)
  */
@@ -31,9 +31,11 @@ class Wages extends Base
         if (!$user) {
             return error("Usuário não existe");//用户不存在
         }
-
-        $wages = $this->getWagesInfo($cid, $uid);
         $config = $this->getWagesConfig($cid);
+        if (!$config) {
+            return error("A configuração salarial não existe");
+        }
+        $wages = $this->getWagesInfo($cid, $uid);
         $czInfo = $this->getCzInfo($cid, $uid, $config);
 
         $data = [
@@ -119,8 +121,8 @@ class Wages extends Base
 
         $bozhuMoney = $dailiMoney = 0;
         if ($config['type'] == 1) {
-            $bozhuMoney = $this->calculateSalary($czNumBozhu, $czMoneyBozhu, $config) * $config['bozhu'];
-            $dailiMoney = $this->calculateSalary($czNumDaili, $czMoneyDaili, $config) * $config['daili'];
+            $bozhuMoney = calculateSalary($czNumBozhu, $czMoneyBozhu, $config) * $config['bozhu'];
+            $dailiMoney = calculateSalary($czNumDaili, $czMoneyDaili, $config) * $config['daili'];
         } elseif ($czNumBozhu >= $config['cz_num']) {
             $bozhuMoney = $czMoneyBozhu * ($config['bozhu'] / 100);
             $dailiMoney = $czMoneyDaili * ($config['daili'] / 100);
@@ -146,10 +148,5 @@ class Wages extends Base
             $BillModel->addIntvie($user, $BillModel::WAGES_DAILI, $dailiUnMoney);
             $WagesModel->add($user, $dailiUnMoney, 2, $config['type']);
         }
-    }
-
-    private function calculateSalary($czNum, $czMoney, $config)
-    {
-        // 计算工资的逻辑
     }
 }

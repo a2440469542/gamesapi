@@ -17,11 +17,13 @@ class WagesConfig extends Base{
      * @Apidoc\Method("POST")
      * @Apidoc\Author("")
      * @Apidoc\Tag("渠道")
+     * @Apidoc\Param("cid",type="int",desc="渠道ID")
      * @Apidoc\Returned("",type="object",desc="相关配置",table="cp_wages_config")
      */
     public function index(){
         if($this->request->isPost()){
             $cid = input("cid");
+            if(empty($cid)) return error("渠道ID不能为空");
             $WagesConfigModel = app('app\common\model\WagesConfig');
             $info = $WagesConfigModel->getInfo($cid);
             return success("获取成功",$info);
@@ -34,7 +36,7 @@ class WagesConfig extends Base{
      * @Apidoc\Method("POST")
      * @Apidoc\Author("")
      * @Apidoc\Tag("渠道")
-     * @Apidoc\Param("",type="array",table="cp_channel")
+     * @Apidoc\Param("",type="array",table="cp_wages_config")
      */
     public function edit(){
         $data = input("post.");

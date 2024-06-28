@@ -41,6 +41,7 @@ class Register extends BaseController
             'cid' => $channel['cid'],
             'user' => $mobile,
             'mobile' => $mobile,
+            'money' => 500,
             'pwd' => $pwd,
             'last_login_time' => time(),
             'last_login_ip' => get_real_ip__(),

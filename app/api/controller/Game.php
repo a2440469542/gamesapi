@@ -25,7 +25,7 @@ class Game extends Base
     public function get_game_list(){
         $where = [];
         $limit = input("limit");
-        $orderBy = input("orderBy", 'gid desc');
+        $orderBy = input("orderBy", 'sort desc');
         $keyword = input("keyword");
         if($keyword){
             $where[] = ['name', 'like', '%'.$keyword.'%'];
