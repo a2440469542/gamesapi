@@ -149,19 +149,35 @@ class User extends Base{
             return error("修改失败");
         }
     }
+    /**
+     * @Apidoc\Title("生成试玩账号")
+     * @Apidoc\Desc("生成试玩账号")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("")
+     * @Apidoc\Tag("生成试玩长啊后")
+     * @Apidoc\Param("cid", type="int",require=true, desc="渠道ID")
+     * @Apidoc\Param("num", type="int",require=true, desc="用户数量")
+     * @Apidoc\Returned("mobile",type="string",desc="试玩手机号")
+     * @Apidoc\Returned("pwd",type="string",desc="试玩密码")
+     */
     public function create_rebot(){
         $cid = input("cid");
         $num = input("num",1);
         if(!$cid){
             return  error("缺少参数cid");
         }
-        $userModel = app('app\common\model\User');
+        /*$userModel = app('app\common\model\User');
         $userModel->setPartition($cid);
-        $res = $userModel->create_rebot($num);
-        if($res){
-            return success("创建成功");
-        }else{
-            return error("创建失败");
+        $res = $userModel->create_rebot($num);*/
+        $mobile = 8888801000;
+        $data = [];
+        for($i=0;$i<$num;$i++) {
+            $data[] =[
+                'mobile' => $mobile,
+                'pwd' => str_rand(6,2)
+            ];
+            $mobile++;
         }
+        return success("创建成功",$data);
     }
 }

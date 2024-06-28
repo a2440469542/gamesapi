@@ -135,13 +135,33 @@ class User extends Base
         $row = self::where('id',"=",$data['id'])->partition($this->partition)->update($data);
         return $row;
     }
-    public function create_rebot($cid){
+    public function create_rebot($num){
         $info = self::where('is_rebot',"=",1)->partition($this->partition)->order('uid desc')->find();
-
-    }
-    //获取最新的机器人手机号
-    public function get_max_rebot(){
-        $info = self::where('is_rebot',"=",1)->partition($this->partition)->order('uid desc')->find();
-        return $info;
+        if($info){
+            $mobile = (int) $info['mobile'];
+        }else{
+            $mobile = 8888801000;
+        }
+        $insert = $data = [];
+        $time = time();
+        $ip = get_real_ip__();
+        for($i=0;$i<$num;$i++) {
+            $pwd = str_rand(6,2);
+            $data[] =[
+                'mobile' => $mobile,
+                'pwd' => $pwd
+            ];
+            $insert[] = [
+                'cid' => $this->cid,
+                'user' => $mobile,
+                'mobile' => $mobile,
+                'pwd' => $pwd,
+                'inv_code' => $this->get_inv_code(),
+                'last_login_time' => $time,
+                'last_login_ip' => $ip,
+                'is_rebot' => 1
+            ];
+        }
+        return self::partition($this->partition)->insertAll($data);
     }
 }

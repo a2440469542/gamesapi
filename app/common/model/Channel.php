@@ -17,6 +17,7 @@ class Channel extends Base
     protected $pk = 'cid';
     public static function add($data){
         if(isset($data['cid']) && $data['cid'] > 0){
+            unset($data['add_time']);
             $row = self::where('cid',$data['cid'])->update($data);
             cache('channel_'.$data['cid'],null);
         }else{
