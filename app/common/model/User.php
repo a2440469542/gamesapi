@@ -135,4 +135,13 @@ class User extends Base
         $row = self::where('id',"=",$data['id'])->partition($this->partition)->update($data);
         return $row;
     }
+    public function create_rebot($cid){
+        $info = self::where('is_rebot',"=",1)->partition($this->partition)->order('uid desc')->find();
+
+    }
+    //获取最新的机器人手机号
+    public function get_max_rebot(){
+        $info = self::where('is_rebot',"=",1)->partition($this->partition)->order('uid desc')->find();
+        return $info;
+    }
 }

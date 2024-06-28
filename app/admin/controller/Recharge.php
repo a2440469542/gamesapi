@@ -47,7 +47,7 @@ class Recharge extends Base{
             'gifts' => '赠送金额',
         ];
         foreach ($requiredFields as $field => $errorMsg) {
-            if (!isset($data[$field]) || !$data[$field]) {
+            if (!isset($data[$field]) || $data[$field] === '') {
                 return error($errorMsg);
             }
         }

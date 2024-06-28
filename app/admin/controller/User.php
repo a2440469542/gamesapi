@@ -149,4 +149,19 @@ class User extends Base{
             return error("修改失败");
         }
     }
+    public function create_rebot(){
+        $cid = input("cid");
+        $num = input("num",1);
+        if(!$cid){
+            return  error("缺少参数cid");
+        }
+        $userModel = app('app\common\model\User');
+        $userModel->setPartition($cid);
+        $res = $userModel->create_rebot($num);
+        if($res){
+            return success("创建成功");
+        }else{
+            return error("创建失败");
+        }
+    }
 }
