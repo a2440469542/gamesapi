@@ -162,6 +162,11 @@ class User extends Base
                 'is_rebot' => 1
             ];
         }
-        return self::partition($this->partition)->insertAll($data);
+        $row =  self::partition($this->partition)->insertAll($data);
+        if($row){
+            return $data;
+        }else{
+            return [];
+        }
     }
 }

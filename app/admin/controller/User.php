@@ -166,18 +166,9 @@ class User extends Base{
         if(!$cid){
             return  error("缺少参数cid");
         }
-        /*$userModel = app('app\common\model\User');
+        $userModel = app('app\common\model\User');
         $userModel->setPartition($cid);
-        $res = $userModel->create_rebot($num);*/
-        $mobile = 8888801000;
-        $data = [];
-        for($i=0;$i<$num;$i++) {
-            $data[] =[
-                'mobile' => $mobile,
-                'pwd' => str_rand(6,2)
-            ];
-            $mobile++;
-        }
-        return success("创建成功",$data);
+        $res = $userModel->create_rebot($num);
+        return success("创建成功",$res);
     }
 }
