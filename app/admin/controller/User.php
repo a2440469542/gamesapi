@@ -53,7 +53,7 @@ class User extends Base{
         }
         $userModel = app("app\common\model\User");
         $userModel->setPartition($cid);
-        $list = $userModel->lists($where, $limit, $orderBy);
+        $list = $userModel->lists($where, $limit, "uid desc");
         return success("获取成功", $list);
     }
     /*public function edit(){
