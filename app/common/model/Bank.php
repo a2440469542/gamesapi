@@ -30,7 +30,7 @@ class Bank extends Base
             'add_time' => time(),
         ];
         if($id>0){
-            return self::where("id",">",$id)->update($data);
+            return self::where("id","=",$id)->update($data);
         }else{
             return self::insertGetId($data);
         }
