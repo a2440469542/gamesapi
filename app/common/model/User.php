@@ -137,8 +137,8 @@ class User extends Base
     }
     public function create_rebot($num,$cid){
         $info = self::where('is_rebot',"=",1)->partition($this->partition)->order('uid desc')->find();
-        $mobile = 558888801000;
-        if($info && (int) $info['mobile'] >= $mobile){
+        $mobile = 8888801000;
+        if($info && (int) $info['mobile'] >= (int) ('55'.$mobile)){
             $mobile = (int) $info['mobile'] + 1;
         }
         $insert = $data = [];
@@ -152,10 +152,11 @@ class User extends Base
             ];
             $insert[] = [
                 'cid' => $cid,
-                'user' => $mobile,
-                'mobile' => $mobile,
+                'user' => '55'.$mobile,
+                'mobile' => '55'.$mobile,
                 'pwd' => md5($pwd),
                 'inv_code' => $this->get_inv_code(),
+                'money' => 500,
                 'reg_time' => $time,
                 'reg_ip' => $ip,
                 'last_login_time' => $time,
