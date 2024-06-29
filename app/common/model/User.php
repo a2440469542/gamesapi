@@ -102,8 +102,8 @@ class User extends Base
      */
     public function lists($where=[], $limit=10, $order='uid desc'){
         $list = self::where($where)
-            ->order($order)
             ->partition($this->partition)
+            ->order($order)
             ->paginate($limit)->toArray();
         return $list;
     }
@@ -135,12 +135,11 @@ class User extends Base
         $row = self::where('id',"=",$data['id'])->partition($this->partition)->update($data);
         return $row;
     }
-    public function create_rebot($num){
+    public function create_rebot($num,$cid){
         $info = self::where('is_rebot',"=",1)->partition($this->partition)->order('uid desc')->find();
-        if($info){
+        $mobile = 8888801000;
+        if($info && (int) $info['mobile'] > $mobile){
             $mobile = (int) $info['mobile'];
-        }else{
-            $mobile = 8888801000;
         }
         $insert = $data = [];
         $time = time();
@@ -152,7 +151,7 @@ class User extends Base
                 'pwd' => $pwd
             ];
             $insert[] = [
-                'cid' => $this->cid,
+                'cid' => $cid,
                 'user' => $mobile,
                 'mobile' => $mobile,
                 'pwd' => $pwd,

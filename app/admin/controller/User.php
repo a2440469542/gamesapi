@@ -34,7 +34,7 @@ class User extends Base{
         $user = input("user", '');
         $uid = input("uid", 0);
         $inv_code = input("inv_code", '');
-        $orderBy = input("orderBy", 'uid desc');
+        $orderBy = input("orderBy", 'uid asc');
         if ($mobile) {
             $where[] = ['mobile', "=", $mobile];
         }
@@ -168,7 +168,7 @@ class User extends Base{
         }
         $userModel = app('app\common\model\User');
         $userModel->setPartition($cid);
-        $res = $userModel->create_rebot($num);
+        $res = $userModel->create_rebot($num,$cid);
         return success("创建成功",$res);
     }
 }
