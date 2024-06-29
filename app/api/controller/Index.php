@@ -2,6 +2,7 @@
 
 namespace app\api\controller;
 use hg\apidoc\annotation as Apidoc;
+use think\facade\Cache;
 /**
  * 首页信息相关接口
  * @Apidoc\Title("首页信息相关接口")
@@ -27,6 +28,27 @@ class Index extends Base
             $v['img'] = SITE_URL.$v['img'];
         }
         return success("obter sucesso",$ad); //获取成功
+    }
+    /**
+     * @Apidoc\Title("总投注额")
+     * @Apidoc\Desc("轮播图列表获取")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("")
+     * @Apidoc\Tag("轮播图")
+     * @Apidoc\Param("cid", type="int",require=true, desc="渠道ID")
+     * @Apidoc\Returned("",type="int",desc="总投注额")
+     */
+    public function jack_pot(){
+        $cid = $this->cid;
+        $num = Cache::store('redis')->get("jack_pot_".$cid);
+        if(!$num){
+            $num = rand(100000,500000);
+            Cache::store('redis')->set("jack_pot_".$cid,$num,0);
+        }
+        $model = model('app\common\model\UserStat',$cid);
+        $jack_pot = $model->get_total_bet($cid);
+        $jack_pot = number_format($jack_pot+$num,2,'.','');
+        return success("obter sucesso",$jack_pot); //获取成功
     }
     /**
      * @Apidoc\Title("当前渠道信息")

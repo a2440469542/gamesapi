@@ -128,6 +128,10 @@ class UserStat extends Base
             ->find();
         return $result;
     }
+    //获取当前渠道总投注额
+    public function get_total_bet(){
+        return self::partition($this->partition)->sum('bet_money');
+    }
     //获取某个用户的数据汇总
     public function get_user_summary($uid){
         $filed = 'uid,mobile,
