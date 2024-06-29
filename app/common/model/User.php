@@ -139,7 +139,7 @@ class User extends Base
         $info = self::where('is_rebot',"=",1)->partition($this->partition)->order('uid desc')->find();
         $mobile = 558888801000;
         if($info && (int) $info['mobile'] >= $mobile){
-            $mobile = (int) $info['mobile'];
+            $mobile = (int) $info['mobile'] + 1;
         }
         $insert = $data = [];
         $time = time();
@@ -162,6 +162,7 @@ class User extends Base
                 'last_login_ip' => $ip,
                 'is_rebot' => 1
             ];
+            $mobile++;
         }
         $row =  self::partition($this->partition)->insertAll($insert);
         if($row){
