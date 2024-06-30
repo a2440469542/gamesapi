@@ -172,4 +172,24 @@ class User extends Base
             return [];
         }
     }
+    public function team($where){
+        $list = self::field('reg_time,inv_code')->where($where)
+            ->partition($this->partition)
+            ->select()->toArray();
+        foreach ($list as &$v){
+            $count =  self::field("sum(cz_money) as cz_money, sum(bet_money) as bet_money")
+                ->where($where)
+                ->partition($this->partition)
+                ->find();
+            if($count) {
+                $v['cz_money'] = round($count['cz_money'] ?? 0.00,2) ?? '0.00';
+                $v['bet_money'] = round($count['bet_money'] ?? 0.00,2) ?? '0.00';
+            }else{
+                $v['cz_money'] = '0.00';
+                $v['bet_money'] = '0.00';
+            }
+            $v['reg_time'] = date('Y-m-d',$v['reg_time']);
+        }
+        return $list;
+    }
 }

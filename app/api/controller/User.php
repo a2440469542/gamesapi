@@ -208,17 +208,17 @@ class User extends Base
         $date = $this->request->post('date',5);
         $where = [];
         if($type == 1){
-            $where[] = ['u.pid',"=",$uid];
+            $where[] = ['pid',"=",$uid];
         }else if($type == 2){
-            $where[] = ['u.ppid',"=",$uid];
+            $where[] = ['ppid',"=",$uid];
         }else if($type == 3){
-            $where[] = ['u.pppid',"=",$uid];
+            $where[] = ['pppid',"=",$uid];
         }
         $date_where = $this->get_time($date);
         if($date_where){
             $where[] = $date_where;
         }
-        $UserStat = model('app\common\model\UserStat',$cid);
+        $UserStat = model('app\common\model\User',$cid);
         $list = $UserStat->team($where);    //数据
         return success("obter sucesso",$list);//获取成功
     }
@@ -226,27 +226,27 @@ class User extends Base
         $where = [];
         switch($date){
             case 1:
-                $start_time = date("Y-m-d");
+                $start_time = strtotime(date("Y-m-d"));
                 //获取明天的日期
-                $where = ['date',"=",$start_time];
+                $where = ['reg_time',">=",$start_time];
                 break;
             case 2:
                 //创建一个本周开始时间和结束时间的条件
-                $start_time = date("Y-m-d",strtotime('monday this week'));
-                $end_time = date("Y-m-d");
-                $where = ['date', 'between', [$start_time, $end_time]];
+                $start_time = strtotime('monday this week');
+                $end_time = time();
+                $where = ['reg_time', 'between', [$start_time, $end_time]];
                 break;
                 //创建一个本月开始时间和结束时间的条件
             case 3:
-                $start_time = date('Y-m-01');
-                $end_time = date('Y-m-d');
-                $where = ['date', 'between', [$start_time, $end_time]];
+                $start_time = strtotime(date('Y-m-01'));
+                $end_time = time();
+                $where = ['reg_time', 'between', [$start_time, $end_time]];
                 break;
                 //创建一个今年开始时间和当前为结束时间的条件
             case 4:
-                $start_time = date('Y-01-01');
-                $end_time = date('Y-m-d');
-                $where = ['date', 'between', [$start_time, $end_time]];
+                $start_time = strtotime(date('Y-01-01'));
+                $end_time = time();
+                $where = ['reg_time', 'between', [$start_time, $end_time]];
                 break;
         }
         return $where;
