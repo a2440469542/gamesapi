@@ -30,6 +30,7 @@ class Game extends Base
         if($keyword){
             $where[] = ['name', 'like', '%'.$keyword.'%'];
         }
+        $where[] = ['is_open','=',1];
         $list = model('app\common\model\Game')->lists($where, $limit, $orderBy);
         foreach ($list['data'] as &$v){
             $v['img'] = SITE_URL.$v['img'];
