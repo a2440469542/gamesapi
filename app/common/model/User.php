@@ -177,7 +177,7 @@ class User extends Base
             ->partition($this->partition)
             ->select()->toArray();
         foreach ($list as &$v){
-            $count =  self::field("sum(cz_money) as cz_money, sum(bet_money) as bet_money")
+            $count =  UserStat::field("sum(cz_money) as cz_money, sum(bet_money) as bet_money")
                 ->where($where)
                 ->partition($this->partition)
                 ->find();
