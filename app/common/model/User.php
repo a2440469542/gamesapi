@@ -188,7 +188,7 @@ class User extends Base
                 $v['cz_money'] = '0.00';
                 $v['bet_money'] = '0.00';
             }
-            $v['reg_time'] = date('Y-m-d',strtotime($v['reg_time']));
+            $v['date'] = date('Y-m-d',strtotime($v['reg_time']));
         }
         return $list;
     }
