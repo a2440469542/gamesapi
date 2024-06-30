@@ -173,12 +173,12 @@ class User extends Base
         }
     }
     public function team($where){
-        $list = self::field('reg_time,inv_code')->where($where)
+        $list = self::field('uid,reg_time,inv_code')->where($where)
             ->partition($this->partition)
             ->select()->toArray();
         foreach ($list as &$v){
             $count =  UserStat::field("sum(cz_money) as cz_money, sum(bet_money) as bet_money")
-                ->where($where)
+                ->where("uid","=",$v['uid'])
                 ->partition($this->partition)
                 ->find();
             if($count) {
