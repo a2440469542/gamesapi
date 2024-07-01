@@ -149,4 +149,24 @@ class UserStat extends Base
             ->find();
         return $summary;
     }
+    //充值人数
+    public function get_cz_num(){
+        return self::where("cz_money",">",0)->partition($this->partition)->group('uid')->count();
+    }
+    //获取充值金额
+    public function get_total_money(){
+        $filed = 'uid,mobile,
+        sum(invite_user) as invite_user,
+        sum(cz_money) as total_deposit, 
+        sum(cz_num) as cz_num, 
+        sum(bet_money) as bet_money, 
+        sum(win_money) as win_money, 
+        sum(cash_money) as cash_money,
+        sum(cash_num) as cash_num ,
+        sum(box_money) as box_money';
+        return self::field($filed)->partition($this->partition)->find();
+    }
+    public function box_num(){
+        return self::where("box_money",">",0)->partition($this->partition)->count();
+    }
 }

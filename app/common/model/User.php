@@ -192,4 +192,9 @@ class User extends Base
         }
         return $list;
     }
+    //统计注册人数
+    public function reg_num($cid){
+        $this->setPartition($cid);
+        return self::where('is_rebot','=',1)->partition($this->partition)->count();
+    }
 }
