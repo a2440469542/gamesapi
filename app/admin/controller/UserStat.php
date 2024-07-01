@@ -68,7 +68,7 @@ class UserStat extends Base{
         $UserStatModel = model('app\common\model\UserStat',$cid);
         $WagesModel = model('app\common\model\Wages',$cid);
         $reg_num = $UserModel->reg_num($cid);           //注册人数
-        $cz_num = $UserModel->get_cz_num();             //充值人数
+        $cz_num = $UserStatModel->get_cz_num();             //充值人数
         $user_stat = $UserStatModel->get_total_money(); //统计信息
         $box_num = $UserStatModel->box_num();           //宝箱领取人数
         $wages_num = $WagesModel->wages_num();          //工资领取人数
