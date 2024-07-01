@@ -3,6 +3,7 @@
 namespace app\api\controller;
 use hg\apidoc\annotation as Apidoc;
 use think\facade\Cache;
+use think\facade\Db;
 
 /**
  * 用户提现相关接口
@@ -76,6 +77,7 @@ class Cash extends Base
             return error('O pedido está sendo atualmente processado, por favor tente de novo mais tarde');
         }
         $redis->set($lockKey, true, 5); // 设置锁，60秒后过期
+        Db::startTrans();
         // 处理请求
         try {
             $money = input('money',0);
@@ -95,12 +97,17 @@ class Cash extends Base
             $BetcatPay = app('app\service\pay\KirinPay');
             $res = $BetcatPay->cash_out($order_sn ,$money,$row['type'],$account,$row['pix'],$user);
             if($res['code'] != 0) return error($res['msg']);
+            $BillModel = model('app\common\model\Bill', $cid);
+            $BillModel->addIntvie($user, $BillModel::CASH_MONEY, -$money);
             $res = $CashModel->add($cid,$uid,$order_sn,$row['type'],$account,$row['pix'],$row['name'],$money);
             if($res){
                 return success('Retirada com sucesso'); //提现成功
             }else{
                 return error('Falha na retirada');   //提现失败
             }
+        }catch (\Exception $e) {
+            Db::rollback();
+            return error('Falha na retirada');   //提现失败
         }finally {
             $redis->del($lockKey); // 处理完成后删除锁
         }

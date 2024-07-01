@@ -102,7 +102,7 @@ class PayLogic {
             if ($post['status'] == "SUCCESS") {
                 return $this->handleSuccessfulCash($OrderModel,$post, $order, $cid);
             } elseif ($post['status'] == "FAILURE" ||  $post['status'] == "FAIL") {
-                return $this->handleFailedCash($OrderModel,$post, $order);
+                return $this->handleFailedCash($OrderModel,$post, $order, $cid);
             } else {
                 return true;
             }
@@ -126,8 +126,8 @@ class PayLogic {
             return false;
         }
 
-        $BillModel = model('app\common\model\Bill', $cid);
-        $BillModel->addIntvie($user, $BillModel::CASH_MONEY, -$order['money']);
+        /*$BillModel = model('app\common\model\Bill', $cid);
+        $BillModel->addIntvie($user, $BillModel::CASH_MONEY, -$order['money']);*/
 
         $UserStatModel = model('app\common\model\UserStat', $cid);
         $user_stat = ['cash_money' => $order['money'], 'cash_num' => 1,];
@@ -142,13 +142,21 @@ class PayLogic {
         }
     }
 
-    private function handleFailedCash($CashModel,$post, $order) {
+    private function handleFailedCash($CashModel,$post, $order, $cid) {
         $update = [
             'id' => $order['id'],
             'status' => -2,
             'orderno' => $post['orderNo']
         ];
-
+        $UserModel = model('app\common\model\User', $cid);
+        $user = $UserModel->getInfo($order['uid']);
+        if (empty($user)) {
+            $this->logError("用户不存在", 'cash');
+            return false;
+        }
+        //提现失败返回
+        $BillModel = model('app\common\model\Bill', $cid);
+        $BillModel->addIntvie($user, $BillModel::CASH_RETURN, $order['money']);
         if ($CashModel->update_order($update)) {
             Db::commit();
             return true;
