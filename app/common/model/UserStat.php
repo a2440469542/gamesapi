@@ -115,6 +115,7 @@ class UserStat extends Base
             ->leftJoin("cp_user PARTITION({$this->partition}) `u`","us.uid = u.uid")
             ->where($where)
             ->partition($this->partition)
+            ->group('uid')
             ->count();
         return $count;
     }
