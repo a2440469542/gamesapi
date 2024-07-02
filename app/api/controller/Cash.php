@@ -110,6 +110,7 @@ class Cash extends Base
             Db::commit();
         }catch (\Exception $e) {
             Db::rollback();
+            write_log($e->getMessage(),'cash_out');
             return error('Falha na retirada');   //提现失败
         }finally {
             $redis->del($lockKey); // 处理完成后删除锁

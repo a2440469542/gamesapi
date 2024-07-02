@@ -99,7 +99,8 @@ class User extends Base
     public function receive_box(){
         $cid = $this->request->cid;
         $uid = $this->request->uid;
-        $user = $this->request->user;
+        $UserModel = model('app\common\model\User', $cid);
+        $user = $UserModel->getInfo($uid);
         if($user['is_rebot'] === 1) return error('A conta de teste não pode ser reivindicada');  //测试账号不能领取
         $redis = Cache::store('redis')->handler();
         $lockKey = "user_receive_box_lock_{$uid}";
@@ -125,8 +126,6 @@ class User extends Base
             if ($money == 0) return error("Nenhum peito de tesouro para afirmar", 500);        //宝箱不存在
             Db::startTrans();
             try {
-                $UserModel = model('app\common\model\User', $cid);
-                $user = $UserModel->getInfo($uid);
                 $BillModel = model('app\common\model\Bill', $cid);
                 $BillModel->addIntvie($user, $BillModel::BOX_MONEY, $money);
                 $row = $BoxLogModel->add($cid, $uid, $task, $money, $log['num'] + 1);
