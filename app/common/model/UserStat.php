@@ -117,6 +117,7 @@ class UserStat extends Base
             ->partition($this->partition)
             ->group('us.uid')
             ->count();
+        write_log("查询统计：".$count,'wages');
         return $count;
     }
     //根据条件获取当前下级的总存款和总投注
