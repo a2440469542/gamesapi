@@ -28,10 +28,12 @@ class Wages extends Base
         $uid = $this->request->uid;
 
         $user = $this->getUserInfo($cid, $uid);
+        write_log('用户手机号:'.$user['mobile'],'wages');
         if (!$user) {
             return error("Usuário não existe");//用户不存在
         }
         $config = $this->getWagesConfig($cid);
+        write_log($config,'wages');
         if (!$config) {
             return error("A configuração salarial não existe");
         }
@@ -114,9 +116,9 @@ class Wages extends Base
         $UserStat = model('app\common\model\UserStat', $cid);
 
         $czNumBozhu = $UserStat->get_deposit_num([['u.pid', '=', $uid]]);
-        print_r($czNumBozhu);exit;
+        write_log('充值人数:'.$czNumBozhu,'wages');
         $czMoneyBozhu = $UserStat->get_deposit_and_bet([['u.pid', '=', $uid]])['cz_money'] ?? 0.00;
-
+        write_log('充值金额:'.$czMoneyBozhu,'wages');
         $czNumDaili = $UserStat->get_deposit_num([['u.ppid', '=', $uid]]);
         $czMoneyDaili = $UserStat->get_deposit_and_bet([['u.ppid', '=', $uid]])['cz_money'] ?? 0.00;
 
