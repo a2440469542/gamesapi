@@ -114,6 +114,7 @@ class Wages extends Base
         $UserStat = model('app\common\model\UserStat', $cid);
 
         $czNumBozhu = $UserStat->get_deposit_num([['u.pid', '=', $uid]]);
+        print_r($czNumBozhu);exit;
         $czMoneyBozhu = $UserStat->get_deposit_and_bet([['u.pid', '=', $uid]])['cz_money'] ?? 0.00;
 
         $czNumDaili = $UserStat->get_deposit_num([['u.ppid', '=', $uid]]);

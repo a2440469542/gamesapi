@@ -67,6 +67,7 @@ class Cash extends Base
      * @Apidoc\Author("")
      * @Apidoc\Tag("用户提现接口")
      * @Apidoc\Param("money",type="float",desc="提现金额")
+     * @Apidoc\Returned(type="object",desc="用户信息",table="cp_user")
      */
     public function cash(){
         $cid = $this->request->cid;
@@ -105,6 +106,7 @@ class Cash extends Base
                 Db::rollback();
                 return error("Falha na retirada");  //提现失败
             }
+            $user = $result['user'];
             $BetcatPay = app('app\service\pay\KirinPay');
             $res = $BetcatPay->cash_out($order_sn ,$money,$row['type'],$account,$row['pix'],$user);
             if($res['code'] != 0) {
