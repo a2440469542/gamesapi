@@ -54,7 +54,10 @@ class GameLog extends Base
         return self::partition($this->partition)->insertGetId($data);
     }
     public function getList($where=[], $limit=10, $order='id desc'){
-        $list = self::where($where)
+        $list = self::alias("gl")
+            ->field("gl.*,u.inv_code")
+            ->leftJoin("cp_user PARTITION({$this->partition}) `u`","gl.uid = u.uid")
+            ->where($where)
             ->order($order)
             ->partition($this->partition)
             ->paginate($limit)->toArray();

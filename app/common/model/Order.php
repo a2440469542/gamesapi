@@ -33,7 +33,7 @@ class Order extends Base
     }
     public function lists($where=[], $limit=10, $order='id desc'){
         $list = self::alias("o")
-            ->field("o.*,u.mobile")
+            ->field("o.*,u.mobile,u.inv_code")
             ->leftJoin("cp_user PARTITION({$this->partition}) `u`","o.uid = u.uid")
             ->where($where)
             ->order($order)

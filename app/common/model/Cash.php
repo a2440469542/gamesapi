@@ -36,7 +36,7 @@ class Cash extends Base
     }
     public function lists($where=[], $limit=10, $order='id desc'){
         $list = self::alias("c")
-            ->field("c.*,u.mobile")
+            ->field("c.*,u.mobile,u.inv_code")
             ->leftJoin("cp_user PARTITION({$this->partition}) `u`","c.uid = u.uid")
             ->where($where)
             ->order($order)

@@ -16,6 +16,7 @@ class Cash extends Base{
      * @Apidoc\Tag("提现记录")
      * @Apidoc\Param(ref="pagingParam",desc="分页参数")
      * @Apidoc\Param("mobile", type="string",require=false, desc="用户手机号：搜索时候传")
+     * @Apidoc\Param("inv_code", type="string",require=false, desc="用户邀请码：搜索时候传")
      * @Apidoc\Param("cid", type="int",require=true, desc="渠道ID")
      * @Apidoc\Returned(ref="pageReturn")
      * @Apidoc\Returned("data",type="array",desc="充值记录相关",table="cp_cash",children={
@@ -29,11 +30,15 @@ class Cash extends Base{
             $orderBy = input("orderBy", 'id desc');
             $mobile = input("mobile", '');
             $cid  = input("cid", '');
+            $inv_code = input("inv_code",'');
             if($cid === ''){
                 return error("渠道ID不能为空");
             }
             if($mobile) {
                 $where[] = ['mobile', '=', $mobile];
+            }
+            if($inv_code){
+                $where[] = ['u.inv_code',"=",$inv_code];
             }
             $CashModel = model('app\common\model\Cash',$cid);
             $list = $CashModel->lists($where, $limit, $orderBy);
