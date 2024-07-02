@@ -68,6 +68,7 @@ class KirinPay{
         write_log($info,'cash_out');
         $data = json_encode($info);
         $ret = $this->httpsPost($url,$data,$headers);
+        write_log($ret,'cash_out');
         //var_dump($ret);
         return json_decode($ret,true);
     }
