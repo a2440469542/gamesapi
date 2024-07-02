@@ -79,7 +79,6 @@ class Cash extends Base
         $redis->set($lockKey, true, 5); // 设置锁，60秒后过期
         Db::startTrans();
         // 处理请求
-        try {
             $money = input('money',0);
             $channel = model('app\common\model\Channel')->info($cid);
             if($money < $channel['min_draw']) return error('O saque mínimo não pode ser inferior a :'.$channel['min_draw']);  //最低提现不能低于
@@ -105,12 +104,7 @@ class Cash extends Base
             }else{
                 return error('Falha na retirada');   //提现失败
             }
-        }catch (\Exception $e) {
-            Db::rollback();
-            return error('Falha na retirada');   //提现失败
-        }finally {
-            $redis->del($lockKey); // 处理完成后删除锁
-        }
+
     }
     /**
      * @Apidoc\Title("用户提现记录")
