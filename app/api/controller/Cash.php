@@ -119,6 +119,7 @@ class Cash extends Base
         }finally {
             $redis->del($lockKey); // 处理完成后删除锁
         }
+        return success("Retirar bem sucedido");  //提现成功
     }
     /**
      * @Apidoc\Title("用户提现记录")
