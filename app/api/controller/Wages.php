@@ -116,11 +116,13 @@ class Wages extends Base
         $UserStat = model('app\common\model\UserStat', $cid);
 
         $czNumBozhu = $UserStat->get_deposit_num([['u.pid', '=', $uid]]);
-        write_log('充值人数:'.$czNumBozhu,'wages');
+        write_log('博主充值人数:'.$czNumBozhu,'wages');
         $czMoneyBozhu = $UserStat->get_deposit_and_bet([['u.pid', '=', $uid]])['cz_money'] ?? 0.00;
-        write_log('充值金额:'.$czMoneyBozhu,'wages');
+        write_log('博主充值金额:'.$czMoneyBozhu,'wages');
         $czNumDaili = $UserStat->get_deposit_num([['u.ppid', '=', $uid]]);
+        write_log('代理充值人数:'.$czNumDaili,'wages');
         $czMoneyDaili = $UserStat->get_deposit_and_bet([['u.ppid', '=', $uid]])['cz_money'] ?? 0.00;
+        write_log('代理充值人数:'.$czMoneyDaili,'wages');
 
         $bozhuMoney = $dailiMoney = 0;
         if ($config['type'] == 1) {
@@ -128,6 +130,7 @@ class Wages extends Base
             $dailiMoney = calculateSalary($czNumDaili, $czMoneyDaili, $config) * $config['daili'];
         } elseif ($czNumBozhu >= $config['cz_num']) {
             $bozhuMoney = $czMoneyBozhu * ($config['bozhu'] / 100);
+        }elseif ($czNumDaili >= $config['cz_num']) {
             $dailiMoney = $czMoneyDaili * ($config['daili'] / 100);
         }
 
