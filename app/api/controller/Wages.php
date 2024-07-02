@@ -81,13 +81,18 @@ class Wages extends Base
 
             Db::startTrans();
             try {
-                $this->processWages($user, $wages, $czInfo, $config);
+                $user = $this->processWages($user, $wages, $czInfo, $config);
                 Db::commit();
             } catch (\Exception $e) {
                 Db::rollback();
                 return error($e->getMessage(), 500);
             }
-            return success("obter sucesso");//获取成功
+            $data = [
+                'money' => $czInfo['bozhu_money'] + $czInfo['daili_money'],
+                'un_money' =>  0,
+                'user' => $user
+            ];
+            return success("obter sucesso",$data);//获取成功
         }  finally {
             $redis->del($lockKey); // 处理完成后删除锁
         }
@@ -146,13 +151,16 @@ class Wages extends Base
         $dailiUnMoney = $czInfo['daili_money'] - $wages['daili'];
 
         if ($bozhuUnMoney > 0) {
-            $BillModel->addIntvie($user, $BillModel::WAGES_BOZHU, $bozhuUnMoney);
+            $row = $BillModel->addIntvie($user, $BillModel::WAGES_BOZHU, $bozhuUnMoney);
+            $user = $row['user'];
             $WagesModel->add($user, $bozhuUnMoney, 1, $config['type']);
         }
 
         if ($dailiUnMoney > 0) {
-            $BillModel->addIntvie($user, $BillModel::WAGES_DAILI, $dailiUnMoney);
+            $row = $BillModel->addIntvie($user, $BillModel::WAGES_DAILI, $dailiUnMoney);
+            $user = $row['user'];
             $WagesModel->add($user, $dailiUnMoney, 2, $config['type']);
         }
+        return $user;
     }
 }
