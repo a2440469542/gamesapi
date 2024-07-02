@@ -100,8 +100,8 @@ class Cash extends Base
                 return error('Falha na retirada');   //提现失败
             }
             $BillModel = model('app\common\model\Bill', $cid);
-            $row = $BillModel->addIntvie($user, $BillModel::CASH_MONEY, -$money);
-            if($row['code'] !== 0){
+            $result = $BillModel->addIntvie($user, $BillModel::CASH_MONEY, -$money);
+            if($result['code'] !== 0){
                 Db::rollback();
                 return error("Falha na retirada");  //提现失败
             }
