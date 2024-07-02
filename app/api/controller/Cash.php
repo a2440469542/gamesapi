@@ -94,12 +94,16 @@ class Cash extends Base
             if($user['is_rebot'] === 1) return error('O robô não pode fazer retiradas');  //测试账号不能提现
             $order_sn = $cid.'_'.getSn("TX");
             $account = $row['type'] == 'CPF' ? $row['pix'] : '+'.$row['mobile'];
-            $BillModel = model('app\common\model\Bill', $cid);
-            $BillModel->addIntvie($user, $BillModel::CASH_MONEY, -$money);
             $res = $CashModel->add($cid,$uid,$order_sn,$row['type'],$account,$row['pix'],$row['name'],$money);
             if(!$res){
                 Db::rollback();
                 return error('Falha na retirada');   //提现失败
+            }
+            $BillModel = model('app\common\model\Bill', $cid);
+            $row = $BillModel->addIntvie($user, $BillModel::CASH_MONEY, -$money);
+            if($row['code'] !== 0){
+                Db::rollback();
+                return error("Falha na retirada");  //提现失败
             }
             $BetcatPay = app('app\service\pay\KirinPay');
             $res = $BetcatPay->cash_out($order_sn ,$money,$row['type'],$account,$row['pix'],$user);
@@ -111,7 +115,7 @@ class Cash extends Base
         }catch (\Exception $e) {
             Db::rollback();
             write_log($e->getMessage(),'cash_out');
-            return error('Falha na retirada');   //提现失败
+            return error('Falha na retirada');      //提现失败
         }finally {
             $redis->del($lockKey); // 处理完成后删除锁
         }
