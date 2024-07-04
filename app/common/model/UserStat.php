@@ -157,7 +157,7 @@ class UserStat extends Base
     }
     //获取充值金额
     public function get_total_money(){
-        $filed = 'uid,mobile,
+        $filed = '`us`.uid,`us`.mobile,
         sum(invite_user) as invite_user,
         sum(cz_money) as total_deposit, 
         sum(cz_num) as cz_num, 
