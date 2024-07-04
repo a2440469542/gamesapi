@@ -18,6 +18,7 @@ class Bill extends Base{
      * @Apidoc\Param(ref="pagingParam",desc="分页参数")
      * @Apidoc\Param("cid", type="int",require=true, desc="渠道ID")
      * @Apidoc\Param("mobile", type="string",require=false, desc="用户手机号：搜索时候传")
+     * @Apidoc\Param("inv_code", type="string",require=false, desc="用户邀请码：搜索时候传")
      * @Apidoc\Param("type", type="string",require=false, desc="账变类型")
      * @Apidoc\Returned(ref="pageReturn")
      * @Apidoc\Returned("data",type="array",desc="充值记录相关",table="cp_bill",children={
@@ -33,8 +34,12 @@ class Bill extends Base{
             $order_sn  = input("order_sn", '');
             $type  = input("type", '');
             $cid  = input("cid", '');
+            $inv_code = input("inv_code",'');
             if($cid === ''){
                 return error("渠道ID不能为空");
+            }
+            if($inv_code){
+                $where[] = ['u.inv_code',"=",$inv_code];
             }
             if($order_sn !== '') $where[] = ['order_sn', '=', $order_sn];
             if($mobile !== '') $where[] = ['mobile', '=', $mobile];
