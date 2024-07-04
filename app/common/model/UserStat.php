@@ -166,7 +166,11 @@ class UserStat extends Base
         sum(cash_money) as cash_money,
         sum(cash_num) as cash_num ,
         sum(box_money) as box_money';
-        return self::field($filed)->partition($this->partition)->find();
+        return self::alias('us')
+            ->field($filed)
+            ->leftJoin("cp_user PARTITION({$this->partition}) `u`","us.uid = u.uid")
+            ->where("u.is_rebot","=",0)
+            ->partition($this->partition)->find();
     }
     public function box_num(){
         return self::where("box_money",">",0)->partition($this->partition)->count();
