@@ -159,7 +159,7 @@ class UserStat extends Base
     public function get_total_money(){
         $filed = '`us`.uid,`us`.mobile,
         sum(invite_user) as invite_user,
-        sum(cz_money) as total_deposit, 
+        sum(cz_money) as cz_money, 
         sum(cz_num) as cz_num, 
         sum(bet_money) as bet_money, 
         sum(win_money) as win_money, 
