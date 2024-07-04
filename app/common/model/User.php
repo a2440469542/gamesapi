@@ -195,6 +195,6 @@ class User extends Base
     //统计注册人数
     public function reg_num($cid){
         $this->setPartition($cid);
-        return self::where('is_rebot','=',1)->partition($this->partition)->count();
+        return self::where('is_rebot','=',0)->partition($this->partition)->count();
     }
 }
