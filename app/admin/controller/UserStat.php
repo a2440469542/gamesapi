@@ -78,7 +78,7 @@ class UserStat extends Base{
             'cz_num' => $cz_num,
             'cz_money' => round($user_stat['cz_money']   ?? '0.00',2),   //总充值金额
             'bet_money' => round($user_stat['bet_money'] ?? '0.00',2),   //总投注金额
-            'cash_money' => round($user_stat['cash_num'] ?? '0.00',2),   //总提现金额
+            'cash_money' => round($user_stat['cash_money'] ?? '0.00',2),   //总提现金额
             'box_num' => $box_num,
             'daili_wages_num' =>    $wages_num['daili'],    //代理工资领取人数
             'daili_wages_money' => $wages_money['daili'],   //代理工资领取总额
