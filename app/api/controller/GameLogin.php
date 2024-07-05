@@ -3,6 +3,7 @@ namespace app\api\controller;
 
 use hg\apidoc\annotation as Apidoc;
 use think\App;
+use think\facade\Db;
 use think\facade\Request;
 use app\service\game\GamePlatformFactory;
 
@@ -17,6 +18,9 @@ class GameLogin extends Base
     protected $platformService;
     protected $user;
     protected $game;
+    protected $cid;
+    protected $plate;
+    protected $GameWallet;
     protected function set_config()
     {
         $cid = $this->request->cid;
@@ -25,28 +29,117 @@ class GameLogin extends Base
         if (empty($gid)) {
             return error("Erro de parâmetro", 500);  //参数错误
         }
+        $this->cid = $cid;
         $this->user = model('app\common\model\User',$cid)->getInfo($uid);
         $game = model('app\common\model\Game')->find($gid);
+        $plate = app('app\common\model\Plate')->getInfo($game['pid']);
+        $this->plate = $plate;
         if($this->user['is_rebot'] == 1){
-            $plate = model('app\common\model\Plate')->where('is_rebot','=',1)->find();
+            $line = app('app\common\model\Line')
+                ->where('pid',"=",$game['pid'])
+                ->where('is_rebot','=',1)->find();   //线路
         }else{
             $channel = model('app\common\model\Channel')->info($cid);
-            $plate = model('app\common\model\Plate')->find($channel['pg_id']);
+            $lid = $channel['plate_line'][$plate['id']];
+            $line = app('app\common\model\Plate')
+                ->where("lid","=",$lid)
+                ->find($channel['pg_id']);
         }
         $this->game = $game->toArray();
         $platform = $plate['code'];
-
-        $this->platformService = GamePlatformFactory::getPlatformService($platform, $plate, $this->user);
+        $this->GameWallet = model('app\common\model\GameWallet',$cid);
+        $this->platformService = GamePlatformFactory::getPlatformService($platform, $line, $this->user);
         return true;
     }
 
-    protected function registerUser()
+    protected function registerUser($game_user)
     {
         $channel = model('app\common\model\Channel')->where("cid", $this->user['cid'])->find();
         $user = $this->user;
         $user['cname'] = $channel['name'];  // 渠道名称
+        $row = $this->platformService->registerUser($user);
+        if($row['code'] != 0){
+            return $row;
+        }
+        $player_id = $row['player_id'];
+        $username = $row['user'];
+        $is_login = $row['is_login'];
+        if(empty($game_user)){
+            $GameUser = model('app\common\model\GameUser',$this->cid);
+            $uid = $this->user['uid'];
+            $pid = $this->plate['id'];
+            $GameUser->add($this->cid,$uid,$pid,$username,$player_id,$is_login);
+        }
+        return $row;
+    }
+    protected function getGameUser(){
+        $GameUser = model('app\common\model\GameUser',$this->cid);
+        $uid = $this->user['uid'];
+        $pid = $this->plate['id'];
+        $info = $GameUser->getInfo($uid,$pid);
+        return $info;
+    }
+    //上分
+    protected function up_score(){
+        Db::startTrans();
+        try {
+            $balance = $this->user['balance'];
+            $BillModel = model('app\common\model\Bill', $this->cid);
+            $BillModel->addIntvie($this->user, $BillModel::GAME_DEPOSIT, -$balance);
+            $row = $this->platformService->depositUser($this->user);
+            if($row['code'] == 0){
+                $dorder_sn = $row['dorder_sn'];
+                $d_tx = $row['d_tx'];
+                $pid = $this->plate['id'];
+                $this->GameWallet->add($this->cid,$pid,$this->user['uid'],$this->user['mobile'],$this->user['inv_code'],$balance,$dorder_sn,$d_tx);
+                Db::commit();
+            }else{
+                Db::rollback();
+                return false;
+            }
+        }catch (\Exception $e) {
+            Db::rollback();
+            return false;
+        }
 
-        return $this->platformService->registerUser($user);
+    }
+    //下分
+    protected function down_score(){
+        $info = $this->GameWallet->getInfo($this->user['uid'],$this->plate['id']);
+        if($info){
+            $row = $this->platformService->balanceUser($this->user);
+            if($row['code'] == 0){
+                $balance = $row['balance'];
+                if($balance > 0){
+                    Db::startTrans();
+                    try {
+                        $BillModel = model('app\common\model\Bill', $this->cid);
+                        $BillModel->addIntvie($this->user, $BillModel::GAME_WITHDRAW, $balance);
+                        $res = $this->platformService->withdrawUser($this->user,$balance);
+                        if($res['code'] == 0){
+                            $worder_sn = $res['worder_sn'];
+                            $w_tx = $res['w_tx'];
+                            $data =[
+                                'worder_sn' => $worder_sn,
+                                'w_tx' => $w_tx,
+                                'withdraw' => $balance,
+                                'up_time' => date("Y-m-d H:i:s"),
+                                'status' => 1
+                            ];
+                            $this->GameWallet->edit($info['id'],$data);
+                        }else{
+                            Db::rollback();
+                            return false;
+                        }
+                        Db::commit();
+                    } catch (\Exception $e) {
+                        Db::rollback();
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     /**
@@ -64,12 +157,19 @@ class GameLogin extends Base
         if($row !== true) {
             return $row;
         }
-        $token = $this->registerUser();
-
-        if ($token['code'] != 0) {
-            return error($token['msg'], 501);    // 游戏登录失败
+        $game_user = $this->getGameUser();
+        if(empty($game_user) || $game_user['is_login'] == 1){
+            $token = $this->registerUser($game_user);
+            if ($token['code'] != 0) {
+                return error($token['msg'], 501);    // 游戏登录失败
+            }
+            $this->user['user_token'] = $token['token'];
         }
-        $this->user['user_token'] = $token['token'];
+        $plate = $this->plate;
+        $this->down_score();
+        if($plate['wallet_type'] == 2){
+            $this->up_score();
+        }
         $response = $this->platformService->getGameUrl($this->user,$this->game);
 
         if ($response['code'] != 0) {
@@ -78,4 +178,5 @@ class GameLogin extends Base
 
         return success("obter sucesso", $response); //获取成功
     }
+
 }

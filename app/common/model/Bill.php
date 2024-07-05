@@ -23,6 +23,8 @@ class Bill extends Base
     const   WAGES_BOZHU = 105;  //博主工资
     const   WAGES_DAILI = 106;  //代理工资
     const   CASH_RETURN = 107;  //用户提现失败返回
+    const   GAME_DEPOSIT = 108;  //游戏上分
+    const   GAME_WITHDRAW = 109; //游戏下分
     public function getTypeText($type=0): array|string
     {
         $type_text = [
@@ -34,6 +36,8 @@ class Bill extends Base
             self::WAGES_BOZHU       => 'O salário do blogueiro',                     //博主工资
             self::WAGES_DAILI       => 'Salário da agência',                         //代理工资
             self::CASH_RETURN       => 'Retorno de fracasso de retirada',            //用户提现失败返回
+            self::GAME_DEPOSIT      => 'Pontos de jogo',                             //游戏上分
+            self::GAME_WITHDRAW     => 'Game Lower Division',                        //游戏下分
         ];
         if(isset($type_text[$type])){
             return $type_text[$type];
@@ -50,7 +54,9 @@ class Bill extends Base
             self::ADMIN_MONEY => '管理员修改',      //管理员操作
             self::WAGES_BOZHU => '博主工资',       //博主工资
             self::WAGES_DAILI => '代理工资',       //代理工资
-            self::CASH_RETURN => '提现失败返回',       //代理工资
+            self::CASH_RETURN => '提现失败返回',    //提现失败返回
+            self::GAME_DEPOSIT => '游戏上分',      //游戏上分
+            self::GAME_WITHDRAW => '游戏下分',     //游戏下分
         ];
         if(isset($type_text[$value])){
             return $type_text[$value];

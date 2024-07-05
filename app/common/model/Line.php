@@ -12,18 +12,16 @@ use hg\apidoc\annotation\AddField;
 use think\facade\Cache;
 use think\facade\Db;
 
-class Plate extends Base
+class Line extends Base
 {
-    protected $pk = 'id';
-    protected $json = ['plate_line'];
-    protected $jsonAssoc = true;
+    protected $pk = 'lid';
     public static function add($data){
         if($data['is_rebot'] == 1){
-            $count = self::where('is_rebot',"=",1)->count();
+            $count = self::where('is_rebot',"=",1)->where("pid","=",$data['pid'])->count();
             if($count > 0)  return error("测试线路只能存在一个");
         }
-        if(isset($data['id']) && $data['id'] > 0){
-            $row = self::where('id',"=",$data['id'])->update($data);
+        if(isset($data['lid']) && $data['lid'] > 0){
+            $row = self::where('lid',"=",$data['lid'])->update($data);
         }else{
             $row = self::insert($data);
         }
@@ -41,9 +39,5 @@ class Plate extends Base
             ->order($order)
             ->select()->toArray();
         return $list;
-    }
-    public function getInfo($pid){
-        $info = self::where('id',"=",$pid)->find();
-        return $info;
     }
 }

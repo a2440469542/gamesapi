@@ -32,10 +32,13 @@ class PgGamePlatformService extends BaseGamePlatformService
         $params['ts'] = time();
         $params['sign'] = $this->generateSign($params);
         write_log($params,'PgGame');
-        $row = $this->request($apiUrl, $params);
+        $headers = [
+            'Content-Type: application/json'
+        ];
+        $row = $this->request($apiUrl, $params, $headers);
         write_log($row,'PgGame');
         if($row['status'] == 0){
-            return ['code'=>0, 'msg'=>'登录成功','token'=>$row['data']['token']];
+            return ['code'=>0, 'msg'=>'登录成功','token'=>$row['data']['token'],'user'=>$params['user_name'],'player_id'=>$params['user_id'],'is_login'=>1];
         }else{
             return ['code'=>$row['status'], 'msg'=>$row['msg']];
         }
@@ -53,7 +56,10 @@ class PgGamePlatformService extends BaseGamePlatformService
         $params['ts'] = time();
         $params['sign'] = $this->generateSign($params);
         write_log($params,'PgGame');
-        $response = $this->request($apiUrl, $params);
+        $headers = [
+            'Content-Type: application/json'
+        ];
+        $response = $this->request($apiUrl, $params, $headers);
         write_log($response,'PgGame');
         if(isset($response['code']) && $response['code'] == 0){
             return ['code'=>0, 'msg'=>'获取成功','url'=>$response['url']];
@@ -63,4 +69,18 @@ class PgGamePlatformService extends BaseGamePlatformService
     }
 
     // 其它对应的API方法...
+    public function withdrawUser($user,$amount)
+    {
+        // TODO: Implement withdrawUser() method.
+    }
+
+    public function depositUser($user)
+    {
+        // TODO: Implement depositUser() method.
+    }
+    //查询余额
+    public function balanceUser($user)
+    {
+        // TODO: Implement balanceUser() method.
+    }
 }

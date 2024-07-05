@@ -11,6 +11,22 @@ use hg\apidoc\annotation as Apidoc;
 class Game extends Base
 {
     /**
+     * @Apidoc\Title("游戏平台列表")
+     * @Apidoc\Desc("游戏平台列表获取")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("")
+     * @Apidoc\Tag("游戏平台")
+     * @Apidoc\Returned(type="array",desc="游戏平台列表",table="cp_plate")
+     */
+    public function plate(){
+        $where = [];
+        $limit = input("limit");
+        $orderBy = input("orderBy", 'id desc');
+        $PlateModel = app('app\common\model\Plate');
+        $list = $PlateModel->lists($where, $limit, $orderBy);
+        return success("获取成功", $list);
+    }
+    /**
      * @Apidoc\Title("游戏列表")
      * @Apidoc\Desc("游戏列表获取")
      * @Apidoc\Method("POST")

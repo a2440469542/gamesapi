@@ -35,6 +35,8 @@ class Channel extends Base
                 self::createPartition('cp_order',$id);      //充值表
                 self::createPartition('cp_cash',$id);       //提现表
                 self::createPartition('cp_wages',$id);      //工资表
+                self::createPartition('cp_game_user',$id);  //游戏注册账号
+                self::createPartition('cp_game_wallet',$id);//游戏上下分记录
             }
         }
         return $row;
