@@ -83,7 +83,8 @@ class Bill extends Base
         ];
         if($type == self::PAY_MONEY) {
             $channel = model('app\common\model\Channel')->info($user['cid']);
-            $update['water'] = $channel['ct_multiple'] * $money;
+            $water = $channel['ct_multiple'] * $money;
+            $update['water'] = Db::raw('`water` + '.$water);
         }
         $this->setPartition($user['cid']);
         User::where("uid","=",$user['uid'])->partition($this->partition)->update($update);
