@@ -31,6 +31,10 @@ class Cash extends Base{
             $mobile = input("mobile", '');
             $cid  = input("cid", '');
             $inv_code = input("inv_code",'');
+            $order_sn = input("order_sn",'');
+            if($order_sn){
+                $where[] = ['order_sn|orderno',"=",$order_sn];
+            }
             if($cid === ''){
                 return error("渠道ID不能为空");
             }

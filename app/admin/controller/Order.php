@@ -37,7 +37,7 @@ class Order extends Base{
                 return error("渠道ID不能为空");
             }
             if($order_sn) {
-                $where[] = ['order_sn', '=', $order_sn];
+                $where[] = ['order_sn|orderno', '=', $order_sn];
             }
             if($mobile) {
                 $where[] = ['mobile', '=', $mobile];
