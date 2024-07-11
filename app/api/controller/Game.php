@@ -21,7 +21,7 @@ class Game extends Base
     public function plate(){
         $where = [];
         $limit = input("limit");
-        $orderBy = input("orderBy", 'id desc');
+        $orderBy = input("orderBy", 'id asc');
         $PlateModel = app('app\common\model\Plate');
         $list = $PlateModel->lists($where, $limit, $orderBy);
         return success("获取成功", $list);
