@@ -41,7 +41,7 @@ class JiliGamePlatformService extends BaseGamePlatformService
         $row = $this->request($apiUrl, http_build_query($params), $headers);
         write_log($row,'JiliGame');
         if($row['success'] == 1){
-            return ['code'=>0, 'msg'=>'登录成功','token'=>$row['data']['token']];
+            return ['code'=>0, 'msg'=>'登录成功','user'=>$params['player_name'],'player_id'=>$params['player_id'],'is_login'=>0];
         }else{
             return ['code'=>$row['code'], 'msg'=>$row['message']];
         }
