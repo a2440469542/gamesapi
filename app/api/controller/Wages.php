@@ -41,7 +41,7 @@ class Wages extends Base
         $czInfo = $this->getCzInfo($cid, $uid, $config);
         $un_money = ($czInfo['bozhu_money'] + $czInfo['daili_money'] + $czInfo['n3_money']) - $wages['bozhu'] - $wages['daili'] - $wages['n3'];
         $data = [
-            'money' => round($wages['bozhu'] + $wages['daili'],2),
+            'money' => round($wages['bozhu'] + $wages['daili'] + $wages['n3'],2),
             'un_money' => round($un_money,2)
         ];
 
