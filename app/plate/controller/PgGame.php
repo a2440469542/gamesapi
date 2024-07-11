@@ -8,6 +8,7 @@ use think\facade\Db;
 class PgGame extends BaseController
 {
     protected $cid = 0;
+    protected $key = '';
     public function __construct(App $app)
     {
         parent::__construct($app);
@@ -21,12 +22,13 @@ class PgGame extends BaseController
         $post = $this->request->post();
         list($cid, $uid) = explode('_', $post['UseID']);
         $this->cid = $cid;
-        write_log("开始时间".$time, 'PgGame'.$cid);
-        write_log("======接口地址=======\n", 'PgGame'.$cid);
-        write_log($action, 'PgGame');
-        write_log("======接口参数=======\n", 'PgGame'.$cid);
+        $this->key = uniqid(rand(), true);
+        write_log($this->key."开始时间".$time, 'PgGame'.$cid);
+        write_log($this->key."======接口地址=======\n", 'PgGame'.$cid);
+        write_log($this->key.$action, 'PgGame'.$cid);
+        write_log($this->key."======接口参数=======\n", 'PgGame'.$cid);
 
-        write_log($post, 'PgGame');
+        write_log($post, 'PgGame'.$cid);
     }
 
     public function get_balance()
@@ -141,9 +143,9 @@ class PgGame extends BaseController
 
     protected function error($msg = '')
     {
-        write_log($msg, 'PgGame'.$this->cid);
+        write_log($this->key.$msg, 'PgGame'.$this->cid);
         $time = microtime(true);
-        write_log("结束时间".$time, 'PgGame'.$this->cid);
+        write_log($this->key."结束时间".$time, 'PgGame'.$this->cid);
         return json([
             'data' => $msg,
             'error' => 3202
@@ -152,10 +154,10 @@ class PgGame extends BaseController
 
     protected function success($money = '', $code = 1)
     {
-        write_log("====余额====", 'PgGame'.$this->cid);
-        write_log($money, 'PgGame'.$this->cid);
+        write_log($this->key."====余额====", 'PgGame'.$this->cid);
+        write_log($this->key.$money, 'PgGame'.$this->cid);
         $time = microtime(true);
-        write_log("结束时间".$time, 'PgGame'.$this->cid);
+        write_log($this->key."结束时间".$time, 'PgGame'.$this->cid);
         $milliseconds = round(microtime(true) * 1000);
         return json([
             'data' => [

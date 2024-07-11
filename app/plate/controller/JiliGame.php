@@ -8,6 +8,7 @@ use think\facade\Db;
 class JiliGame extends BaseController
 {
     protected $cid = 0;
+    protected $key = '';
     public function __construct(App $app)
     {
         parent::__construct($app);
@@ -22,10 +23,11 @@ class JiliGame extends BaseController
         $player_id = $post['player_id'];
         list($cid, $uid) = explode('_', $player_id);
         $this->cid = $cid;
-        write_log("开始时间".$time, 'JiliGame'.$cid);
-        write_log("======接口地址=======\n", 'JiliGame'.$cid);
-        write_log($action, 'JiliGame'.$cid);
-        write_log("======接口参数=======\n", 'JiliGame'.$cid);
+        $this->key = $post['sign'];
+        write_log($this->key."======接口地址=======\n", 'JiliGame'.$cid);
+        write_log($this->key."=开始时间".$time, 'JiliGame'.$cid);
+        write_log($this->key.$action, 'JiliGame'.$cid);
+        write_log($this->key."======接口参数=======\n", 'JiliGame'.$cid);
         write_log($post, 'JiliGame'.$cid);
     }
 
@@ -156,9 +158,9 @@ class JiliGame extends BaseController
 
     protected function error($msg = '',$code=500)
     {
-        write_log($msg, 'JiliGame'.$this->cid);
+        write_log($this->key.$msg, 'JiliGame'.$this->cid);
         $time = microtime(true);
-        write_log("结束时间".$time, 'JiliGame'.$this->cid);
+        write_log($this->key."=结束时间".$time, 'JiliGame'.$this->cid);
         return json([
             'success' => '0',
             'balance' => '0',
@@ -170,10 +172,10 @@ class JiliGame extends BaseController
 
     protected function success($money = '', $code = 1)
     {
-        write_log("====余额====", 'JiliGame'.$this->cid);
-        write_log($money, 'JiliGame'.$this->cid);
+        write_log($this->key."====余额====", 'JiliGame'.$this->cid);
+        write_log($this->key.$money, 'JiliGame'.$this->cid);
         $time = microtime(true);
-        write_log("结束时间".$time, 'JiliGame'.$this->cid);
+        write_log($this->key."=结束时间".$time, 'JiliGame'.$this->cid);
         return json([
             'success' => '1',
             'balance' => $money,
