@@ -24,15 +24,17 @@ class GameUser extends Base
      * @param $is_login     int     是否需要登录
      * @return mixed
      */
-    public function add($cid,$uid,$pid,$user,$player_id,$is_login): mixed
+    public function add($cid,$uid,$pid,$lid,$user,$player_id,$is_login,$rtp=0): mixed
     {
         $data = [
             'cid'       => $cid,
             'uid'       => $uid,
             'pid'       => $pid,
+            'lid'       => $lid,
             'user'      => $user,
             'player_id' => $player_id,
-            'is_login'  => $is_login
+            'is_login'  => $is_login,
+            'rtp'       => $rtp
         ];
         $this->setPartition($cid);
         return self::partition($this->partition)->insertGetId($data);
@@ -50,5 +52,8 @@ class GameUser extends Base
     public function getInfo($uid,$pid){
         $info = self::where("uid","=",$uid)->where("pid","=",$pid)->partition($this->partition)->find();
         return $info;
+    }
+    public function edit($id,$data){
+        return self::where("id","=",$id)->partition($this->partition)->update($data);
     }
 }

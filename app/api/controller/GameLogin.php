@@ -20,6 +20,7 @@ class GameLogin extends Base
     protected $game;
     protected $cid;
     protected $plate;
+    protected $line;
     protected $GameWallet;
     protected function set_config()
     {
@@ -41,13 +42,14 @@ class GameLogin extends Base
         }else{
             $channel = model('app\common\model\Channel')->info($cid);
             $lid = $channel['plate_line'][$plate['id']];
-            $line = app('app\common\model\Plate')
+            $line = app('app\common\model\Line')
                 ->where("lid","=",$lid)
-                ->find($channel['pg_id']);
+                ->find();
         }
+        $this->line = $line;
         $this->game = $game->toArray();
         $platform = $plate['code'];
-        $this->GameWallet = model('app\common\model\GameWallet',$cid);
+        //$this->GameWallet = model('app\common\model\GameWallet',$cid);
         $this->platformService = GamePlatformFactory::getPlatformService($platform, $line, $this->user);
         return true;
     }
@@ -66,9 +68,11 @@ class GameLogin extends Base
         $is_login = $row['is_login'];
         if(empty($game_user)){
             $GameUser = model('app\common\model\GameUser',$this->cid);
+            $lid = $this->line['lid'];
             $uid = $this->user['uid'];
             $pid = $this->plate['id'];
-            $GameUser->add($this->cid,$uid,$pid,$username,$player_id,$is_login);
+            $rtp = $this->line['rtp'];
+            $GameUser->add($this->cid,$uid,$pid,$lid,$username,$player_id,$is_login,$rtp);
         }
         return $row;
     }
@@ -141,7 +145,15 @@ class GameLogin extends Base
         }
         return true;
     }
-
+    protected function rtp_limit($game_user){
+        $row = $this->platformService->set_rtp_limit($this->user,$this->line['rtp']);
+        if($row['code'] != 0){
+            return $row;
+        }
+        $GameUser = model('app\common\model\GameUser',$this->cid);
+        $GameUser->edit($game_user['id'],['rtp'=>$this->line['rtp']]);
+        return $row;
+    }
     /**
      * @Apidoc\Title("获取游戏启动链接")
      * @Apidoc\Desc("获取游戏启动链接")
@@ -166,10 +178,14 @@ class GameLogin extends Base
             $this->user['user_token'] = $token['token'];
         }
         $plate = $this->plate;
-        $this->down_score();
-        if($plate['wallet_type'] == 2){
+        /*if($game_user && $game_user['rtp'] != $this->line['rtp']){
+            $row = $this->rtp_limit($game_user);
+            if($row['code'] != 0) error($row['msg'], 501);    // 游戏登录失败
+        }*/
+        //$this->down_score();
+        /*if($plate['wallet_type'] == 2){
             $this->up_score();
-        }
+        }*/
         $response = $this->platformService->getGameUrl($this->user,$this->game);
 
         if ($response['code'] != 0) {
