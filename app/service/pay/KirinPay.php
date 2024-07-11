@@ -49,7 +49,7 @@ class KirinPay{
     public function cash_out(string $merOrderNo , string $amount,string $type,string $accountNo,string $document,$user=[]){
         $data = [
             'merchantOrderNo' => $merOrderNo,
-            'amount' => number_format($amount, 2, '.', ''),
+            'amount' => number_format(trim($amount), 2, '.', ''),
             'notifyUrl' => SITE_URL.'/api/notify/cash_out',
             'transferType' => $type,
             'beneficiaryAccount' => $accountNo,
