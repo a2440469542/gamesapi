@@ -34,13 +34,14 @@ class GameLog extends Base
      * @param $Award        float   本局得分
      * @return mixed
      */
-    public function add($cid,$uid,$mobile,$bid,$gid,$gname,$UpdateCredit,$game_id,$Term,$Bet,$Award): mixed
+    public function add($cid,$uid,$mobile,$bid,$pid,$gid,$gname,$UpdateCredit,$game_id,$Term,$Bet,$Award): mixed
     {
         $data = [
             'cid' => $cid,
             'uid' => $uid,
             'mobile' => $mobile,
             'bid' => $bid,
+            'pid' => $pid,
             'gid' => $gid,
             'name' => $gname,
             'win_lose' => $UpdateCredit,

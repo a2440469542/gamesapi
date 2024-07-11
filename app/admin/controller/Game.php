@@ -23,7 +23,7 @@ class Game extends Base{
         if($this->request->isPost()) {
             $where = [];
             $limit = input("limit");
-            $orderBy = input("orderBy", 'sort desc');
+            $orderBy = input("orderBy", 'sort desc,gid desc');
             $keyword = input("keyword");
             if ($keyword) {
                 $where[] = ['name', 'like', '%' . $keyword . '%'];

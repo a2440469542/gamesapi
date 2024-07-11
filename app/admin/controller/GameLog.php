@@ -17,6 +17,7 @@ class GameLog extends Base{
      * @Apidoc\Param(ref="pagingParam",desc="分页参数")
      * @Apidoc\Param("cid", type="int",require=true, desc="渠道ID")
      * @Apidoc\Param("mobile", type="string",require=false, desc="用户手机号：搜索时候传")
+     * @Apidoc\Param("pid", type="int",require=false, desc="平台ID")
      * @Apidoc\Param("inv_code", type="string",require=false, desc="用户邀请码：搜索时候传")
      * @Apidoc\Returned(ref="pageReturn")
      * @Apidoc\Returned("data",type="array",desc="充值记录相关",table="cp_game_log",children={
@@ -32,6 +33,7 @@ class GameLog extends Base{
             $order_sn  = input("order_sn", '');
             $type  = input("type", '');
             $cid  = input("cid", '');
+            $pid  = input("pid", '');
             $inv_code = input("inv_code",'');
             if($cid === ''){
                 return error("渠道ID不能为空");
@@ -42,6 +44,7 @@ class GameLog extends Base{
             if($order_sn !== '') $where[] = ['order_sn', '=', $order_sn];
             if($mobile !== '') $where[] = ['gl.mobile', '=', $mobile];
             if($type !== '')$where[] = ['type', '=', $type];
+            if($pid !== '')$where[] = ['gl.pid', '=', $pid];
             $GameLogModel = model('app\common\model\GameLog',$cid);
             $list = $GameLogModel->getList($where, $limit, $orderBy);
             return success("获取成功", $list);

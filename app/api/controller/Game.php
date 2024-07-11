@@ -43,8 +43,12 @@ class Game extends Base
         $limit = input("limit");
         $orderBy = input("orderBy", 'sort desc');
         $keyword = input("keyword");
+        $pid = input("pid");
         if($keyword){
             $where[] = ['name', 'like', '%'.$keyword.'%'];
+        }
+        if($pid){
+            $where[] = ['pid', '=', $pid];
         }
         $where[] = ['is_open','=',1];
         $list = model('app\common\model\Game')->lists($where, $limit, $orderBy);

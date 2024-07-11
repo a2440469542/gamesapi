@@ -29,17 +29,24 @@ class Channel extends Base{
         return view();
     }
     /**
-     * @Apidoc\Title("PG线路列表")
-     * @Apidoc\Desc("PG线路列表")
+     * @Apidoc\Title("平台列表")
+     * @Apidoc\Desc("平台列表")
      * @Apidoc\Method("POST")
-     * @Apidoc\Author("PG线路列表")
-     * @Apidoc\Tag("PG线路列表")
-     * @Apidoc\Returned("",type="array",desc="PG线路列表",table="cp_plate")
+     * @Apidoc\Author("")
+     * @Apidoc\Tag("平台列表")
+     * @Apidoc\Returned("",type="array",desc="PG线路列表",table="cp_plate",children={
+     *      @Apidoc\Returned("line",type="array",desc="平台线路列表",table="cp_line")
+     * })
      */
     public function pg_list(){
         $PlateModel = app("app\common\model\Plate");
-        $where[] = ['is_rebot','=',0];
+        $where = [];
         $list = $PlateModel->lists($where, 10, "id asc");
+        $LineModel = app('app\common\model\Line');
+        foreach($list as $k=>$v){
+            $line = $LineModel->lists([['pid','=',$v['id']]], 10, "lid asc");
+            $list[$k]['line'] = $line;
+        }
         return success("获取成功",$list);
     }
     /**

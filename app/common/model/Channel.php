@@ -15,11 +15,13 @@ use think\facade\Db;
 class Channel extends Base
 {
     protected $pk = 'cid';
+    protected $json = ['plate_line'];
+    protected $jsonAssoc = true;
     public static function add($data){
         if(isset($data['cid']) && $data['cid'] > 0){
             unset($data['add_time']);
+            Cache::delete('channel_'.$data['cid']);
             $row = self::where('cid',$data['cid'])->update($data);
-            cache('channel_'.$data['cid'],null);
         }else{
             $count = self::where("name",'=',$data["name"])->count();
             if($count>0){
@@ -77,18 +79,19 @@ class Channel extends Base
     }
     public function info($cid=0,$url=''){
         if($cid > 0){
-            $info = cache('channel_'.$cid);
+            $info = Cache::get('channel_'.$cid);
         }else{
             $info = [];
         }
         if(empty($info)){
             if($cid > 0){
-                $info = self::where('cid',$cid)->find();
+                $info = self::where('cid',$cid)->where("is_del",'=',0)->find();
             }else{
-                $info = self::where('url',$url)->find();
+                $info = self::where('url',$url)->where("is_del",'=',0)->find();
             }
             if($info){
-                cache('channel_'.$cid,$info->toArray(),0);
+                Cache::set('channel_'.$cid,$info->toArray(),0);
+                //cache('channel_'.$cid,$info->toArray(),0);
             }
         }
         return $info;

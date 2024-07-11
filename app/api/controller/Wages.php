@@ -39,10 +39,10 @@ class Wages extends Base
         }
         $wages = $this->getWagesInfo($cid, $uid);
         $czInfo = $this->getCzInfo($cid, $uid, $config);
-
+        $un_money = ($czInfo['bozhu_money'] + $czInfo['daili_money'] + $czInfo['n3_money']) - $wages['bozhu'] - $wages['daili'] - $wages['n3'];
         $data = [
-            'money' => $wages['bozhu'] + $wages['daili'],
-            'un_money' => ($czInfo['bozhu_money'] + $czInfo['daili_money']) - $wages['bozhu'] - $wages['daili']
+            'money' => round($wages['bozhu'] + $wages['daili'],2),
+            'un_money' => round($un_money,2)
         ];
 
         return success("obter sucesso",$data);//获取成功
@@ -88,7 +88,7 @@ class Wages extends Base
                 return error($e->getMessage(), 500);
             }
             $data = [
-                'money' => $czInfo['bozhu_money'] + $czInfo['daili_money'],
+                'money' => round($czInfo['bozhu_money'] + $czInfo['daili_money'] + $czInfo['n3_money'],2),
                 'un_money' =>  0,
                 'user' => $user
             ];
@@ -127,19 +127,30 @@ class Wages extends Base
         $czNumDaili = $UserStat->get_deposit_num([['u.ppid', '=', $uid]]);
         write_log('代理充值人数:'.$czNumDaili,'wages');
         $czMoneyDaili = $UserStat->get_deposit_and_bet([['u.ppid', '=', $uid]])['cz_money'] ?? 0.00;
-        write_log('代理充值人数:'.$czMoneyDaili,'wages');
+        write_log('代理充值金额:'.$czMoneyDaili,'wages');
+        $czNumN3 = $UserStat->get_deposit_num([['u.pppid', '=', $uid]]);
+        write_log('N3充值人数:'.$czNumN3,'wages');
+        $czMoneyN3 = $UserStat->get_deposit_and_bet([['u.pppid', '=', $uid]])['cz_money'] ?? 0.00;
+        write_log('代理充值金额:'.$czMoneyN3,'wages');
 
-        $bozhuMoney = $dailiMoney = 0;
+        $bozhuMoney = $dailiMoney = $n3Money =  0;
         if ($config['type'] == 1) {
             $bozhuMoney = calculateSalary($czNumBozhu, $czMoneyBozhu, $config) * $config['bozhu'];
             $dailiMoney = calculateSalary($czNumDaili, $czMoneyDaili, $config) * $config['daili'];
-        } elseif ($czNumBozhu >= $config['cz_num']) {
-            $bozhuMoney = $czMoneyBozhu * ($config['bozhu'] / 100);
-        }elseif ($czNumDaili >= $config['cz_num']) {
-            $dailiMoney = $czMoneyDaili * ($config['daili'] / 100);
+            $n3Money = calculateSalary($czNumN3, $czMoneyN3, $config) * $config['n3'];
+        } else {
+            if($czNumBozhu >= $config['cz_num']){
+                $bozhuMoney = $czMoneyBozhu * ($config['bozhu'] / 100);
+            }
+            if($czNumDaili >= $config['cz_num']){
+                $dailiMoney = $czMoneyDaili * ($config['daili'] / 100);
+            }
+            if($czNumN3 >= $config['cz_num']){
+                $n3Money = $czMoneyN3 * ($config['n3'] / 100);
+            }
         }
 
-        return ['bozhu_money' => $bozhuMoney, 'daili_money' => $dailiMoney];
+        return ['bozhu_money' => $bozhuMoney, 'daili_money' => $dailiMoney,'n3_money' => $n3Money];
     }
 
     private function processWages($user, $wages, $czInfo, $config)
@@ -149,6 +160,7 @@ class Wages extends Base
 
         $bozhuUnMoney = $czInfo['bozhu_money'] - $wages['bozhu'];
         $dailiUnMoney = $czInfo['daili_money'] - $wages['daili'];
+        $N3UnMoney = $czInfo['n3_money'] - $wages['n3'];
 
         if ($bozhuUnMoney > 0) {
             $row = $BillModel->addIntvie($user, $BillModel::WAGES_BOZHU, $bozhuUnMoney);
@@ -160,6 +172,11 @@ class Wages extends Base
             $row = $BillModel->addIntvie($user, $BillModel::WAGES_DAILI, $dailiUnMoney);
             $user = $row['user'];
             $WagesModel->add($user, $dailiUnMoney, 2, $config['type']);
+        }
+        if ($N3UnMoney > 0) {
+            $row = $BillModel->addIntvie($user, $BillModel::WAGES_N3, $N3UnMoney);
+            $user = $row['user'];
+            $WagesModel->add($user, $N3UnMoney, 3, $config['type']);
         }
         return $user;
     }

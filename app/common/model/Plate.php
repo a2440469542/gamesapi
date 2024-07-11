@@ -18,10 +18,10 @@ class Plate extends Base
     protected $json = ['plate_line'];
     protected $jsonAssoc = true;
     public static function add($data){
-        if($data['is_rebot'] == 1){
+        /*if($data['is_rebot'] == 1){
             $count = self::where('is_rebot',"=",1)->count();
             if($count > 0)  return error("测试线路只能存在一个");
-        }
+        }*/
         if(isset($data['id']) && $data['id'] > 0){
             $row = self::where('id',"=",$data['id'])->update($data);
         }else{

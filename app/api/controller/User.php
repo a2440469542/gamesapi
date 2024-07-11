@@ -262,7 +262,7 @@ class User extends Base
         //从数据库获取自己下级的邀请人数和满足宝箱人数，存款人数，总存款数，总投注额的代码
         $channel = model('app\common\model\Channel')->info($cid);
         $box_num = 0;
-        if ($channel) {
+        if ($channel && $channel['cz_money'] > 0 && $channel['bet_money'] > 0) {
             $where[] = ['u.pid', "=", $uid];
             $box_num = $UserStat->get_box_num($where, $channel['cz_money'], $channel['bet_money']);//宝箱人数
         }

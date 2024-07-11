@@ -16,7 +16,7 @@ class KirinPay{
     public function pay(string $merOrderNo , string $amount,string $currency='BRL'){
         $data = [
             'merchantOrderNo' => $merOrderNo,
-            'amount' => $amount,
+            'amount' => number_format(trim($amount), 2, '.', ''),
             'notifyUrl' => SITE_URL.'/api/notify/pay',
         ];
         $url = $this->api_url.'/gateway/payment/init';

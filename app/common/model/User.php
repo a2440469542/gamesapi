@@ -137,8 +137,8 @@ class User extends Base
     }
     public function create_rebot($num,$cid){
         $info = self::where('is_rebot',"=",1)->partition($this->partition)->order('uid desc')->find();
-        $mobile = 8888801000;
-        if($info && (int) $info['mobile'] >= (int) ('55'.$mobile)){
+        $mobile = 558888801000;
+        if($info && (int) $info['mobile'] >= $mobile){
             $mobile = (int) $info['mobile'] + 1;
         }
         $insert = $data = [];
@@ -147,13 +147,13 @@ class User extends Base
         for($i=0;$i<$num;$i++) {
             $pwd = str_rand(6,2);
             $data[] =[
-                'mobile' => $mobile,
+                'mobile' => substr($mobile, 2),
                 'pwd' => $pwd
             ];
             $insert[] = [
                 'cid' => $cid,
-                'user' => '55'.$mobile,
-                'mobile' => '55'.$mobile,
+                'user' => $mobile,
+                'mobile' => $mobile,
                 'pwd' => md5($pwd),
                 'inv_code' => $this->get_inv_code(),
                 'money' => 500,
@@ -196,5 +196,10 @@ class User extends Base
     public function reg_num($cid){
         $this->setPartition($cid);
         return self::where('is_rebot','=',0)->partition($this->partition)->count();
+    }
+    //统计用户余额
+    public function user_money($cid){
+        $this->setPartition($cid);
+        return self::where('is_rebot','=',0)->partition($this->partition)->sum('money');
     }
 }

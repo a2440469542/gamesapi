@@ -9,6 +9,7 @@ namespace app\common\model;
 use app\admin\model\Base;
 use hg\apidoc\annotation\Field;
 use hg\apidoc\annotation\AddField;
+use think\facade\Db;
 
 class UserStat extends Base
 {
@@ -25,7 +26,7 @@ class UserStat extends Base
             ["uid","=",$uid]
         ];
         $this->setPartition($user['cid']);
-        $stat = self::where($where)->partition($this->partition)->lock(true)->find();
+        $stat = self::where($where)->partition($this->partition)->find();
         if(empty($stat)){
             $data['date'] = $date;
             $data['cid'] = $user['cid'];
@@ -39,7 +40,8 @@ class UserStat extends Base
                 if($key === 'cid') continue;
                 if($key === 'uid') continue;
                 if($key === 'mobile') continue;
-                $update[$key] = $stat[$key] + $val;
+                $update[$key] = Db::raw('`'.$key.'` + '.$val);
+                //$update[$key] = $stat[$key] + $val;
             }
             $update['date'] = $date;
             $update['cid'] = $user['cid'];

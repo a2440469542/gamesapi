@@ -68,6 +68,7 @@ class UserStat extends Base{
         $UserStatModel = model('app\common\model\UserStat',$cid);
         $WagesModel = model('app\common\model\Wages',$cid);
         $reg_num = $UserModel->reg_num($cid);           //注册人数
+        $user_money = $UserModel->user_money($cid);     //用户余额
         $cz_num = $UserStatModel->get_cz_num();             //充值人数
         $user_stat = $UserStatModel->get_total_money(); //统计信息
         $box_num = $UserStatModel->box_num();           //宝箱领取人数
@@ -81,9 +82,11 @@ class UserStat extends Base{
             'cash_money' => round($user_stat['cash_money'] ?? '0.00',2),   //总提现金额
             'box_num' => $box_num,
             'daili_wages_num' =>    $wages_num['daili'],    //代理工资领取人数
-            'daili_wages_money' => $wages_money['daili'],   //代理工资领取总额
+            'daili_wages_money' => round($wages_money['daili'] ?? '0.00',2),   //代理工资领取总额
             'bozhu_wages_num' =>    $wages_num['bozhu'],    //博主工资领取人数
-            'bozhu_wages_money' => $wages_money['bozhu'],   //博主工资领取总额
+            'bozhu_wages_money' => round($wages_money['bozhu'] ?? '0.00',2),   //博主工资领取总额
+            'user_money' => round($user_money,2),   //用户余额
+            'box_money'  => round($user_stat['box_money'] ?? '0.00',2),   //宝箱领取总额
         ];
         return success("获取成功", $data);
     }

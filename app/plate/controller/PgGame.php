@@ -16,6 +16,8 @@ class PgGame extends BaseController
 
     private function logRequest($action)
     {
+        $time = microtime(true);
+        write_log("开始时间".$time, 'PgGame');
         write_log("======接口地址=======\n", 'PgGame');
         write_log($action, 'PgGame');
         write_log("======接口参数=======\n", 'PgGame');
@@ -28,12 +30,19 @@ class PgGame extends BaseController
         $params = $this->validateParams(['OperatorToken', 'UseID', 'GameID', 'SecretStr']);
         if ($params === false) return $this->error("参数错误");
 
-        list($OperatorToken, $uid, $gid, $SecretStr) = $params;
+        list($OperatorToken, $UseID, $gid, $SecretStr) = $params;
+        list($cid, $uid) = explode('_', $UseID);
 
-        $plate = app("app\common\model\Plate")->where("app_id", $OperatorToken)->find();
-        if (!$this->validatePlate($plate, $OperatorToken, $SecretStr)) return $this->error("平台或密钥不正确");
+        $plate = app('app\common\model\Plate')->where("code", 'PgGame')->find();
+        if(empty($plate)) return $this->error("平台不存在");
 
-        list($cid, $uid) = explode('_', $uid);
+        $game_user = model('app\common\model\GameUser',$cid)->where('pid',"=",$plate['id'])->where("player_id", $UseID)->find();
+        if(empty($game_user)) return $this->error("用户不存在");
+
+        $line = app('app\common\model\Line')->where("lid","=",$game_user['lid'])->find();
+        if (!$this->validatePlate($line, $OperatorToken, $SecretStr)) return $this->error("平台或密钥不正确");
+
+
         $user = $this->getUser($cid, $uid);
         if (empty($user)) return $this->error("用户不存在");
 
@@ -45,18 +54,24 @@ class PgGame extends BaseController
         $params = $this->validateParams(['OperatorToken', 'UseID', 'GameID', 'SecretStr', 'UpdateCredit', 'Term', 'Bet', 'Award']);
         if ($params === false) return $this->error("参数错误");
 
-        list($OperatorToken, $uid, $game_id, $SecretStr, $UpdateCredit, $Term, $Bet, $Award) = $params;
+        list($OperatorToken, $UseID, $game_id, $SecretStr, $UpdateCredit, $Term, $Bet, $Award) = $params;
+        list($cid, $uid) = explode('_', $UseID);
 
-        $plate = app("app\common\model\Plate")->where("app_id", $OperatorToken)->find();
-        if (!$this->validatePlate($plate, $OperatorToken, $SecretStr)) return $this->error("平台或密钥不正确");
+        $plate = app('app\common\model\Plate')->where("code", 'PgGame')->find();
+        if(empty($plate)) return $this->error("平台不存在");
+
+        $game_user = model('app\common\model\GameUser',$cid)->where('pid',"=",$plate['id'])->where("player_id", $UseID)->find();
+        if(empty($game_user)) return $this->error("用户不存在");
+
+        $line = app('app\common\model\Line')->where("lid","=",$game_user['lid'])->find();
+        if (!$this->validatePlate($line, $OperatorToken, $SecretStr)) return $this->error("平台或密钥不正确");
 
         $game = app("app\common\model\Game")->where("code", $game_id)->find();
         if (empty($game)) return $this->error("游戏不存在");
 
-        list($cid, $uid) = explode('_', $uid);
         $user = $this->getUser($cid, $uid);
         if (empty($user)) return $this->error("用户不存在");
-
+        if($user['money'] < $Bet) return $this->error("余额不足");
         return $this->processTransaction($user, $cid, $uid, $game, $UpdateCredit, $Term, $Bet, $Award);
     }
 
@@ -99,7 +114,7 @@ class PgGame extends BaseController
                 $bid = $row['bid'];
             }
             $GameLog = app('app\common\model\GameLog');
-            $GameLog->add($cid, $uid, $user['mobile'],$bid, $game['gid'],$game['name'], $UpdateCredit, $game['code'], $Term, $Bet, $Award);
+            $GameLog->add($cid, $uid, $user['mobile'],$bid, $game['pid'], $game['gid'], $game['name'], $UpdateCredit, $game['code'], $Term, $Bet, $Award);
             if($user['water'] > 0){
                 $UserModel = model('app\common\model\User',$cid);
                 if($Bet > $user['water']){
@@ -123,6 +138,8 @@ class PgGame extends BaseController
     protected function error($msg = '')
     {
         write_log($msg, 'PgGame');
+        $time = microtime(true);
+        write_log("结束时间".$time, 'PgGame');
         return json([
             'data' => $msg,
             'error' => 3202
@@ -133,6 +150,8 @@ class PgGame extends BaseController
     {
         write_log("====余额====", 'PgGame');
         write_log($money, 'PgGame');
+        $time = microtime(true);
+        write_log("结束时间".$time, 'PgGame');
         $milliseconds = round(microtime(true) * 1000);
         return json([
             'data' => [

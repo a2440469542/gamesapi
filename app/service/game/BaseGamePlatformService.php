@@ -17,7 +17,7 @@ abstract class BaseGamePlatformService
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $this->baseUrl . $uri);
         curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 

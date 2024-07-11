@@ -37,6 +37,7 @@ class Wages extends Base
     public function get_money($uid){
         $data['bozhu'] = self::where('uid',"=",$uid)->where("type","=",1)->partition($this->partition)->sum('money');
         $data['daili'] = self::where('uid',"=",$uid)->where("type","=",2)->partition($this->partition)->sum('money');
+        $data['n3'] = self::where('uid',"=",$uid)->where("type","=",3)->partition($this->partition)->sum('money');
         return $data;
     }
     public function lists($where=[], $limit=10, $order='id desc'){

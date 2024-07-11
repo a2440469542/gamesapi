@@ -63,7 +63,10 @@ class Plate extends Base{
             return error("请选择要删除的数据");
         }
         $PlateModel = app("app\common\model\Plate");
+        $LineModel = app("app\common\model\Line");
+
         $res = $PlateModel->where('id', $id)->delete();
+        $LineModel->where("pid",$id)->delete();
         if($res){
             return success("删除成功");
         }else{
