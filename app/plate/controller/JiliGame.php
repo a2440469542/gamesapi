@@ -157,6 +157,8 @@ class JiliGame extends BaseController
     protected function error($msg = '',$code=500)
     {
         write_log($msg, 'JiliGame'.$this->cid);
+        $time = microtime(true);
+        write_log("结束时间".$time, 'JiliGame'.$this->cid);
         return json([
             'success' => '0',
             'balance' => '0',
