@@ -21,7 +21,6 @@ class PgGame extends BaseController
         $post = $this->request->post();
         list($cid, $uid) = explode('_', $post['UseID']);
         $this->cid = $cid;
-        $this->uid = $uid;
         write_log("开始时间".$time, 'PgGame'.$cid);
         write_log("======接口地址=======\n", 'PgGame'.$cid);
         write_log($action, 'PgGame');

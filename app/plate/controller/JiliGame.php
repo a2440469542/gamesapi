@@ -7,6 +7,7 @@ use think\facade\Db;
 
 class JiliGame extends BaseController
 {
+    protected $cid = 0;
     public function __construct(App $app)
     {
         parent::__construct($app);
@@ -16,11 +17,16 @@ class JiliGame extends BaseController
 
     private function logRequest($action)
     {
-        write_log("======接口地址=======\n", 'JiliGame');
-        write_log($action, 'JiliGame');
-        write_log("======接口参数=======\n", 'JiliGame');
         $post = $this->request->post();
-        write_log($post, 'JiliGame');
+        $time = microtime(true);
+        $player_id = $post['player_id'];
+        list($cid, $uid) = explode('_', $player_id);
+        $this->cid = $cid;
+        write_log("开始时间".$time, 'JiliGame'.$cid);
+        write_log("======接口地址=======\n", 'JiliGame'.$cid);
+        write_log($action, 'JiliGame'.$cid);
+        write_log("======接口参数=======\n", 'JiliGame'.$cid);
+        write_log($post, 'JiliGame'.$cid);
     }
 
     public function get_balance()
@@ -150,7 +156,7 @@ class JiliGame extends BaseController
 
     protected function error($msg = '',$code=500)
     {
-        write_log($msg, 'JiliGame');
+        write_log($msg, 'JiliGame'.$this->cid);
         return json([
             'success' => '0',
             'balance' => '0',
@@ -162,8 +168,10 @@ class JiliGame extends BaseController
 
     protected function success($money = '', $code = 1)
     {
-        write_log("====余额====", 'JiliGame');
-        write_log($money, 'JiliGame');
+        write_log("====余额====", 'JiliGame'.$this->cid);
+        write_log($money, 'JiliGame'.$this->cid);
+        $time = microtime(true);
+        write_log("结束时间".$time, 'JiliGame'.$this->cid);
         return json([
             'success' => '1',
             'balance' => $money,
