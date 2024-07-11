@@ -58,26 +58,34 @@ class PgGame extends BaseController
         $time = microtime(true);
         write_log($this->key."=查询平台结束".$time, 'PgGame'.$this->cid);
 
+        $time = microtime(true);
         write_log($this->key."=查询game_user开始".$time, 'PgGame'.$this->cid);
         $game_user = model('app\common\model\GameUser',$cid)->where('pid',"=",$plate['id'])->where("player_id", $UseID)->find();
         if(empty($game_user)) return $this->error("用户不存在");
+        $time = microtime(true);
         write_log($this->key."=查询game_user结束".$time, 'PgGame'.$this->cid);
 
+        $time = microtime(true);
         write_log($this->key."=查询Line开始".$time, 'PgGame'.$this->cid);
         $line = app('app\common\model\Line')->where("lid","=",$game_user['lid'])->find();
         if (!$this->validatePlate($line, $OperatorToken, $SecretStr)) return $this->error("平台或密钥不正确");
+        $time = microtime(true);
         write_log($this->key."=查询Line结束".$time, 'PgGame'.$this->cid);
 
+        $time = microtime(true);
         write_log($this->key."=查询game开始".$time, 'PgGame'.$this->cid);
         $game = app("app\common\model\Game")->where("code", $game_id)->where("pid","=",$plate['id'])->find();
         if (empty($game)) return $this->error("游戏不存在");
+        $time = microtime(true);
         write_log($this->key."=查询game结束".$time, 'PgGame'.$this->cid);
 
+        $time = microtime(true);
         write_log($this->key."=用户余额游戏记录开始".$time, 'PgGame'.$this->cid);
         $user = $this->getUser($cid, $uid);
         if (empty($user)) return $this->error("用户不存在");
         if($user['money'] < $Bet / 1000) return $this->error("余额不足");
         $res =  $this->processTransaction($user, $cid, $uid, $game, $UpdateCredit, $Term, $Bet, $Award);
+        $time = microtime(true);
         write_log($this->key."=用户余额游戏记录结束".$time, 'PgGame'.$this->cid);
 
         return $res;
