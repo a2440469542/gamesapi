@@ -64,7 +64,9 @@ class Plate extends Base{
         }
         $PlateModel = app("app\common\model\Plate");
         $LineModel = app("app\common\model\Line");
-
+        $GameModel = app('app\common\model\Game');
+        $count = $GameModel->where("pid",$id)->count();
+        if($count > 0) return error("该游戏平台下有游戏，不能删除");
         $res = $PlateModel->where('id', $id)->delete();
         $LineModel->where("pid",$id)->delete();
         if($res){
