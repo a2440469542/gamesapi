@@ -35,6 +35,7 @@ class PgGamePlatformService extends BaseGamePlatformService
         $headers = [
             'Content-Type: application/json'
         ];
+        write_log("注册用户请求地址：".$this->baseUrl.$apiUrl,'PgGame');
         $row = $this->request($apiUrl, $params, $headers);
         write_log($row,'PgGame');
         if($row['status'] == 0){
@@ -59,6 +60,7 @@ class PgGamePlatformService extends BaseGamePlatformService
         $headers = [
             'Content-Type: application/json'
         ];
+        write_log("获取游戏请求地址：".$this->baseUrl.$apiUrl,'PgGame');
         $response = $this->request($apiUrl, $params, $headers);
         write_log($response,'PgGame');
         if(isset($response['code']) && $response['code'] == 0){
@@ -67,9 +69,13 @@ class PgGamePlatformService extends BaseGamePlatformService
             return ['code'=>$response['status'], 'msg'=>$response['msg']];
         }
     }
-
     // 其它对应的API方法...
-    public function withdrawUser($user,$amount)
+    public function balanceUser($user)
+    {
+        // TODO: Implement balanceUser() method.
+    }
+
+    public function withdrawUser($user, $amount)
     {
         // TODO: Implement withdrawUser() method.
     }
@@ -77,10 +83,5 @@ class PgGamePlatformService extends BaseGamePlatformService
     public function depositUser($user)
     {
         // TODO: Implement depositUser() method.
-    }
-    //查询余额
-    public function balanceUser($user)
-    {
-        // TODO: Implement balanceUser() method.
     }
 }

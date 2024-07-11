@@ -35,9 +35,10 @@ class JiliGamePlatformService extends BaseGamePlatformService
         $params['sign'] = $this->generateSign($params);
         write_log($params,'JiliGame');
         $headers = [
-            'Content-Type: application/form-data'
+            'Content-Type: application/x-www-form-urlencoded'
         ];
-        $row = $this->request($apiUrl, $params, $headers);
+        write_log("请求地址：".$this->baseUrl.$apiUrl,'JiliGame');
+        $row = $this->request($apiUrl, http_build_query($params), $headers);
         write_log($row,'JiliGame');
         if($row['success'] == 1){
             return ['code'=>0, 'msg'=>'登录成功','token'=>$row['data']['token']];
@@ -54,16 +55,17 @@ class JiliGamePlatformService extends BaseGamePlatformService
         $params['player_id'] = $user['cid'].'_'.$user['uid'];
         $params['currency'] = 'BRL';
         $params['gameid'] = $game['code'];
-        $params['language'] = "pt";
         $params['timestamp'] = time();
         $params['sign'] = $this->generateSign($params);
-        write_log("获取游戏链接",'PgGame');
-        write_log($params,'PgGame');
+        $params['language'] = "pt-BR";
+        write_log("获取游戏链接",'JiliGame');
+        write_log($params,'JiliGame');
         $headers = [
-            'Content-Type: application/form-data'
+            'Content-Type: application/x-www-form-urlencoded'
         ];
-        $response = $this->request($apiUrl, $params, $headers);
-        write_log($response,'PgGame');
+        write_log("请求地址：".$this->baseUrl.$apiUrl,'JiliGame');
+        $response = $this->request($apiUrl, http_build_query($params), $headers);
+        write_log($response,'JiliGame');
         if($response['success'] == 1){
             return ['code'=>0, 'msg'=>'获取成功','url'=>$response['play_url']];
         }else{
@@ -85,9 +87,9 @@ class JiliGamePlatformService extends BaseGamePlatformService
         write_log("====下分====",'JiliGame');
         write_log($params,'JiliGame');
         $headers = [
-            'Content-Type: application/form-data'
+            'Content-Type: application/x-www-form-urlencoded'
         ];
-        $row = $this->request($apiUrl, $params, $headers);
+        $row = $this->request($apiUrl, http_build_query($params), $headers);
         write_log($row,'JiliGame');
         if($row['success'] == 1){
             return ['code'=>0, 'msg'=>'获取成功','balance'=>$row['amount'],'worder_sn'=>$row['transactionid'],'w_tx'=>$row['tx']];
@@ -109,9 +111,9 @@ class JiliGamePlatformService extends BaseGamePlatformService
         write_log("====上分====",'JiliGame');
         write_log($params,'JiliGame');
         $headers = [
-            'Content-Type: application/form-data'
+            'Content-Type: application/x-www-form-urlencoded'
         ];
-        $row = $this->request($apiUrl, $params, $headers);
+        $row = $this->request($apiUrl, http_build_query($params), $headers);
         write_log($row,'JiliGame');
         if($row['success'] == 1){
             return ['code'=>0, 'msg'=>'获取成功','money'=>$user['money'],'dorder_sn'=>$row['transactionid'],'d_tx'=>$row['tx']];
@@ -131,9 +133,9 @@ class JiliGamePlatformService extends BaseGamePlatformService
         write_log("====获取余额====",'JiliGame');
         write_log($params,'JiliGame');
         $headers = [
-            'Content-Type: application/form-data'
+            'Content-Type: application/x-www-form-urlencoded'
         ];
-        $row = $this->request($apiUrl, $params, $headers);
+        $row = $this->request($apiUrl, http_build_query($params), $headers);
         write_log($row,'JiliGame');
         if($row['success'] == 1){
             return ['code'=>0, 'msg'=>'获取成功','balance'=>$row['balance']];
@@ -142,4 +144,25 @@ class JiliGamePlatformService extends BaseGamePlatformService
         }
     }
     // 其它对应的API方法...
+    public function set_rtp_limit($user,$rtp_limit){
+        $apiUrl = '/player/set_rtp_limit';
+        $params['merchant_id'] = $this->operatorToken;
+        $params['player_id'] = $user['cid'].'_'.$user['uid'];
+        $params['rtp_limit'] = $rtp_limit;
+        $params['timestamp'] = time();
+        $params['sign'] = $this->generateSign($params);
+        write_log("====设置RTP====",'JiliGame');
+        write_log($params,'JiliGame');
+        $headers = [
+            'Content-Type: application/x-www-form-urlencoded'
+        ];
+        write_log("请求地址：".$this->baseUrl.$apiUrl,'JiliGame');
+        $row = $this->request($apiUrl, http_build_query($params), $headers);
+        write_log($row,'JiliGame');
+        if($row['success'] == 1){
+            return ['code'=>0, 'msg'=>'获取成功'];
+        }else{
+            return ['code'=>$row['code'], 'msg'=>$row['message']];
+        }
+    }
 }
