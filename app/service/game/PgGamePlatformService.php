@@ -35,7 +35,7 @@ class PgGamePlatformService extends BaseGamePlatformService
         $headers = [
             'Content-Type: application/json'
         ];
-        write_log("注册用户请求地址：".$this->baseUrl.$apiUrl,'PgGame');
+        write_log("注册用户请求地址：".$this->baseUrl.$apiUrl,'PgGame'.$user['cid']);
         $row = $this->request($apiUrl, json_encode($params), $headers);
         write_log($row,'PgGame');
         if($row['status'] == 0){
@@ -60,7 +60,7 @@ class PgGamePlatformService extends BaseGamePlatformService
         $headers = [
             'Content-Type: application/json'
         ];
-        write_log("获取游戏请求地址：".$this->baseUrl.$apiUrl,'PgGame');
+        write_log("获取游戏请求地址：".$this->baseUrl.$apiUrl,'PgGame'.$user['cid']);
         $response = $this->request($apiUrl, json_encode($params), $headers);
         write_log($response,'PgGame');
         if(isset($response['code']) && $response['code'] == 0){

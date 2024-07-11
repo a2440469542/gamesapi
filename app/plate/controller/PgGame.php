@@ -7,6 +7,7 @@ use think\facade\Db;
 
 class PgGame extends BaseController
 {
+    protected $cid = 0;
     public function __construct(App $app)
     {
         parent::__construct($app);
@@ -17,11 +18,15 @@ class PgGame extends BaseController
     private function logRequest($action)
     {
         $time = microtime(true);
-        write_log("开始时间".$time, 'PgGame');
-        write_log("======接口地址=======\n", 'PgGame');
-        write_log($action, 'PgGame');
-        write_log("======接口参数=======\n", 'PgGame');
         $post = $this->request->post();
+        list($cid, $uid) = explode('_', $post['UseID']);
+        $this->cid = $cid;
+        $this->uid = $uid;
+        write_log("开始时间".$time, 'PgGame'.$cid);
+        write_log("======接口地址=======\n", 'PgGame'.$cid);
+        write_log($action, 'PgGame');
+        write_log("======接口参数=======\n", 'PgGame'.$cid);
+
         write_log($post, 'PgGame');
     }
 
@@ -137,9 +142,9 @@ class PgGame extends BaseController
 
     protected function error($msg = '')
     {
-        write_log($msg, 'PgGame');
+        write_log($msg, 'PgGame'.$this->cid);
         $time = microtime(true);
-        write_log("结束时间".$time, 'PgGame');
+        write_log("结束时间".$time, 'PgGame'.$this->cid);
         return json([
             'data' => $msg,
             'error' => 3202
@@ -148,10 +153,10 @@ class PgGame extends BaseController
 
     protected function success($money = '', $code = 1)
     {
-        write_log("====余额====", 'PgGame');
-        write_log($money, 'PgGame');
+        write_log("====余额====", 'PgGame'.$this->cid);
+        write_log($money, 'PgGame'.$this->cid);
         $time = microtime(true);
-        write_log("结束时间".$time, 'PgGame');
+        write_log("结束时间".$time, 'PgGame'.$this->cid);
         $milliseconds = round(microtime(true) * 1000);
         return json([
             'data' => [
