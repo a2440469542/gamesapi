@@ -25,6 +25,7 @@ class Bill extends Base
     const   CASH_RETURN = 107;  //用户提现失败返回
     const   GAME_DEPOSIT = 108;  //游戏上分
     const   GAME_WITHDRAW = 109; //游戏下分
+    const   WAGES_N3 = 111;     //N3工资
     public function getTypeText($type=0): array|string
     {
         $type_text = [
@@ -38,6 +39,7 @@ class Bill extends Base
             self::CASH_RETURN       => 'Retorno de fracasso de retirada',            //用户提现失败返回
             self::GAME_DEPOSIT      => 'Pontos de jogo',                             //游戏上分
             self::GAME_WITHDRAW     => 'Game Lower Division',                        //游戏下分
+            self::WAGES_N3          => 'Salário N3',                                 //N3工资
         ];
         if(isset($type_text[$type])){
             return $type_text[$type];
@@ -57,6 +59,7 @@ class Bill extends Base
             self::CASH_RETURN => '提现失败返回',    //提现失败返回
             self::GAME_DEPOSIT => '游戏上分',      //游戏上分
             self::GAME_WITHDRAW => '游戏下分',     //游戏下分
+            self::WAGES_N3      => 'N3工资',      //N3工资
         ];
         if(isset($type_text[$value])){
             return $type_text[$value];
