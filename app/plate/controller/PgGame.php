@@ -34,21 +34,9 @@ class PgGame extends BaseController
     public function get_balance()
     {
         $params = $this->validateParams(['OperatorToken', 'UseID', 'GameID', 'SecretStr']);
-        if ($params === false) return $this->error("参数错误");
 
         list($OperatorToken, $UseID, $gid, $SecretStr) = $params;
         list($cid, $uid) = explode('_', $UseID);
-
-        $plate = app('app\common\model\Plate')->where("code", 'PgGame')->find();
-        if(empty($plate)) return $this->error("平台不存在");
-
-        $game_user = model('app\common\model\GameUser',$cid)->where('pid',"=",$plate['id'])->where("player_id", $UseID)->find();
-        if(empty($game_user)) return $this->error("用户不存在");
-
-        $line = app('app\common\model\Line')->where("lid","=",$game_user['lid'])->find();
-        if (!$this->validatePlate($line, $OperatorToken, $SecretStr)) return $this->error("平台或密钥不正确");
-
-
         $user = $this->getUser($cid, $uid);
         if (empty($user)) return $this->error("用户不存在");
 
@@ -72,7 +60,7 @@ class PgGame extends BaseController
         $line = app('app\common\model\Line')->where("lid","=",$game_user['lid'])->find();
         if (!$this->validatePlate($line, $OperatorToken, $SecretStr)) return $this->error("平台或密钥不正确");
 
-        $game = app("app\common\model\Game")->where("code", $game_id)->find();
+        $game = app("app\common\model\Game")->where("code", $game_id)->where("pid","=",$plate['id'])->find();
         if (empty($game)) return $this->error("游戏不存在");
 
         $user = $this->getUser($cid, $uid);

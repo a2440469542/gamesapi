@@ -73,7 +73,7 @@ class JiliGame extends BaseController
 
         if($this->validateSign1($params,$line['app_id'],$line['app_secret']) === false) return $this->error("签名错误");
 
-        $game = app('app\common\model\Game')->where("code", $params['gid'])->where("pid","=",$game_user['pid'])->find();
+        $game = app('app\common\model\Game')->where("code", $params['gid'])->where("pid","=",$plate['id'])->where("pid","=",$game_user['pid'])->find();
         if (empty($game)) return $this->error("游戏不存在");
 
         $user = $this->getUser($cid, $uid);
