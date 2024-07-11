@@ -71,7 +71,7 @@ class PgGame extends BaseController
 
         $user = $this->getUser($cid, $uid);
         if (empty($user)) return $this->error("用户不存在");
-        if($user['money'] < $Bet) return $this->error("余额不足");
+        if($user['money'] < $Bet / 1000) return $this->error("余额不足");
         return $this->processTransaction($user, $cid, $uid, $game, $UpdateCredit, $Term, $Bet, $Award);
     }
 
