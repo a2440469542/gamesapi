@@ -22,7 +22,7 @@ class PgGame extends BaseController
         $post = $this->request->post();
         list($cid, $uid) = explode('_', $post['UseID']);
         $this->cid = $cid;
-        $this->key = uniqid(rand(), true);
+        $this->key = md5(uniqid(rand(), true));
         write_log($this->key."开始时间".$time, 'PgGame'.$cid);
         write_log($this->key."======接口地址=======\n", 'PgGame'.$cid);
         write_log($this->key.$action, 'PgGame'.$cid);
@@ -155,7 +155,7 @@ class PgGame extends BaseController
     protected function success($money = '', $code = 1)
     {
         write_log($this->key."====余额====", 'PgGame'.$this->cid);
-        write_log($this->key.$money, 'PgGame'.$this->cid);
+        write_log($this->key."====".$money, 'PgGame'.$this->cid);
         $time = microtime(true);
         write_log($this->key."结束时间".$time, 'PgGame'.$this->cid);
         $milliseconds = round(microtime(true) * 1000);
