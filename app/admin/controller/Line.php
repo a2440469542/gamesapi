@@ -17,15 +17,20 @@ class Line extends Base{
      * @Apidoc\Author("")
      * @Apidoc\Tag("平台线路")
      * @Apidoc\Param(ref="pagingParam",desc="分页参数")
-     * @Apidoc\Param("lid", type="int",require=false, desc="平台ID")
+     * @Apidoc\Param("lid", type="int",require=false, desc="线路ID")
+     * @Apidoc\Param("pid", type="int",require=false, desc="平台ID")
      * @Apidoc\Returned(type="array",desc="平台线路列表",table="cp_plate")
      */
     public function index(){
         $where = [];
         $limit = input("limit");
         $lid = input("lid",0);
+        $pid = input("pid",0);
         if($lid > 0){
             $where[] = ['lid','=',$lid];
+        }
+        if($pid > 0){
+            $where[] = ['pid','=',$pid];
         }
         $orderBy = input("orderBy", 'lid desc');
         $PlateModel = app('app\common\model\Line');
