@@ -34,7 +34,9 @@ return [
             // 端口
             'hostport'        => env('DB_PORT', '3306'),
             // 数据库连接参数
-            'params'          => [],
+            'params'          => [
+                \PDO::ATTR_PERSISTENT => true, // 开启长连接
+            ],
             // 数据库编码默认采用utf8
             'charset'         => env('DB_CHARSET', 'utf8'),
             // 数据库表前缀
@@ -51,11 +53,15 @@ return [
             // 是否严格检查字段是否存在
             'fields_strict'   => true,
             // 是否需要断线重连
-            'break_reconnect' => false,
+            'break_reconnect' => true,
             // 监听SQL
             'trigger_sql'     => env('APP_DEBUG', true),
+            // 字段缓存路径
+            'schema_cache_path' => app()->getRuntimePath() . 'schema' . DIRECTORY_SEPARATOR,
+            // 字段缓存时间（秒）
+            'schema_cache_expire' => 3600,
             // 开启字段缓存
-            'fields_cache'    => false,
+            'fields_cache'    => true,
         ],
 
         // 更多的数据库配置信息
