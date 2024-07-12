@@ -175,7 +175,7 @@ class GameLogin extends Base
             if ($token['code'] != 0) {
                 return error($token['msg'], 501);    // 游戏登录失败
             }
-            $this->user['user_token'] = $token['token'];
+            $this->user['user_token'] = $token['token'] ?? '';
         }
         $plate = $this->plate;
         /*if($game_user && $game_user['rtp'] != $this->line['rtp']){
