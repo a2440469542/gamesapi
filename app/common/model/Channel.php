@@ -33,6 +33,7 @@ class Channel extends Base
                 self::createPartition('cp_user',$id);       //用户表
                 self::createPartition('cp_bill',$id);       //账单表
                 self::createPartition('cp_game_log',$id);   //游戏记录表
+                self::createPartition('cp_box_log',$id);    //游戏记录表
                 self::createPartition('cp_user_stat',$id);  //数据统计表
                 self::createPartition('cp_order',$id);      //充值表
                 self::createPartition('cp_cash',$id);       //提现表
