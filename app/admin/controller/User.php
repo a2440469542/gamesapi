@@ -171,4 +171,17 @@ class User extends Base{
         $res = $userModel->create_rebot($num,$cid);
         return success("创建成功",$res);
     }
+    public function get_child(){
+        $uid = input("uid");
+        $cid = input("cid");
+        if(!$uid){
+            return  error("缺少参数cid");
+        }
+        if(!$cid){
+            return  error("缺少参数cid");
+        }
+        $UserStatModel = app('app\common\model\UsrStat');
+        $list = $UserStatModel->get_child($cid,$uid);
+        return success("获取成功",$list);
+    }
 }

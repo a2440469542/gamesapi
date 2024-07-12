@@ -174,7 +174,28 @@ class UserStat extends Base
             ->where("u.is_rebot","=",0)
             ->partition($this->partition)->find();
     }
+    //获取宝箱领取金额
     public function box_num(){
         return self::where("box_money",">",0)->partition($this->partition)->count();
+    }
+    public function get_child($cid,$uid){
+        $filed = '`us`.uid,`us`.mobile,
+        sum(invite_user) as invite_user,
+        sum(cz_money) as cz_money, 
+        sum(cz_num) as cz_num, 
+        sum(bet_money) as bet_money, 
+        sum(win_money) as win_money, 
+        sum(cash_money) as cash_money,
+        sum(cash_num) as cash_num ,
+        sum(box_money) as box_money,
+        u.money,u.inv_code';
+        $this->setPartition($cid);
+        return self::alias('us')
+            ->field($filed)
+            ->leftJoin("cp_user PARTITION({$this->partition}) `u`","us.uid = u.uid")
+            ->where("u.pid","=",$uid)
+            ->group("us.uid")
+            ->partition($this->partition)
+            ->select();
     }
 }
