@@ -12,7 +12,7 @@ use hg\apidoc\annotation\AddField;
 use think\facade\Cache;
 use think\facade\Db;
 
-class Bank extends Base
+class BankBlack extends Base
 {
     protected $pk = 'id';
     public function getAddTimeAttr($value): string
@@ -37,10 +37,7 @@ class Bank extends Base
 
     }
     public function getList($where=[], $limit=10, $order='id desc'){
-        $list = self::alias("b")
-            ->field("b.*,u.mobile as phone,u.inv_code")
-            ->leftJoin("cp_user PARTITION({$this->partition}) `u`","b.uid = u.uid")
-            ->where($where)
+        $list = self::where($where)
             ->order($order)
             ->paginate($limit)->toArray();
         return $list;

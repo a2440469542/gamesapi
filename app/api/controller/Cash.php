@@ -95,12 +95,24 @@ class Cash extends Base
             if($user['is_rebot'] === 1) return error('O robô não pode fazer retiradas');  //测试账号不能提现
             $order_sn = $cid.'_'.getSn("TX");
             $account = $row['type'] == 'CPF' ? $row['pix'] : '+'.$row['mobile'];
+            $BillModel = model('app\common\model\Bill', $cid);
+            //查询是否在黑名单
+            $black = app('app\common\model\BankBlack')->where('pix',"=",$row['pix'])->count();
+            if($black > 0){
+                $result = $BillModel->addIntvie($user, $BillModel::LOCK_MONEY, -$money);
+                if($result['code'] !== 0){
+                    Db::rollback();
+                    return error("Falha na retirada");  //提现失败
+                }
+                Db::commit();
+                return error('Sua conta está envolvida em atividades ilegais');  //您的账户违规操作
+            }
             $res = $CashModel->add($cid,$uid,$order_sn,$row['type'],$account,$row['pix'],$row['name'],$money);
             if(!$res){
                 Db::rollback();
                 return error('Falha na retirada');   //提现失败
             }
-            $BillModel = model('app\common\model\Bill', $cid);
+
             $result = $BillModel->addIntvie($user, $BillModel::CASH_MONEY, -$money);
             if($result['code'] !== 0){
                 Db::rollback();

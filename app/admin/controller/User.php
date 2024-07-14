@@ -51,9 +51,15 @@ class User extends Base{
         if($cid === 0){
             return error("请选择渠道");
         }
-        $userModel = app("app\common\model\User");
+        $userModel = app('app\common\model\User');
         $userModel->setPartition($cid);
         $list = $userModel->lists($where, $limit, "uid desc");
+        foreach ($list['data'] as &$v) {
+            $where = [
+                ['u.pid',"=",$v['uid']],
+            ];
+            $v['child_num'] = $userModel->get_child_num($where);
+        }
         return success("获取成功", $list);
     }
     /*public function edit(){
@@ -171,6 +177,20 @@ class User extends Base{
         $res = $userModel->create_rebot($num,$cid);
         return success("创建成功",$res);
     }
+    /**
+     * @Apidoc\Title("获取下级数据")
+     * @Apidoc\Desc("获取下级数据")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("")
+     * @Apidoc\Tag("获取下级数据")
+     * @Apidoc\Param("cid", type="int",require=true, desc="渠道ID")
+     * @Apidoc\Param("uid", type="int",require=true, desc="用户ID")
+     * @Apidoc\Returned("",type="array",desc="用户列表",table="cp_user_stat",children={
+     *      @Apidoc\Returned("mobile",type="string",desc="试玩手机号"),
+     *      @Apidoc\Returned("inv_code",type="string",desc="邀请码"),
+     *      @Apidoc\Returned("money",type="float",desc="金额")
+     * })
+     */
     public function get_child(){
         $uid = input("uid");
         $cid = input("cid");
@@ -180,7 +200,7 @@ class User extends Base{
         if(!$cid){
             return  error("缺少参数cid");
         }
-        $UserStatModel = app('app\common\model\UsrStat');
+        $UserStatModel = app('app\common\model\UserStat');
         $list = $UserStatModel->get_child($cid,$uid);
         return success("获取成功",$list);
     }

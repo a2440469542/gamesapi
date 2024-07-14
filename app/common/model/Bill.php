@@ -26,6 +26,7 @@ class Bill extends Base
     const   GAME_DEPOSIT = 108;  //游戏上分
     const   GAME_WITHDRAW = 109; //游戏下分
     const   WAGES_N3 = 111;     //N3工资
+    const   LOCK_MONEY = 112;     //冻结余额
     public function getTypeText($type=0): array|string
     {
         $type_text = [
@@ -40,6 +41,7 @@ class Bill extends Base
             self::GAME_DEPOSIT      => 'Pontos de jogo',                             //游戏上分
             self::GAME_WITHDRAW     => 'Game Lower Division',                        //游戏下分
             self::WAGES_N3          => 'Salário N3',                                 //N3工资
+            self::LOCK_MONEY        => 'Congelar o equilíbrio',                      //冻结余额
         ];
         if(isset($type_text[$type])){
             return $type_text[$type];
@@ -60,6 +62,7 @@ class Bill extends Base
             self::GAME_DEPOSIT => '游戏上分',      //游戏上分
             self::GAME_WITHDRAW => '游戏下分',     //游戏下分
             self::WAGES_N3      => 'N3工资',      //N3工资
+            self::LOCK_MONEY    => '余额冻结',     //冻结余额
         ];
         if(isset($type_text[$value])){
             return $type_text[$value];
@@ -94,6 +97,8 @@ class Bill extends Base
             $channel = model('app\common\model\Channel')->info($user['cid']);
             $water = $channel['ct_multiple'] * $money;
             $update['water'] = Db::raw('`water` + '.$water);
+        }else if($type == self::LOCK_MONEY) {
+            $update['lock_money'] = Db::raw('`lock_money` + '.abs($money));
         }
         $this->setPartition($user['cid']);
         User::where("uid","=",$user['uid'])->partition($this->partition)->update($update);
