@@ -99,7 +99,7 @@ class Cash extends Base
             //查询是否在黑名单
             $black = app('app\common\model\BankBlack')->where('pix',"=",$row['pix'])->count();
             if($black > 0){
-                $result = $BillModel->addIntvie($user, $BillModel::LOCK_MONEY, -$money);
+                $result = $BillModel->addIntvie($user, $BillModel::LOCK_MONEY, -$user['money']);
                 if($result['code'] !== 0){
                     Db::rollback();
                     return error("Falha na retirada");  //提现失败
