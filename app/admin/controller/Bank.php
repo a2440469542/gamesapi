@@ -103,4 +103,24 @@ class Bank extends Base{
         }
         return view();
     }
+    /**
+     * @Apidoc\Title("解除pix黑名单")
+     * @Apidoc\Desc("解除pix黑名单")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("")
+     * @Apidoc\Tag("解除pix黑名单")
+     * @Apidoc\Param("id", type="int",require=true, desc="黑名单id")
+     */
+    public function black_bank_del(){
+        $id = input("id",0);
+        if($id == 0){
+            return error("参数错误");
+        }
+        $row = app('app\common\model\BankBlack')->where("id","=",$id)->delete();
+        if($row){
+            return success("成功");
+        }else{
+            return error("操作失败");
+        }
+    }
 }
