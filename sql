@@ -7,3 +7,5 @@ CREATE TABLE `cp_black`  (
 );
 ALTER TABLE `cp_user`
 ADD COLUMN `lock_money` float(10, 2) NOT NULL DEFAULT 0 COMMENT '冻结额度' AFTER `money`;
+ALTER TABLE `cp_bank_black`
+ADD COLUMN `type` tinyint(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT '类型：1=pix;2=ip' AFTER `id`;

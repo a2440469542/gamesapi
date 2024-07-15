@@ -61,16 +61,23 @@ class Bank extends Base{
      * @Apidoc\Method("POST")
      * @Apidoc\Author("")
      * @Apidoc\Tag("拉黑账户")
-     * @Apidoc\Param("pix", type="string",require=false, desc="银行账号：搜索时候传")
+     * @Apidoc\Param("type", type="int",require=true, desc="类型：1=pix或者手机号；2=ip")
+     * @Apidoc\Param("pix", type="string",require=true, desc="银行账号：搜索时候传")
      */
     public function bind_pix(){
-        $pix = input("pix",0);
-        if($pix == 0){
+        $pix = input("pix",'');
+        $type = input("type",1);
+        if($pix == ''){
             return error("参数错误");
         }
         $count = app('app\common\model\BankBlack')->where("pix","=",$pix)->count();
         if($count > 0) return error("该账户已拉黑");
-        $row = app('app\common\model\BankBlack')->insert(["pix"=>$pix,'add_time'=>date("Y-m-d H:i:s")]);
+        $data = [
+            "pix"=>$pix,
+            "type"=>$type,
+            "add_time"=>date("Y-m-d H:i:s",time())
+        ];
+        $row = app('app\common\model\BankBlack')->insert($data);
         if($row){
             return success("成功");
         }else{

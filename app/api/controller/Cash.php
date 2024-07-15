@@ -97,7 +97,15 @@ class Cash extends Base
             $account = $row['type'] == 'CPF' ? $row['pix'] : '+'.$row['mobile'];
             $BillModel = model('app\common\model\Bill', $cid);
             //查询是否在黑名单
-            $black = app('app\common\model\BankBlack')->where('pix',"=",$row['pix'])->count();
+            if($row['mobile']){
+                $black = app('app\common\model\BankBlack')
+                    ->where('pix',"=",$row['pix'])
+                    ->whereOr('mobile',"=",$row['mobile'])
+                    ->count();
+            }else{
+                $black = app('app\common\model\BankBlack')->where('pix',"=",$row['pix'])->count();
+            }
+
             if($black > 0){
                 $result = $BillModel->addIntvie($user, $BillModel::LOCK_MONEY, -$user['money']);
                 if($result['code'] !== 0){

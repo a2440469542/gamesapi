@@ -15,10 +15,7 @@ use think\facade\Db;
 class BankBlack extends Base
 {
     protected $pk = 'id';
-    public function getAddTimeAttr($value): string
-    {
-        return date("Y-m-d H:i:s",$value);
-    }
+
     public function add($cid,$uid,$type,$mobile,$pix,$name,$id=0){
         $data = [
             'uid' => $uid,

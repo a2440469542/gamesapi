@@ -132,7 +132,7 @@ class User extends Base
     }
     //创建一个修改用户信息的方法
     public function update_user($data){
-        $row = self::where('id',"=",$data['id'])->partition($this->partition)->update($data);
+        $row = self::where('uid',"=",$data['uid'])->partition($this->partition)->update($data);
         return $row;
     }
     public function create_rebot($num,$cid){

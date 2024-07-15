@@ -204,4 +204,45 @@ class User extends Base{
         $list = $UserStatModel->get_child($cid,$uid);
         return success("获取成功",$list);
     }
+    /**
+     * @Apidoc\Title("绑定上级")
+     * @Apidoc\Desc("绑定上级")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("")
+     * @Apidoc\Tag("绑定上级")
+     * @Apidoc\Param("cid", type="int",require=true, desc="渠道ID")
+     * @Apidoc\Param("uid", type="int",require=true, desc="用户ID")
+     * @Apidoc\Param("inv_code", type="string", require=true, desc="邀请码")
+     */
+    public function bind_child(){
+        $inv_code = input("inv_code");//上级ID
+        $uid = input("uid");    //自己ID
+        $cid = input("cid");
+        if(!$inv_code){
+            return  error("缺少参数inv_code");
+        }
+        if(!$uid){
+            return  error("缺少参数uid");
+        }
+        if(!$cid){
+            return  error("缺少参数cid");
+        }
+        $UserModel = model('app\common\model\User',$cid);
+        $user = $UserModel->getInfo($uid);    //获取自己的信息
+        if($user['pid'] > 0){
+            return error("该用户已经绑定上级");
+        }
+        $p_user = $UserModel->get_inv_info($inv_code);    //获取上级的信息
+        if($p_user){
+            $data['uid'] = $uid;
+            $data['pid']   = $p_user['uid'];
+            $data['ppid']  = $p_user['pid'];
+            $data['pppid'] = $p_user['ppid'];
+            $UserModel->update_user($data);
+            $UserStatModel = model('app\common\model\UserStat',$cid);
+            $stat = ['invite_user' => 1];
+            $UserStatModel->add($p_user,$stat);
+        }
+        return success("绑定成功");
+    }
 }

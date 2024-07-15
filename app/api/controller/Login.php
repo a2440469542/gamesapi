@@ -33,6 +33,9 @@ class Login extends Base
         if(!isPhoneNumber($mobile)){
             return error("Número de telefone incorreto",500);    //手机号格式错误
         }
+        $ip = get_real_ip__();
+        $black = app('app\common\model\BankBlack')->where('pix',"=",$ip)->count();
+        if($black > 0) {return error("Refusa-se a registrar",500);}  //ip禁止
         $data = [
             'cid' => $this->cid,
             'user' => $mobile,
