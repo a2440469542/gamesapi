@@ -26,6 +26,9 @@ class WagesConfig extends Base{
             if(empty($cid)) return error("渠道ID不能为空");
             $WagesConfigModel = app('app\common\model\WagesConfig');
             $info = $WagesConfigModel->getInfo($cid);
+            if(empty($info)){
+                $info['type'] = 1;
+            }
             return success("获取成功",$info);
         }
         return view();
