@@ -44,7 +44,11 @@ class Cash extends Base{
             if($inv_code){
                 $where[] = ['u.inv_code',"=",$inv_code];
             }
-            $CashModel = model('app\common\model\Cash',$cid);
+            if($order_sn){
+                $CashModel = app('app\common\model\Cash');
+            }else{
+                $CashModel = model('app\common\model\Cash',$cid);
+            }
             $list = $CashModel->lists($where, $limit, $orderBy);
             return success("获取成功", $list);
         }

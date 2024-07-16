@@ -45,7 +45,12 @@ class Order extends Base{
             if($inv_code){
                 $where[] = ['u.inv_code',"=",$inv_code];
             }
-            $OrderModel = model('app\common\model\Order',$cid);
+            if($order_sn){
+                $OrderModel = app('app\common\model\Order');
+            }else{
+                $OrderModel = model('app\common\model\Order',$cid);
+            }
+
             $list = $OrderModel->lists($where, $limit, $orderBy);
             return success("获取成功", $list);
         }

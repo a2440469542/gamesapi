@@ -35,13 +35,19 @@ class Cash extends Base
         return date("Y-m-d H:i:s",$value);
     }
     public function lists($where=[], $limit=10, $order='id desc'){
-        $list = self::alias("c")
-            ->field("c.*,u.mobile,u.inv_code")
-            ->leftJoin("cp_user PARTITION({$this->partition}) `u`","c.uid = u.uid")
-            ->where($where)
-            ->order($order)
-            ->partition($this->partition)
-            ->paginate($limit)->toArray();
+        if($this->partition){
+            $list = self::alias("c")
+                ->field("c.*,u.mobile,u.inv_code")
+                ->leftJoin("cp_user PARTITION({$this->partition}) `u`","c.uid = u.uid")
+                ->where($where)
+                ->order($order)->partition($this->partition)->paginate($limit)->toArray();
+        }else{
+            $list = self::alias("c")
+                ->field("c.*,u.mobile,u.inv_code")
+                ->leftJoin("cp_user `u`","c.uid = u.uid")
+                ->where($where)
+                ->order($order)->paginate($limit)->toArray();
+        }
         return $list;
     }
     public function getList($where=[], $limit=10, $order='id desc'){
