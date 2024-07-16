@@ -18,6 +18,9 @@ class Channel extends Base
     protected $json = ['plate_line'];
     protected $jsonAssoc = true;
     public static function add($data){
+        if(!isset($data['plate_line'])) {
+            unset($data['plate_line']);
+        }
         if(isset($data['cid']) && $data['cid'] > 0){
             unset($data['add_time']);
             Cache::delete('channel_'.$data['cid']);
@@ -61,10 +64,7 @@ class Channel extends Base
     }
     protected static function createPartition($tableName, $id) {
         if(!self::checkTablePartition($tableName, 'p' . $id)) {
-            $sql = "ALTER TABLE `{$tableName}`
-                            ADD PARTITION (
-                                PARTITION p{$id} VALUES IN ({$id})
-                            );";
+            $sql = "ALTER TABLE `{$tableName}` ADD PARTITION ( PARTITION p{$id} VALUES IN ({$id}));";
             Db::execute($sql);
         }
     }
