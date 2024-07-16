@@ -24,7 +24,7 @@ class Bank extends Base
             'uid' => $uid,
             'cid' => $cid,
             'type' => $type,
-            'mobile' => $mobile ? '55'.$mobile : $mobile,
+            'mobile' => $mobile,
             'pix' => $pix,
             'name' => $name,
             'add_time' => time(),

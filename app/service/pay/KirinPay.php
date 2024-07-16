@@ -55,6 +55,7 @@ class KirinPay{
             'beneficiaryAccount' => $accountNo,
             'purpose' => $document
         ];
+        write_log($data,'cash_out');
         $url = $this->api_url.'/gateway/payout/init';
         $str = json_encode($data);
         $merchant_key = $this->merchantKey;//'merchant_key';
