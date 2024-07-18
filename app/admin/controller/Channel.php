@@ -17,12 +17,18 @@ class Channel extends Base{
      * @Apidoc\Method("POST")
      * @Apidoc\Author("")
      * @Apidoc\Tag("渠道")
-     * @Apidoc\Returned("",type="array",desc="渠道列表",table="cp_channel")
+     * @Apidoc\Param(ref="pagingParam",desc="分页参数")
+     * @Apidoc\Param("name", type="string",require=false, desc="渠道名称：搜索时候传")
+     * @Apidoc\Returned(ref="pageReturn")
+     * @Apidoc\Returned("data",type="array",desc="渠道列表",table="cp_channel")
      */
     public function index(){
         if($this->request->isPost()){
             $where = [];
-            $limit = input("limit");
+            $limit = input("limit",10);
+            $orderBy = input("orderBy", 'cid desc');
+            $name = input("name",'');
+            if($name != ''){$where[] = ['name','like',"%{$name}%"];}
             $list = ChannelModel::lists($where,$limit);
             return success("获取成功",$list);
         }
@@ -59,6 +65,26 @@ class Channel extends Base{
      */
     public function add(){
         $data = input("post.");
+        $res = ChannelModel::add($data);
+        if($res){
+            return success("保存成功");
+        }else{
+            return error("数据未做任何更改");
+        }
+    }
+    /**
+     * @Apidoc\Title("添加编辑渠道")
+     * @Apidoc\Desc("添加编辑渠道")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("")
+     * @Apidoc\Tag("渠道")
+     * @Apidoc\Param("service_path",type="string",desc="客服链接")
+     * @Apidoc\Param("tg_path",type="string",desc="tg链接")
+     */
+    public function set_url(){
+        $cid = input('cid',0);
+        if($cid == 0) return error("请选择要设置的渠道");
+        $data = input('post.');
         $res = ChannelModel::add($data);
         if($res){
             return success("保存成功");

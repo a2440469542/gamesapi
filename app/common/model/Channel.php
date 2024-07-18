@@ -75,7 +75,7 @@ class Channel extends Base
         $where[] = ['is_del',"=",0];
         $list = self::where($where)
             ->order($order)
-            ->select();
+            ->paginate($limit);
         return $list;
     }
     public function info($cid=0,$url=''){

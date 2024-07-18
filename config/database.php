@@ -61,7 +61,7 @@ return [
             // 字段缓存时间（秒）
             'schema_cache_expire' => 3600,
             // 开启字段缓存
-            'fields_cache'    => true,
+            'fields_cache'    => false,
         ],
 
         // 更多的数据库配置信息
