@@ -24,7 +24,7 @@ class Agent extends Base
     public static function register($data){
         $count = self::where("mobile",'=',$data["mobile"])->count();
         if($count>0){
-            return error("用户已存在");
+            return error("O usuário já existe");
         }
         $ip = get_real_ip__();
         $data['pwd'] = md5($data['pwd']);
@@ -60,12 +60,12 @@ class Agent extends Base
                     Cache::delete($old_token);
                 }
                 Cache::set($user['id'],$token);
-                return success('登录成功',$user);
+                return success('Logem bem sucedido',$user);
             }else{
-                return error('密码错误');
+                return error('O nome de usuário ou a senha é incorrecta, por favor reintroduza!');
             }
         }else{
-            return error('账号不存在');
+            return error('o usuário não existe!');
         }
     }
 }

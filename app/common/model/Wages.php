@@ -51,12 +51,14 @@ class Wages extends Base
     public function wages_num(){
         $data['bozhu'] = self::where('type','=',1)->partition($this->partition)->group('uid')->count();
         $data['daili'] = self::where('type','=',2)->partition($this->partition)->group('uid')->count();
+        $data['n3'] = self::where('type','=',3)->partition($this->partition)->group('uid')->count();
         return $data;
     }
     //获取工资领取总数
     public function wages_money(){
         $data['bozhu'] = self::where("type","=",1)->partition($this->partition)->sum('money');
         $data['daili'] = self::where("type","=",2)->partition($this->partition)->sum('money');
+        $data['n3'] = self::where("type","=",3)->partition($this->partition)->sum('money');
         return $data;
     }
 }

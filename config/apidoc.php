@@ -62,6 +62,26 @@ return [
                 // （选配）当前应用全局的请求Body
                 'body'=>[],
             ],
+        ],
+        [
+            // （必须）标题
+            'title'=>'代理端API',
+            // （必须）控制器目录地址，也可以是数组来指定多个控制器目录，如：['app\demo\controller','app\test\controller']
+            'path'=>'app\agent\controller',
+            // （必须）唯一的key
+            'key'=>'api',
+            // （选配）该应用的访问授权密码
+            'password' => '',
+            'params'=>[
+                // （选配）当前应用全局的请求Header
+                'header'=>[
+                    ['name'=>'Authorization','type'=>'string','require'=>true,'desc'=>'身份令牌Token'],
+                ],
+                // （选配）当前应用全局的请求Query
+                'query'=>[],
+                // （选配）当前应用全局的请求Body
+                'body'=>[],
+            ],
         ]
     ],
     // （必须）指定通用注释定义的文件地址
