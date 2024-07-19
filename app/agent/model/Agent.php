@@ -47,6 +47,9 @@ class Agent extends Base
         if($user) {
             $password = md5($data['pwd']);
             if ($user['pwd'] == $password){
+                if(empty($user['pid'])){
+                    return error('Por favor, contacte o serviço de clientes primeiro para alocar a plataforma');   //请先联系客服分配平台
+                }
                 do {
                     $token = "agent_".bin2hex(random_bytes(16));
                 } while (Cache::has($token));
@@ -55,11 +58,11 @@ class Agent extends Base
                 $updata['last_login_ip'] = get_real_ip__();
                 self::where('id',$user->id)->update($updata);
                 Cache::set($token, $user->toArray(), 0); // 设置缓存，过期时间为1天
-                $old_token = Cache::get($user['id']);
+                $old_token = Cache::get($user['id'].'');
                 if($old_token) {
                     Cache::delete($old_token);
                 }
-                Cache::set($user['id'],$token);
+                Cache::set($user['id'].'',$token);
                 return success('Logem bem sucedido',$user);
             }else{
                 return error('O nome de usuário ou a senha é incorrecta, por favor reintroduza!');

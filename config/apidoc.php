@@ -69,7 +69,7 @@ return [
             // （必须）控制器目录地址，也可以是数组来指定多个控制器目录，如：['app\demo\controller','app\test\controller']
             'path'=>'app\agent\controller',
             // （必须）唯一的key
-            'key'=>'api',
+            'key'=>'agent',
             // （选配）该应用的访问授权密码
             'password' => '',
             'params'=>[

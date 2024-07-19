@@ -26,7 +26,6 @@ class Login extends BaseController
     public function register(){
         $mobile = input("mobile");
         $pwd = input("pwd");
-        $inv_code = input("inv_code");
         if(empty($mobile) || empty($pwd)){
             return error("参数错误",500);   //参数错误
         }

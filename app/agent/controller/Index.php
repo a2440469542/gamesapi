@@ -2,10 +2,17 @@
 
 namespace app\agent\controller;
 
+use hg\apidoc\annotation as Apidoc;
 use app\admin\model\Menu;
 use app\BaseController;
 use think\facade\Db;
 
+/**
+ * 数据相关
+ * @Apidoc\Title("数据相关接口")
+ * @Apidoc\Group("base")
+ * @Apidoc\Sort(1)
+ */
 class Index extends Base
 {
     /**
@@ -20,26 +27,28 @@ class Index extends Base
         $id = $this->request->id;
         $info = app('app\agent\model\Agent')->where('id',$id)->find();
         if(empty($info['pid'])) return error('Por favor, contacte o serviço de clientes primeiro para ligar o canal');
-        $channel = app('app\common\model\Channel')->where('pid','IN',$info['pid'])->select();
+        $channel = app('app\common\model\Channel')->where('cid','IN',$info['pid'])->select();
         return success('获取成功',$channel);
     }
     /**
-     * @Apidoc\Title("绑定列表")
-     * @Apidoc\Desc("绑定列表")
+     * @Apidoc\Title("当前平台每日数据")
+     * @Apidoc\Desc("当前平台每日数据")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("")
-     * @Apidoc\Tag("绑定列表")
-     * @Apidoc\Param(ref="pagingParam",desc="分页参数")
+     * @Apidoc\Tag("当前平台每日数据")
      * @Apidoc\Param("cid", type="int",require=true, desc="渠道ID")
-     * @Apidoc\Param("mobile", type="string",require=false, desc="pix手机号：搜索时候传")
-     * @Apidoc\Param("inv_code", type="string",require=false, desc="用户邀请码：搜索时候传")
-     * @Apidoc\Param("phone", type="string",require=false, desc="用户手机号：搜索时候传")
-     * @Apidoc\Param("pix", type="string",require=false, desc="银行账号：搜索时候传")
-     * @Apidoc\Returned(ref="pageReturn")
-     * @Apidoc\Returned("data",type="array",desc="充值记录相关",table="cp_bank",children={
-     *          @Apidoc\Returned("phone",type="string",desc="用户账号"),
-     *          @Apidoc\Returned("inv_code",type="string",desc="用户邀请码")
-     *     })
+     * @Apidoc\Returned("invite_user",type="int",desc="邀请人数")
+     * @Apidoc\Returned("cz_money",type="float",desc="充值金额")
+     * @Apidoc\Returned("bet_money",type="float",desc="下注金额")
+     * @Apidoc\Returned("cash_money",type="float",desc="提现金额")
+     * @Apidoc\Returned("cz_num",type="int",desc="充值人数")
+     * @Apidoc\Returned("cash_num",type="float",desc="提现人数")
+     * @Apidoc\Returned("bozhu_num",type="int",desc="N1领取人数")
+     * @Apidoc\Returned("bozhu_money",type="float",desc="N1工资")
+     * @Apidoc\Returned("daili_num",type="int",desc="N2领取人数")
+     * @Apidoc\Returned("daili_money",type="float",desc="N2工资")
+     * @Apidoc\Returned("n3_num",type="int",desc="N3领取人数")
+     * @Apidoc\Returned("n3_money",type="float",desc="N3工资")
      */
     public function get_total(){
         $cid = input('cid');

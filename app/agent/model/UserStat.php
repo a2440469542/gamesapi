@@ -14,6 +14,17 @@ use think\facade\Db;
 class UserStat extends Base
 {
     protected $pk = 'id';
+    /**
+     * @Field("invite_user,cz_money,bet_money,cash_money")
+     * @AddField("cz_num",type="int",desc="充值人数")
+     * @AddField("cash_num",type="int",desc="提现人数")
+     * @AddField("bozhu_num",type="int",desc="N1领取人数")
+     * @AddField("bozhu_money",type="float",desc="N1工资")
+     * @AddField("daili_num",type="int",desc="N2领取人数")
+     * @AddField("daili_money",type="float",desc="N2工资")
+     * @AddField("n3_num",type="int",desc="N3领取人数")
+     * @AddField("n3_money",type="float",desc="N3工资")
+     */
     public function lists($where, $limit=10, $orderBy='date desc'){
         $filed = 'date,sum(invite_user) as invite_user,
             sum(cz_money) as cz_money,
