@@ -178,7 +178,7 @@ class UserStat extends Base
     public function box_num(){
         return self::where("box_money",">",0)->partition($this->partition)->count();
     }
-    public function get_child($cid,$uid){
+    public function get_child($cid,$uid,$type=1){
         $filed = '`us`.uid,`us`.mobile,
         sum(invite_user) as invite_user,
         sum(cz_money) as cz_money, 
@@ -189,11 +189,26 @@ class UserStat extends Base
         sum(cash_num) as cash_num ,
         sum(box_money) as box_money,
         u.money,u.inv_code';
+        if($type == 1){
+            $where = [
+                ["u.pid","=",$uid]
+            ];
+        }elseif($type == 2){
+            $where = [
+                ["u.ppid","=",$uid]
+            ];
+        }else{
+            $where = [
+                ["u.ppid","=",$uid]
+            ];
+        }
+
+
         $this->setPartition($cid);
         return self::alias('us')
             ->field($filed)
             ->leftJoin("cp_user PARTITION({$this->partition}) `u`","us.uid = u.uid")
-            ->where("u.pid","=",$uid)
+            ->where($where)
             ->group("us.uid")
             ->partition($this->partition)
             ->select();

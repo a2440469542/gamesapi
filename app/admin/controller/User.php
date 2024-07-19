@@ -185,6 +185,7 @@ class User extends Base{
      * @Apidoc\Tag("获取下级数据")
      * @Apidoc\Param("cid", type="int",require=true, desc="渠道ID")
      * @Apidoc\Param("uid", type="int",require=true, desc="用户ID")
+     * @Apidoc\Param("type", type="int",require=true, desc="类型；1=一级；2=二级；3=三级")
      * @Apidoc\Returned("",type="array",desc="用户列表",table="cp_user_stat",children={
      *      @Apidoc\Returned("mobile",type="string",desc="试玩手机号"),
      *      @Apidoc\Returned("inv_code",type="string",desc="邀请码"),
@@ -194,6 +195,7 @@ class User extends Base{
     public function get_child(){
         $uid = input("uid");
         $cid = input("cid");
+        $type = input("type",1);
         if(!$uid){
             return  error("缺少参数cid");
         }
@@ -201,7 +203,7 @@ class User extends Base{
             return  error("缺少参数cid");
         }
         $UserStatModel = app('app\common\model\UserStat');
-        $list = $UserStatModel->get_child($cid,$uid);
+        $list = $UserStatModel->get_child($cid,$uid,$type);
         return success("获取成功",$list);
     }
     /**
@@ -242,6 +244,9 @@ class User extends Base{
             $UserStatModel = model('app\common\model\UserStat',$cid);
             $stat = ['invite_user' => 1];
             $UserStatModel->add($p_user,$stat);
+            $UserModel->update_data([['pid','=',$uid]],['ppid'=>$p_user['uid'],'pppid'=>$p_user['pid']]);
+            $UserModel->update_data([['ppid','=',$uid]],['pppid'=>$p_user['uid']]);
+            return success("绑定成功");
         }
         return success("绑定成功");
     }

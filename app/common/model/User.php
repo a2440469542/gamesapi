@@ -202,4 +202,14 @@ class User extends Base
         $this->setPartition($cid);
         return self::where('is_rebot','=',0)->partition($this->partition)->sum('money');
     }
+    public function get_child($uid){
+        $list = self::field('uid,pid,ppid,pppid,user,mobile')->where('pid','=',$uid)
+            ->partition($this->partition)
+            ->select()->toArray();
+        return $list;
+    }
+    public function update_data($where,$data){
+        $row = self::where($where)->partition($this->partition)->update($data);
+        return $row;
+    }
 }
