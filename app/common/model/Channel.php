@@ -23,7 +23,7 @@ class Channel extends Base
         }
         if(isset($data['cid']) && $data['cid'] > 0){
             unset($data['add_time']);
-            Cache::delete('channel_'.$data['cid']);
+            Cache::store('redis')->delete('channel_'.$data['cid']);
             $row = self::where('cid',$data['cid'])->update($data);
         }else{
             $count = self::where("name",'=',$data["name"])->count();
@@ -80,7 +80,7 @@ class Channel extends Base
     }
     public function info($cid=0,$url=''){
         if($cid > 0){
-            $info = Cache::get('channel_'.$cid);
+            $info = Cache::store('redis')->get('channel_'.$cid);
         }else{
             $info = [];
         }
@@ -91,7 +91,7 @@ class Channel extends Base
                 $info = self::where('url',$url)->where("is_del",'=',0)->find();
             }
             if($info){
-                Cache::set('channel_'.$cid,$info->toArray(),0);
+                Cache::store('redis')->set('channel_'.$cid,$info->toArray(),0);
                 //cache('channel_'.$cid,$info->toArray(),0);
             }
         }
