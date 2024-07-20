@@ -1,6 +1,5 @@
 <?php
 namespace app\agent\controller;
-use app\admin\controller\Base;
 use hg\apidoc\annotation as Apidoc;
 use app\common\model\User as UserModel;
 use app\admin\model\Menu;
@@ -53,7 +52,7 @@ class User extends Base{
         if($cid === 0){
             return error("请选择渠道");
         }
-        $userModel = app('app\common\model\User');
+        $userModel = model('app\common\model\User',$cid);
         $userModel->setPartition($cid);
         $list = $userModel->lists($where, $limit, "uid desc");
         foreach ($list['data'] as &$v) {
@@ -83,9 +82,9 @@ class User extends Base{
         if(!$cid){
             return  error("请选择某个渠道要删除的数据");
         }
-        $userModel = app("app\common\model\User");
+        $userModel = app('app\common\model\User');
 
-        $res = $userModel::partition($cid)->where('uid', $uid)->delete();
+        $res = $userModel::partition('p'.$cid)->where('uid', $uid)->delete();
         if($res){
             return success("删除成功");
         }else{

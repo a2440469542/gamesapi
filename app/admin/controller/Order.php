@@ -19,6 +19,7 @@ class Order extends Base{
      * @Apidoc\Param("mobile", type="string",require=false, desc="用户手机号：搜索时候传")
      * @Apidoc\Param("inv_code", type="string",require=false, desc="用户邀请码：搜索时候传")
      * @Apidoc\Param("order_sn", type="string",require=false, desc="订单号：搜索时候传")
+     * @Apidoc\Param("money", type="float",require=false, desc="金额：搜索时候传")
      * @Apidoc\Returned(ref="pageReturn")
      * @Apidoc\Returned("data",type="array",desc="充值记录相关",table="cp_order",children={
      *           @Apidoc\Returned("mobile",type="string",desc="用户手机号")
@@ -33,6 +34,7 @@ class Order extends Base{
             $order_sn  = input("order_sn", '');
             $cid  = input("cid", '');
             $inv_code = input("inv_code",'');
+            $money = input("money",0);
             if($cid === ''){
                 return error("渠道ID不能为空");
             }
@@ -50,8 +52,12 @@ class Order extends Base{
             }else{
                 $OrderModel = model('app\common\model\Order',$cid);
             }
+            if($money >0){
+                $list = $OrderModel->getMoneyList($money, $limit, $orderBy);
+            }else{
+                $list = $OrderModel->lists($where, $limit, $orderBy);
+            }
 
-            $list = $OrderModel->lists($where, $limit, $orderBy);
             return success("获取成功", $list);
         }
         return view();

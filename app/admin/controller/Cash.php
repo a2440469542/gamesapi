@@ -32,6 +32,7 @@ class Cash extends Base{
             $cid  = input("cid", '');
             $inv_code = input("inv_code",'');
             $order_sn = input("order_sn",'');
+
             if($order_sn){
                 $where[] = ['order_sn|orderno',"=",$order_sn];
             }

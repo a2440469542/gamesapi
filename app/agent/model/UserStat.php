@@ -26,7 +26,7 @@ class UserStat extends Base
      * @AddField("n3_money",type="float",desc="N3工资")
      */
     public function lists($where, $limit=10, $orderBy='date desc'){
-        $filed = 'date,sum(invite_user) as invite_user,
+        $filed = 'date,cid,sum(invite_user) as invite_user,
             sum(cz_money) as cz_money,
             sum(bet_money) as bet_money,
             sum(cash_money) as cash_money';
@@ -36,13 +36,16 @@ class UserStat extends Base
             ->group('date')
             ->select()->toArray();
         foreach($list as &$val){
+            $val['bet_money'] = round($val['bet_money'],2);
+            $val['cz_money']  = round($val['cz_money'],2);
+            $val['cash_money']  = round($val['cash_money'],2);
             $val['cz_num'] = $this->get_cz_num($val['date']);
             $val['cash_num'] = $this->get_cash_num($val['date']);
-            $wages_num = $this->get_wages_num($val['date']);
+            $wages_num = $this->get_wages_num($val['date'],$val['cid']);
             $val['bozhu_num'] = $wages_num['bozhu'];
             $val['daili_num'] = $wages_num['daili'];
             $val['n3_num'] = $wages_num['n3'];
-            $wages_money = $this->get_wages_money($val['date']);
+            $wages_money = $this->get_wages_money($val['date'],$val['cid']);
             $val['bozhu_money'] = $wages_money['bozhu'];
             $val['daili_money'] = $wages_money['daili'];
             $val['n3_money'] = $wages_money['n3'];
@@ -62,20 +65,22 @@ class UserStat extends Base
             ->partition($this->partition)
             ->group('uid')->count();
     }
-    public function get_wages_num($date){
+    public function get_wages_num($date,$cid){
         $sttime = strtotime($date);
         $ettime = $sttime + 60*60;
-        $data['bozhu'] = self::where('add_time',"between",[$sttime,$ettime])->where("type","=",1)->partition($this->partition)->group('uid')->count();
-        $data['daili'] = self::where('add_time',"between",[$sttime,$ettime])->where("type","=",2)->partition($this->partition)->group('uid')->count();
-        $data['n3'] = self::where('add_time',"between",[$sttime,$ettime])->where("type","=",3)->partition($this->partition)->group('uid')->count();
+        $WagesModel = model('app\common\model\Wages',$cid);
+        $data['bozhu'] = $WagesModel::where('add_time',"between",[$sttime,$ettime])->where("type","=",1)->partition($this->partition)->group('uid')->count();
+        $data['daili'] = $WagesModel::where('add_time',"between",[$sttime,$ettime])->where("type","=",2)->partition($this->partition)->group('uid')->count();
+        $data['n3'] = $WagesModel::where('add_time',"between",[$sttime,$ettime])->where("type","=",3)->partition($this->partition)->group('uid')->count();
         return $data;
     }
-    public function get_wages_money($date){
+    public function get_wages_money($date,$cid){
         $sttime = strtotime($date);
         $ettime = $sttime + 60*60;
-        $data['bozhu'] = self::where('add_time',"between",[$sttime,$ettime])->where("type","=",1)->partition($this->partition)->sum('money');
-        $data['daili'] = self::where('add_time',"between",[$sttime,$ettime])->where("type","=",2)->partition($this->partition)->sum('money');
-        $data['n3'] = self::where('add_time',"between",[$sttime,$ettime])->where("type","=",3)->partition($this->partition)->sum('money');
+        $WagesModel = model('app\common\model\Wages',$cid);
+        $data['bozhu'] = $WagesModel::where('add_time',"between",[$sttime,$ettime])->where("type","=",1)->partition($this->partition)->sum('money');
+        $data['daili'] = $WagesModel::where('add_time',"between",[$sttime,$ettime])->where("type","=",2)->partition($this->partition)->sum('money');
+        $data['n3'] = $WagesModel::where('add_time',"between",[$sttime,$ettime])->where("type","=",3)->partition($this->partition)->sum('money');
         return $data;
     }
 }

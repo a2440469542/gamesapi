@@ -54,6 +54,21 @@ class Order extends Base
         }
         return $list;
     }
+    public function getMoneyList($money,$limit=10,$order='id desc'){
+        $subQuery = self::field('uid, SUM(money) as total_money')
+            ->group('uid')
+            ->partition($this->partition)
+            ->having('total_money > '.$money)
+            ->buildSql();
+        $list = self::alias('o')
+            ->join($subQuery . ' t', 'o.uid = t.uid')
+            ->leftJoin("cp_user `u`","o.uid = u.uid")
+            ->field('o.*,u.mobile,u.inv_code')
+            ->partition($this->partition)
+            ->order($order)
+            ->paginate($limit)->toArray();
+        return $list;
+    }
     public function getList($where=[], $limit=10, $order='id desc'){
         $list = self::where($where)
             ->order($order)

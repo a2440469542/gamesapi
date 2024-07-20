@@ -102,10 +102,10 @@ class Cash extends Base
                 $black = app('app\common\model\BankBlack')
                     ->where('pix',"=",$row['pix'])
                     ->whereOr('pix',"=",$row['mobile'])
-                    ->whereOr('ip',"=",$ip)
+                    ->whereOr('pix',"=",$ip)
                     ->count();
             }else{
-                $black = app('app\common\model\BankBlack')->where('pix',"=",$row['pix'])->whereOr('ip',"=",$ip)->count();
+                $black = app('app\common\model\BankBlack')->where('pix',"=",$row['pix'])->whereOr('pix',"=",$ip)->count();
             }
 
             if($black > 0){
