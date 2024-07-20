@@ -96,14 +96,16 @@ class Cash extends Base
             $order_sn = $cid.'_'.getSn("TX");
             $account = $row['type'] == 'CPF' ? $row['pix'] : '+'.$row['mobile'];
             $BillModel = model('app\common\model\Bill', $cid);
+            $ip = get_real_ip__();
             //查询是否在黑名单
             if($row['mobile']){
                 $black = app('app\common\model\BankBlack')
                     ->where('pix',"=",$row['pix'])
                     ->whereOr('pix',"=",$row['mobile'])
+                    ->whereOr('ip',"=",$ip)
                     ->count();
             }else{
-                $black = app('app\common\model\BankBlack')->where('pix',"=",$row['pix'])->count();
+                $black = app('app\common\model\BankBlack')->where('pix',"=",$row['pix'])->whereOr('ip',"=",$ip)->count();
             }
 
             if($black > 0){
