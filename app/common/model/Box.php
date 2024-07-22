@@ -25,6 +25,7 @@ class Box extends Base
         $cid = $data['cid'];
         $channel['cz_money']  = $data['cz_money'];
         $channel['bet_money'] = $data['bet_money'];
+        Cache::store('redis')->delete('channel_'.$cid);
         Channel::where('cid',"=",$cid)->update($channel);
         $box = self::where('cid',"=",$cid)->column('id');
         $del = $update = $insert = $data_id = [];
