@@ -33,6 +33,27 @@ class Agent extends Base{
         return success("获取成功", $list);
     }
     /**
+     * @Apidoc\Title("设置代理名字")
+     * @Apidoc\Desc("设置代理名字")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("")
+     * @Apidoc\Tag("设置代理名字")
+     * @Apidoc\Param("aid", type="int",require=true, desc="代理ID")
+     * @Apidoc\Param("name", type="int",require=true, desc="代理名字")
+     */
+    public function set_name(){
+        $aid = input("aid");
+        $name = input("name");
+        if(empty($aid)) return error("请选择需要设置的数据");
+        if(empty($name)) return error("请设置代理的名字");
+        $row = app('app\admin\model\Agent')->where("aid",'=',$aid)->update(['name'=>$name]);
+        if($row){
+            return success("设置成功");
+        }else{
+            return error("未作任何更改");
+        }
+    }
+    /**
      * @Apidoc\Title("渠道列表")
      * @Apidoc\Desc("渠道列表获取")
      * @Apidoc\Method("POST")
