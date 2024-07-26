@@ -46,7 +46,7 @@ class Agent extends Base{
         $name = input("name");
         if(empty($aid)) return error("请选择需要设置的数据");
         if(empty($name)) return error("请设置代理的名字");
-        $row = app('app\admin\model\Agent')->where("aid",'=',$aid)->update(['name'=>$name]);
+        $row = app('app\admin\model\Agent')->where("id",'=',$aid)->update(['name'=>$name]);
         if($row){
             return success("设置成功");
         }else{
