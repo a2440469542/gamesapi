@@ -47,7 +47,8 @@ class Agent extends Base
         if($user) {
             $password = md5($data['pwd']);
             if ($user['pwd'] == $password){
-                if(empty($user['pid'])){
+                $count = Db::name('agent_channel')->where("aid","=",$user['id'])->count();
+                if($count==0){
                     return error('Por favor, contacte o serviço de clientes primeiro para alocar a plataforma');   //请先联系客服分配平台
                 }
                 do {

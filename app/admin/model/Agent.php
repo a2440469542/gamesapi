@@ -32,7 +32,7 @@ class Agent extends Base
     }
     public function set_channel($id,$pid){
         $data = [
-            'pid' => $pid
+            'pid' => json_encode($pid)
         ];
         $res = self::where('id',$id)->update($data);
         return $res;
