@@ -49,10 +49,13 @@ class PayLogic {
         }
 
         $BillModel = model('app\common\model\Bill', $cid);
-        $BillModel->addIntvie($user, $BillModel::PAY_MONEY, $order['money'] + $order['gifts']);
+        $BillModel->addIntvie($user, $BillModel::PAY_MONEY, $order['money'] , $order['gifts'], $order['multiple']);
 
         $UserStatModel = model('app\common\model\UserStat', $cid);
         $user_stat = ['cz_money' => $order['money'], 'cz_num' => 1];
+        if($order['gifts'] > 0){
+            $user_stat['gifts_money'] = $order['gifts_money'];
+        }
         $UserStatModel->add($user,$user_stat);
 
         if ($OrderModel->update_order($update)) {

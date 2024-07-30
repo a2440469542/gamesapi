@@ -73,10 +73,10 @@ class Bill extends Base
     {
         return date("Y-m-d H:i:s",$value);
     }
-    public function addIntvie($user,$type,$money): array
+    public function addIntvie($user,$type,$money,$gifts=0,$multiple=0): array
     {
-        $before_money = $user['money'];         //账变前的金额
-        $after_money = $user['money'] + $money; //账变后的金额
+        $before_money = $user['money'];                  //账变前的金额
+        $after_money = $user['money'] + $money + $gifts; //账变后的金额
         $type_text = $this->getTypeText($type);
         $data = [
             'cid' => $user['cid'],
@@ -95,7 +95,7 @@ class Bill extends Base
         ];
         if($type == self::PAY_MONEY) {
             $channel = model('app\common\model\Channel')->info($user['cid']);
-            $water = $channel['ct_multiple'] * $money;
+            $water = $channel['ct_multiple'] * $money + $gifts * $multiple;
             $update['water'] = Db::raw('`water` + '.$water);
         }else if($type == self::LOCK_MONEY) {
             $update['lock_money'] = Db::raw('`lock_money` + '.abs($money));

@@ -43,13 +43,17 @@ class Recharge extends Base{
         $data = input("post.");
         $requiredFields = [
             'cid' => '请选择渠道',
-            'money' => '充值金额',
-            'gifts' => '赠送金额',
+            'money' => '请输入充值金额',
+            'gifts' => '请输入赠送金额',
+            'multiple' => '请输入赠送金额流水倍数'
         ];
         foreach ($requiredFields as $field => $errorMsg) {
             if (!isset($data[$field]) || $data[$field] === '') {
                 return error($errorMsg);
             }
+        }
+        if($data['gifts'] > 0 && $data['multiple'] <= 0) {
+            return error("赠送金额流水倍数必须大于0");
         }
         $RechargeModel = app("app\common\model\Recharge");
         return $RechargeModel->add($data);

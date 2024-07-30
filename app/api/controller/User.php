@@ -196,15 +196,18 @@ class User extends Base
      * @Apidoc\Method("POST")
      * @Apidoc\Author("")
      * @Apidoc\Tag("宝箱")
+     * @Apidoc\Param(ref="pagingParam",desc="分页参数")
      * @Apidoc\Param("type", type="int",require=true,default=1,desc="下级类型：1=一级；2=二级；3=三级")
      * @Apidoc\Param("date", type="int",require=true,default=5,desc="时间：1=今天；2=本周；3=本月；4=本年；5=全部")
-     * @Apidoc\Returned(type="array",desc="团队投注，充值列表",ref="app\common\model\UserStat@team")
+     * @Apidoc\Returned(ref="pageReturn")
+     * @Apidoc\Returned("data",type="array",desc="团队投注，充值列表",ref="app\common\model\UserStat@team")
      */
     public function team(){
         $cid = $this->request->cid;
         $uid = $this->request->uid;
         $type = $this->request->post('type');
         $date = $this->request->post('date',5);
+        $limit = $this->request->post('limit',10);
         $where = [];
         if($type == 1){
             $where[] = ['pid',"=",$uid];
@@ -218,7 +221,7 @@ class User extends Base
             $where[] = $date_where;
         }
         $UserStat = model('app\common\model\User',$cid);
-        $list = $UserStat->team($where);    //数据
+        $list = $UserStat->team($where,$limit);    //数据
         return success("obter sucesso",$list);//获取成功
     }
     protected function get_time($date){

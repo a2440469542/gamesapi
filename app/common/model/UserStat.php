@@ -174,6 +174,9 @@ class UserStat extends Base
             ->where("u.is_rebot","=",0)
             ->partition($this->partition)->find();
     }
+    public function get_rank($where,$limit){
+
+    }
     //获取宝箱领取金额
     public function box_num(){
         return self::where("box_money",">",0)->partition($this->partition)->count();

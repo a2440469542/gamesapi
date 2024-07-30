@@ -43,10 +43,12 @@ class Pay extends Base
         $rid = $this->request->post('rid',0);
         $money = $this->request->post('money',0);
         $gifts = 0;
+        $multiple = 0;
         if($rid > 0){
             $recharge = model('app\common\model\Recharge')->getInfo($rid,$cid);
             if($recharge){
                 $gifts = $recharge['gifts'];
+                $multiple = $recharge['multiple'];
             }
         }
         $channel = model('app\common\model\Channel')->info($cid);
@@ -61,7 +63,7 @@ class Pay extends Base
             return error('Usuário não existe');      //用户不存在
         }
         $merOrderNo = $cid.'_'.getSn("CZ");
-        $id = model('app\common\model\Order',$cid)->add($cid,$uid,$merOrderNo,$money,$gifts);
+        $id = model('app\common\model\Order',$cid)->add($cid,$uid,$merOrderNo,$money,$gifts,$multiple);
         if(!$id) return error('Falha na geração do pedido');    //订单生成失败
         $BetcatPay = app('app\service\pay\KirinPay');
         $res = $BetcatPay->pay($merOrderNo,$money);

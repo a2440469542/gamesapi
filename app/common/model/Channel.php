@@ -15,7 +15,7 @@ use think\facade\Db;
 class Channel extends Base
 {
     protected $pk = 'cid';
-    protected $json = ['plate_line'];
+    protected $json = ['plate_line','activity'];
     protected $jsonAssoc = true;
     public static function add($data){
         if(!isset($data['plate_line'])) {

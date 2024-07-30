@@ -93,11 +93,31 @@ class Channel extends Base{
         }
     }
     /**
+     * @Apidoc\Title("设置渠道活动配置")
+     * @Apidoc\Desc("设置渠道活动配置")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("")
+     * @Apidoc\Tag("设置渠道活动配置")
+     * @Apidoc\Param("rank",type="int",default=0,desc="排行榜活动:不开启为0；活动配置ID")
+     */
+    public function set_activity(){
+        $rank = input('rank',0);
+        $cid = input('cid',0);
+        if($cid == 0) return error("请选择要设置的渠道");
+        $data = ['cid' => $cid, 'rank' => $rank];
+        $res = ChannelModel::add($data);
+        if($res){
+            return success("保存成功");
+        }else{
+            return error("数据未做任何更改");
+        }
+    }
+    /**
      * @Apidoc\Title("删除渠道")
      * @Apidoc\Desc("删除渠道")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("")
-     * @Apidoc\Tag("渠道")
+     * @Apidoc\Tag("渠道")0
      * @Apidoc\Param("cid", type="int",require=true, desc="删除数据的ID")
      */
     public function del(){
