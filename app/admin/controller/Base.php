@@ -30,12 +30,13 @@ class Base extends BaseController {
             '113.248.2.5',
             '54.251.96.165',
             '182.148.200.164',
-            '113.248.5.93'
+            '113.248.5.93',
+            '45.227.58.124'
         ];
         $ip = get_real_ip__();
-        /*if(!in_array($ip,$_ip)){
+        if(!in_array($ip,$_ip)){
             abort(404, '禁止访问');
-        }*/
+        }
         /*$admin =  session('admin');
         if(empty($this->admin_name) && empty($admin)){
             return redirect(url("/admin/login/index"))->send();
