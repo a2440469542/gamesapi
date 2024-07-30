@@ -106,7 +106,7 @@ class User extends Base{
         if($res){
             return success("修改成功");
         }else{
-            return error("修改失败");
+            return error("未作任何修改");
         }
     }
     /**
