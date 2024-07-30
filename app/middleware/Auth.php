@@ -25,6 +25,7 @@ class Auth
             }else{
                 $user = session('admin');
             }
+            print_r($user);exit;
             $request->aid = $user['id'];
             $request->admin_name = $user['user_name'];
             $request->rid = $user['rid'];
