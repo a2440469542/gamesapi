@@ -16,8 +16,8 @@ class Activity extends Base
      * @Apidoc\Method("POST")
      * @Apidoc\Author("")
      * @Apidoc\Tag("用户排行榜")
-     * @Apidoc\Returned("activity",type="object",desc="活动相关信息",table="cp_activity")
-     * @Apidoc\Returned("rank",type="array",desc="排行榜",table="cp_user_stat")
+     * @Apidoc\Returned("rank",type="object",desc="活动配置相关信息",table="cp_activity")
+     * @Apidoc\Returned("list",type="array",desc="排行榜",table="cp_user_stat")
      */
     public function rank()
     {
@@ -36,10 +36,21 @@ class Activity extends Base
             return error("A atividade terminou",500);//活动结束
         }
         $UserStat = model('app\common\model\UserStat',$cid);
-        $where = ['date','>=',$activity['start_time']];
-        $list = $UserStat->where($where)->order('id desc')->paginate();
-
-
-        return success('obter sucesso',$list);   //获取成功
+        $where = ['date','between',[$activity['start_time'],$activity['end_time']]];
+        $list = $UserStat->get_rank($where,20);
+        foreach ($list as $key => &$value) {
+            if($key <= 2){
+                $value['is_get'] = 0;
+                if($value['uid'] == $uid && $activity['end_time'] <= date("Y-m-d H:i:s")){
+                    $log = app('app\common\model\RankLog')->where('uid','=',$value['uid'])->where('cid','=',$cid)->where('aid','=',$aid)->count();
+                    if($log) {
+                        $value['is_get'] = 1;
+                    }
+                }
+            }
+        }
+        $data['rank'] = $activity;
+        $data['list'] = $list;
+        return success('obter sucesso',$data);   //获取成功
     }
 }

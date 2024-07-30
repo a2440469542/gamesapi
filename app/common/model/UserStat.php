@@ -175,7 +175,8 @@ class UserStat extends Base
             ->partition($this->partition)->find();
     }
     public function get_rank($where,$limit){
-
+        $filed = 'uid,mobile,sum(cz_money) as cz_money';
+        return self::field($filed)->where("u.is_rebot","=",0)->partition($this->partition)->limit($limit)->group('uid')->select()->toArray();
     }
     //获取宝箱领取金额
     public function box_num(){
