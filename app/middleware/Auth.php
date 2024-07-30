@@ -57,6 +57,7 @@ class Auth
                     $menu = Db::name('menu')->where(['controllers'=>$controller,'methods'=>$action])->find();
                     if($menu){
                         $roles = Db::name('roles')->where(['rid'=>$user['rid']])->find();
+                        $rule = json_decode($roles['rule'],true);
                         if(!in_array($menu['id'],$roles['rule'])) {
                             return error('无权限访问',403);
                         }
