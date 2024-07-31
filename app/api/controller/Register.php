@@ -25,10 +25,15 @@ class Register extends BaseController
      * @Apidoc\Returned("pwd",type="string",desc="试玩密码")
      */
     public function register(){
-        $cid = input("cid");
+        $name = input("name");
         $num = input("num",1);
+        if(!$name){
+            return  error("缺少参数name");
+        }
+        $channel = app('app\common\model\Channel');
+        $cid = $channel->where('name',$name)->value('id');
         if(!$cid){
-            return  error("缺少参数cid");
+            return  error("渠道不存在");
         }
         $userModel = app('app\common\model\User');
         $userModel->setPartition($cid);

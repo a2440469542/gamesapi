@@ -105,7 +105,7 @@ class Channel extends Base{
         $rank = input('rank',0);
         $cid = input('cid',0);
         if($cid == 0) return error("请选择要设置的渠道");
-        $data = ['cid' => $cid, 'rank' => $rank];
+        $data = ['cid' => $cid, 'activity' => ['rank'=>$rank]];
         $res = ChannelModel::add($data);
         if($res){
             return success("保存成功");
