@@ -98,6 +98,7 @@ class Channel extends Base{
      * @Apidoc\Method("POST")
      * @Apidoc\Author("")
      * @Apidoc\Tag("设置渠道活动配置")
+     * @Apidoc\Param("cid",type="int",default=0,desc="渠道ID")
      * @Apidoc\Param("rank",type="int",default=0,desc="排行榜活动:不开启为0；活动配置ID")
      */
     public function set_activity(){
