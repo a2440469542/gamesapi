@@ -84,14 +84,14 @@ class Bill extends Base
             'type' => $type,
             'before_money' => $before_money,
             'after_money' => $after_money,
-            'money' => $money,
+            'money' => $money + $gifts,
             'desc' => $type_text,
             'add_time' => time(),
         ];
         // 开启事务
         // 提交事务
         $update = [
-            'money' => Db::raw('`money` + '.$money),
+            'money' => Db::raw('`money` + '.$money + $gifts),
         ];
         if($type == self::PAY_MONEY) {
             $channel = model('app\common\model\Channel')->info($user['cid']);
