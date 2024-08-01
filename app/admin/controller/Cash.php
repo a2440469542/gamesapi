@@ -17,6 +17,7 @@ class Cash extends Base{
      * @Apidoc\Param(ref="pagingParam",desc="分页参数")
      * @Apidoc\Param("mobile", type="string",require=false, desc="用户手机号：搜索时候传")
      * @Apidoc\Param("inv_code", type="string",require=false, desc="用户邀请码：搜索时候传")
+     * @Apidoc\Param("cpf", type="string",require=false, desc="提款账号：搜索时候传")
      * @Apidoc\Param("cid", type="int",require=true, desc="渠道ID")
      * @Apidoc\Returned(ref="pageReturn")
      * @Apidoc\Returned("data",type="array",desc="充值记录相关",table="cp_cash",children={
@@ -32,6 +33,7 @@ class Cash extends Base{
             $cid  = input("cid", '');
             $inv_code = input("inv_code",'');
             $order_sn = input("order_sn",'');
+            $cpf = input("cpf",'');
 
             if($order_sn){
                 $where[] = ['order_sn|orderno',"=",$order_sn];
@@ -45,6 +47,10 @@ class Cash extends Base{
             if($inv_code){
                 $where[] = ['u.inv_code',"=",$inv_code];
             }
+            if($cpf){
+                $where[] = ['pix',"=",$cpf];
+            }
+
             if($order_sn){
                 $CashModel = app('app\common\model\Cash');
             }else{
