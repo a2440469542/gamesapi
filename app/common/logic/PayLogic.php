@@ -54,7 +54,7 @@ class PayLogic {
         $UserStatModel = model('app\common\model\UserStat', $cid);
         $user_stat = ['cz_money' => $order['money'], 'cz_num' => 1];
         if($order['gifts'] > 0){
-            $user_stat['gifts_money'] = $order['gifts_money'];
+            $user_stat['gifts_money'] = $order['gifts'];
         }
         $UserStatModel->add($user,$user_stat);
 
