@@ -2,6 +2,9 @@
 
 namespace app\api\controller;
 use hg\apidoc\annotation as Apidoc;
+use think\facade\Cache;
+use think\facade\Db;
+
 /**
  * 用户订单相关接口
  * @Apidoc\Title("用户订单相关接口")
@@ -27,14 +30,17 @@ class Activity extends Base
         if (!$channel) {
             return error("O canal não existe",10001);//渠道不存在
         }
+        if(!isset($channel['activity']['rank']) && $channel['activity']['rank'] > 0){
+            return error("Actividade não ativada",10001);//获取未开启
+        }
         $aid = $channel['activity']['rank'];
         $activity = app('app\common\model\Activity')->where("aid",'=',$aid)->find();
-        if($activity['start_time'] <= date("Y-m-d H:i:s")){
+        if($activity['start_time'] >= date("Y-m-d H:i:s")){
             return error("A atividade ainda não começou",500);//活动未开始
         }
-        if($activity['end_time'] >= date("Y-m-d H:i:s")){
+        /*if($activity['end_time'] >= date("Y-m-d H:i:s")){
             return error("A atividade terminou",500);//活动结束
-        }
+        }*/
         $UserStat = model('app\common\model\UserStat',$cid);
         $where = ['date','between',[$activity['start_time'],$activity['end_time']]];
         $list = $UserStat->get_rank($where,20);
@@ -52,5 +58,97 @@ class Activity extends Base
         $data['rank'] = $activity;
         $data['list'] = $list;
         return success('obter sucesso',$data);   //获取成功
+    }
+    /**
+     * @Apidoc\Title("领取排行榜奖励")
+     * @Apidoc\Desc("领取排行榜奖励")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("")
+     * @Apidoc\Tag("领取排行榜奖励")
+     * @Apidoc\Returned("level",type="int",desc="排名第几：1=第一名；2=第二名；3=第三名")
+     */
+    public function get_rank()
+    {
+        $cid = $this->request->cid;
+        $uid = $this->request->uid;
+        $level = input('level','');
+        $redis = Cache::store('redis')->handler();
+        $lockKey = "user_rank_lock_{$uid}";
+        if ($redis->exists($lockKey)) {
+            return error('O pedido está sendo atualmente processado, por favor tente de novo mais tarde');
+        }
+        $redis->set($lockKey, true, 60); // 设置锁，60秒后过期
+
+
+        if($level == ''){
+            $redis->del($lockKey); // 处理完成后删除锁
+            return error("Faltam parâmetros necessários",10001);//缺少必要参数
+        }
+        $channel = model('app\common\model\Channel')->info($cid,'');
+        if (!$channel) {
+            $redis->del($lockKey); // 处理完成后删除锁
+            return error("O canal não existe",10001);//渠道不存在
+        }
+        if(!isset($channel['activity']['rank']) && $channel['activity']['rank'] > 0){
+            return error("Actividade não ativada",10001);//获取未开启
+        }
+        $aid = $channel['activity']['rank'];
+        $activity = app('app\common\model\Activity')->where("aid",'=',$aid)->find();
+        if($activity['start_time'] >= date("Y-m-d H:i:s")){
+            $redis->del($lockKey); // 处理完成后删除锁
+            return error("A atividade ainda não começou",500);//活动未开始
+        }
+        if($activity['end_time'] >= date("Y-m-d H:i:s")){
+            $redis->del($lockKey); // 处理完成后删除锁
+            return error("A atividade terminou",500);//活动未结束
+        }
+        $UserStat = model('app\common\model\UserStat',$cid);
+        $where = ['date','between',[$activity['start_time'],$activity['end_time']]];
+        $list = $UserStat->get_rank($where,3);
+        $money = 0;
+        if($level == 1){
+            $money = $activity['first_reward'];
+        }elseif($level == 2){
+            $money = $activity['second_reward'];
+        }else if($level == 3){
+            $money = $activity['third_reward'];
+        }
+        $user = model('app\common\model\User',$cid)->getInfo($uid);
+        $BillModel = model('app\common\model\Bill', $cid);
+        $log = app('app\common\model\RankLog')->where('uid','=',$uid)->where('cid','=',$cid)->where('aid','=',$aid)->count();
+        if($log > 0) {
+            $redis->del($lockKey); // 处理完成后删除锁
+            return error("Você já coletou",500);//已领取
+        }
+        Db::startTrans();
+        try {
+            foreach ($list as $key => &$value) {
+                if($key+1 == $level && $value['uid'] == $uid){
+                    $result = $BillModel->addIntvie($user, $BillModel::RANK_MONEY, $money,0,$activity['multiple']);
+                    if($result['code'] !== 0){
+                        Db::rollback();
+                        return error("A coleção falhou");  //领取失败
+                    }
+                    $data = [
+                        'cid' => $cid,
+                        'uid' => $uid,
+                        'aid' => $aid,
+                        'type' => $level,
+                        'money' => $money,
+                        'add_time' => date("Y-m-d H:i:s")
+                    ];
+                    app('app\common\model\Activity')->add($data);
+                    break;
+                }
+            }
+            Db::commit();
+        }catch (\Exception $e) {
+            Db::rollback();
+            write_log($e->getMessage(),'rank');
+            return error('A coleção falhou');      //领取失败
+        }finally {
+            $redis->del($lockKey); // 处理完成后删除锁
+        }
+        return success("Recebido com sucesso");  //提现成功
     }
 }

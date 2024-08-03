@@ -27,6 +27,7 @@ class Bill extends Base
     const   GAME_WITHDRAW = 109; //游戏下分
     const   WAGES_N3 = 111;     //N3工资
     const   LOCK_MONEY = 112;     //冻结余额
+    const   RANK_MONEY = 113;     //排行榜奖励
     public function getTypeText($type=0): array|string
     {
         $type_text = [
@@ -42,6 +43,7 @@ class Bill extends Base
             self::GAME_WITHDRAW     => 'Game Lower Division',                        //游戏下分
             self::WAGES_N3          => 'Salário N3',                                 //N3工资
             self::LOCK_MONEY        => 'Congelar o equilíbrio',                      //冻结余额
+            self::RANK_MONEY        => 'Recompensar',                                //排行榜奖励
         ];
         if(isset($type_text[$type])){
             return $type_text[$type];
@@ -63,6 +65,7 @@ class Bill extends Base
             self::GAME_WITHDRAW => '游戏下分',     //游戏下分
             self::WAGES_N3      => 'N3工资',      //N3工资
             self::LOCK_MONEY    => '余额冻结',     //冻结余额
+            self::RANK_MONEY    => '排行榜奖励',   //排行榜奖励
         ];
         if(isset($type_text[$value])){
             return $type_text[$value];

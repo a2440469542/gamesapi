@@ -176,6 +176,8 @@ class GameLogin extends Base
                 return error($token['msg'], 501);    // 游戏登录失败
             }
             $this->user['user_token'] = $token['token'] ?? '';
+        }else{
+            $this->user['user_token'] = md5(uniqid(md5(microtime(true)),true));
         }
         $plate = $this->plate;
         /*if($game_user && $game_user['rtp'] != $this->line['rtp']){
