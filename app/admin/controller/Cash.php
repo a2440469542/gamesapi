@@ -48,7 +48,7 @@ class Cash extends Base{
                 $where[] = ['pix',"=",$pix];
             }
 
-            if($cid > 0){
+            if($cid === 0){
                 $CashModel = app('app\common\model\Cash');
             }else{
                 $CashModel = model('app\common\model\Cash',$cid);
