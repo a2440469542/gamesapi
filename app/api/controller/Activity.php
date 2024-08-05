@@ -6,8 +6,8 @@ use think\facade\Cache;
 use think\facade\Db;
 
 /**
- * 用户订单相关接口
- * @Apidoc\Title("用户订单相关接口")
+ * 排行榜相关接口
+ * @Apidoc\Title("排行榜相关接口")
  * @Apidoc\Group("base")
  * @Apidoc\Sort(8)
  */
@@ -20,7 +20,12 @@ class Activity extends Base
      * @Apidoc\Author("")
      * @Apidoc\Tag("用户排行榜")
      * @Apidoc\Returned("rank",type="object",desc="活动配置相关信息",table="cp_activity")
-     * @Apidoc\Returned("list",type="array",desc="排行榜",table="cp_user_stat")
+     * @Apidoc\Returned("list",type="array",desc="排行榜",children={
+     *     @Apidoc\Returned("uid",type="int",desc="用户uid"),
+     *     @Apidoc\Returned("mobile",type="string",desc="用户手机号"),
+     *     @Apidoc\Returned("cz_money",type="float",desc="充值金额"),
+     *     @Apidoc\Returned("is_get",type="int",desc="是否能领取:0=不能；1=可以")
+     *  })
      */
     public function rank()
     {
@@ -30,11 +35,11 @@ class Activity extends Base
         if (!$channel) {
             return error("O canal não existe",10001);//渠道不存在
         }
-        if(!isset($channel['activity']['rank']) && $channel['activity']['rank'] > 0){
+        if(!isset($channel['activity']['rank']) || $channel['activity']['rank'] == 0){
             return error("Actividade não ativada",10001);//获取未开启
         }
         $aid = $channel['activity']['rank'];
-        $activity = app('app\common\model\Activity')->where("aid",'=',$aid)->find();
+        $activity = app('app\common\model\Activity')->where("id",'=',$aid)->find();
         if($activity['start_time'] >= date("Y-m-d H:i:s")){
             return error("A atividade ainda não começou",500);//活动未开始
         }
@@ -42,7 +47,9 @@ class Activity extends Base
             return error("A atividade terminou",500);//活动结束
         }*/
         $UserStat = model('app\common\model\UserStat',$cid);
-        $where = ['date','between',[$activity['start_time'],$activity['end_time']]];
+        $sttime = date("Y-m-d",strtotime($activity['start_time']));
+        $ettime = date("Y-m-d",strtotime($activity['end_time']));
+        $where[] = ['date','between',[$sttime,$ettime]];
         $list = $UserStat->get_rank($where,20);
         foreach ($list as $key => &$value) {
             if($key <= 2){
@@ -93,7 +100,7 @@ class Activity extends Base
             return error("Actividade não ativada",10001);//获取未开启
         }
         $aid = $channel['activity']['rank'];
-        $activity = app('app\common\model\Activity')->where("aid",'=',$aid)->find();
+        $activity = app('app\common\model\Activity')->where("id",'=',$aid)->find();
         if($activity['start_time'] >= date("Y-m-d H:i:s")){
             $redis->del($lockKey); // 处理完成后删除锁
             return error("A atividade ainda não começou",500);//活动未开始
@@ -103,7 +110,9 @@ class Activity extends Base
             return error("A atividade terminou",500);//活动未结束
         }
         $UserStat = model('app\common\model\UserStat',$cid);
-        $where = ['date','between',[$activity['start_time'],$activity['end_time']]];
+        $sttime = date("Y-m-d",strtotime($activity['start_time']));
+        $ettime = date("Y-m-d",strtotime($activity['end_time']));
+        $where[] = ['date','between',[$sttime,$ettime]];
         $list = $UserStat->get_rank($where,3);
         $money = 0;
         if($level == 1){

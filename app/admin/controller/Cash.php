@@ -30,16 +30,13 @@ class Cash extends Base{
             $limit = input("limit");
             $orderBy = input("orderBy", 'id desc');
             $mobile = input("mobile", '');
-            $cid  = input("cid", '');
+            $cid  = input("cid", 0);
             $inv_code = input("inv_code",'');
             $order_sn = input("order_sn",'');
             $pix = input("pix",'');
 
             if($order_sn){
                 $where[] = ['order_sn|orderno',"=",$order_sn];
-            }
-            if($cid === ''){
-                return error("渠道ID不能为空");
             }
             if($mobile) {
                 $where[] = ['mobile', '=', $mobile];
@@ -51,7 +48,7 @@ class Cash extends Base{
                 $where[] = ['pix',"=",$pix];
             }
 
-            if($order_sn){
+            if($cid > 0){
                 $CashModel = app('app\common\model\Cash');
             }else{
                 $CashModel = model('app\common\model\Cash',$cid);

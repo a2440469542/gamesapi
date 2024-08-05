@@ -37,14 +37,16 @@ class Cash extends Base
     public function lists($where=[], $limit=10, $order='id desc'){
         if($this->partition){
             $list = self::alias("c")
-                ->field("c.*,u.mobile,u.inv_code")
+                ->field("c.*,u.mobile,u.inv_code,ch.name as cname")
                 ->leftJoin("cp_user PARTITION({$this->partition}) `u`","c.uid = u.uid")
+                ->leftJoin("cp_channel ch",'c.cid = ch.cid')
                 ->where($where)
                 ->order($order)->partition($this->partition)->paginate($limit)->toArray();
         }else{
             $list = self::alias("c")
-                ->field("c.*,u.mobile,u.inv_code")
+                ->field("c.*,u.mobile,u.inv_code,ch.name as cname")
                 ->leftJoin("cp_user `u`","c.uid = u.uid")
+                ->leftJoin("cp_channel ch",'c.cid = ch.cid')
                 ->where($where)
                 ->order($order)->paginate($limit)->toArray();
         }

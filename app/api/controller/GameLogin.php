@@ -180,6 +180,7 @@ class GameLogin extends Base
             $this->user['user_token'] = md5(uniqid(md5(microtime(true)),true));
         }
         $plate = $this->plate;
+        $this->user['rtp'] = $this->line['rtp'];
         /*if($game_user && $game_user['rtp'] != $this->line['rtp']){
             $row = $this->rtp_limit($game_user);
             if($row['code'] != 0) error($row['msg'], 501);    // 游戏登录失败

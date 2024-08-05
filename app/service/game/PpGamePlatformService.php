@@ -1,6 +1,8 @@
 <?php
 namespace app\service\game;
 
+use think\facade\Cache;
+
 class PpGamePlatformService extends BaseGamePlatformService
 {
     protected $baseUrl;
@@ -18,7 +20,7 @@ class PpGamePlatformService extends BaseGamePlatformService
     {
         //ksort($params);
         $signStr = json_encode($params) . $time . $this->secretKey;
-        return md5($signStr);
+        return strtoupper(md5($signStr));
     }
     public function registerUser($user)
     {
@@ -28,14 +30,17 @@ class PpGamePlatformService extends BaseGamePlatformService
 
     public function getGameUrl($user,$game)
     {
-        $apiUrl = '/api/web/game_url/';
+        $apiUrl = '/api/usr/ingame';
 
         $params['operator_token'] = $this->operatorToken;
-        $params['uname'] = $user['cid'].'_'.$user['user'];
+        $params['uname'] = $user['cid'].'_'.$user['uid'];
 
         $params['gameid'] = $game['code'];
-        $params['user_token'] = $user['user_token'];
+        $params['token'] = $user['user_token'];
         $params['lang'] = "pt";
+        if($user['rtp'] > 0){
+            $params['rtp'] = $user['rtp'];
+        }
         write_log($params,'PpGame');
         $time = time();
         $headers = [
@@ -48,7 +53,9 @@ class PpGamePlatformService extends BaseGamePlatformService
         write_log("获取游戏请求地址：".$this->baseUrl.$apiUrl,'PpGame'.$user['cid']);
         $response = $this->request($apiUrl, json_encode($params), $headers);
         write_log($response,'PpGame');
+        if(empty($response)) return ['code'=>1, 'msg'=>'获取游戏失败'];
         if(isset($response['code']) && $response['code'] == 0){
+            Cache::store('redis')->set($user['user_token'],$user,0);
             return ['code'=>0, 'msg'=>'获取成功','url'=>$response['data']['gameurl']];
         }else{
             return ['code'=>$response['code'], 'msg'=>$response['msg']];

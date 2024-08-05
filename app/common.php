@@ -686,3 +686,29 @@ function calculateSalary($totalCustomers, $totalRecharge, $config) {
     $setsFor220Bonus = min(floor($totalRecharge / $cz_money), $fullSets);
     return $setsFor220Bonus;
 }
+
+function addDomainIfMissing($url, $domain) {
+    // 如果URL为空，直接返回空
+    if (empty($url)) {
+        return $url;
+    }
+
+    // 使用parse_url解析URL
+    $parsedUrl = parse_url($url);
+
+    // 如果URL中不包含scheme（如http或https），则认为没有域名
+    if (empty($parsedUrl['scheme'])) {
+        // 确保域名以斜杠结尾
+        if (substr($domain, -1) !== '/') {
+            $domain .= '/';
+        }
+        // 确保URL不以斜杠开头
+        if (substr($url, 0, 1) === '/') {
+            $url = substr($url, 1);
+        }
+        return $domain . $url;
+    }
+
+    // 如果URL已经包含域名，直接返回原URL
+    return $url;
+}
