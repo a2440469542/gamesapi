@@ -46,7 +46,7 @@ class Activity extends Base{
             'end_time' => '请输入结束时间',
         ];
         foreach ($requiredFields as $field => $errorMsg) {
-            if (!isset($data[$field]) || !$data[$field]) {
+            if (!isset($data[$field]) || $data[$field] == '') {
                 return error($errorMsg);
             }
         }
