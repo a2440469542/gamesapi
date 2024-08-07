@@ -24,9 +24,9 @@ class Index extends Base
     {
         $cid = $this->cid;
         $ad = model('app\common\model\Ad')->getList($cid);
-        foreach($ad as $k=>&$v){
+        /*foreach($ad as $k=>&$v){
             $v['img'] = SITE_URL.$v['img'];
-        }
+        }*/
         return success("obter sucesso",$ad); //获取成功
     }
     /**

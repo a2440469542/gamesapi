@@ -40,6 +40,10 @@ class Activity extends Base
         }
         $aid = $channel['activity']['rank'];
         $activity = app('app\common\model\Activity')->where("id",'=',$aid)->find();
+        if(empty($activity)) {
+            return error("A atividade não existe",10001);//活动不存在
+        }
+
         if($activity['start_time'] >= date("Y-m-d H:i:s")){
             return error("A atividade ainda não começou",500);//活动未开始
         }
@@ -101,6 +105,9 @@ class Activity extends Base
         }
         $aid = $channel['activity']['rank'];
         $activity = app('app\common\model\Activity')->where("id",'=',$aid)->find();
+        if(empty($activity)) {
+            return error("A atividade não existe",10001);//活动不存在
+        }
         if($activity['start_time'] >= date("Y-m-d H:i:s")){
             $redis->del($lockKey); // 处理完成后删除锁
             return error("A atividade ainda não começou",500);//活动未开始
