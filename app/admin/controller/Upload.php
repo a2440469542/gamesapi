@@ -2,6 +2,7 @@
 
 namespace app\admin\controller;
 use hg\apidoc\annotation as Apidoc;
+use app\common\logic\AwsUpload;
 /**
  * @Apidoc\Title("文件上传相关")
  * @Apidoc\Group("Upload")
@@ -32,11 +33,16 @@ class Upload
             $fileSize = 1024*1024*5;
             validate(['image'=>'fileSize:'.$fileSize.'|fileExt:jpg,png,jpeg,gif'])
                 ->check($data);
-            $savename = \think\facade\Filesystem::disk('public')->putFile('uploads', $file);
-
-            $data['path'] = str_replace('\\', '/', '/' . $savename);
-            $data['domain'] = SITE_URL;
-            $data['img'] = $data['domain'].$data['path'];
+            //$savename = \think\facade\Filesystem::disk('public')->putFile('uploads', $file);
+            $AwsUpload = new AwsUpload();
+            $savename = $AwsUpload->uploadToS3($file);
+            if($savename['code'] > 0){
+                return error($savename['msg']);
+            }
+            $data['path'] = $savename['url'];
+            //$data['path'] = str_replace('\\', '/', '/' . $savename);
+            //$data['domain'] = SITE_URL;
+            //$data['img'] = $data['domain'].$data['path'];
             return success('上传成功', $data);
         } catch (\think\exception\ValidateException $e) {
             return error($e->getMessage());

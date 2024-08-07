@@ -133,4 +133,90 @@ class Channel extends Base{
             return error("删除失败");
         }
     }
+    /**
+     * @Apidoc\Title("渠道统计导出数据")
+     * @Apidoc\Desc("渠道统计导出数据")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("")
+     * @Apidoc\Tag("渠道统计导出数据")
+     * @Apidoc\Returned(type="array",ref="channelStat")
+     */
+    public function export(){
+        $list = ChannelModel::get_all();
+        $UserModel = app('app\common\model\User');
+        $UserStatModel = app('app\common\model\UserStat');
+        $WagesModel = app('app\common\model\Wages');
+        $reg_num = $UserModel::field('count(*) as num,cid')->where('is_rebot','=',0)->group('cid')->select();            //注册人数
+        $user_money = $UserModel::field('SUM(money) as money,cid')->where('is_rebot','=',0)->group('cid')->select();     //用户余额
+        $cz_num = $UserStatModel::field('count(*) as num,cid')->where("cz_money",">",0)->group('cid')->select();         //充值人数
+        $user_stat = $UserStatModel->get_total_money_by_cid(); //统计信息
+        $box_num = $UserStatModel::field('count(*) as num,cid')->where("box_money",">",0)->group('cid')->select();       //宝箱领取人数
+        $reg_num_arr = $user_money_arr = $cz_num_arr = $user_stat_arr = $box_num_arr = [];
+        foreach($reg_num as $v){
+            $reg_num_arr[$v['cid']] = $v;
+        }
+        foreach($user_money as $v){
+            $user_money_arr[$v['cid']] = $v;
+        }
+        foreach($cz_num as $v){
+            $cz_num_arr[$v['cid']] = $v;
+        }
+        foreach($user_stat as $v){
+            $user_stat_arr[$v['cid']] = $v;
+        }
+        foreach($box_num as $v){
+            $box_num_arr[$v['cid']] = $v;
+        }
+        $data = [];
+        foreach($list as $k=>$v){
+            $arr = [];
+            $arr['cid'] = $v['cid'];
+            $arr['name'] = $v['name'];
+            $arr['add_time'] = $v['add_time'];
+            //注册人数
+            if(isset($reg_num_arr[$v['cid']])){
+                $arr['reg_num'] = $reg_num_arr[$v['cid']]['num'];
+            }else{
+                $arr['reg_num'] = 0;
+            }
+            //用户余额
+            if(isset($user_money_arr[$v['cid']])){
+                $arr['user_money'] = round($user_money_arr[$v['cid']]['money'],2);
+            }else{
+                $arr['user_money'] = 0;
+            }
+            //充值人数
+            if(isset($cz_num_arr[$v['cid']])) {
+                $arr['cz_num'] = $cz_num_arr[$v['cid']]['num'];
+            }else{
+                $arr['cz_num'] = 0;
+            }
+            //统计信息
+            if(isset($user_stat_arr[$v['cid']])){
+                $arr['cz_money'] = round($user_stat_arr[$v['cid']]['cz_money'],2);      //总充值金额
+                $arr['bet_money'] = round($user_stat_arr[$v['cid']]['bet_money'],2);    //总投注金额
+                $arr['cash_money'] = round($user_stat_arr[$v['cid']]['cash_money'],2);  //总提现金额
+                $arr['box_money'] = round($user_stat_arr[$v['cid']]['box_money'],2);    //宝箱领取总额
+            }else{
+                $arr['cz_money'] = 0;
+                $arr['bet_money'] = 0;
+                $arr['cash_money'] = 0;
+                $arr['box_money'] = 0;
+            }
+            if(isset($box_num_arr[$v['cid']])) {
+                $arr['box_num'] = $box_num_arr[$v['cid']]['num'];
+            }else{
+                $arr['box_num'] = 0;
+            }
+            $WagesModel->setPartition($v['cid']);
+            $wages_num = $WagesModel->wages_num();          //工资领取人数
+            $wages_money = $WagesModel->wages_money();      //工资领取金额
+            $arr['daili_wages_num'] =    $wages_num['daili'];    //代理工资领取人数
+            $arr['daili_wages_money'] = round($wages_money['daili'] ?? '0.00',2);   //代理工资领取总额
+            $arr['bozhu_wages_num'] =    $wages_num['bozhu'];    //博主工资领取人数
+            $arr['bozhu_wages_money'] = round($wages_money['bozhu'] ?? '0.00',2);   //博主工资领取总额
+            $data[] = $arr;
+        }
+        return success("获取成功",$data);
+    }
 }

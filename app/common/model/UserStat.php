@@ -174,8 +174,21 @@ class UserStat extends Base
             ->where("u.is_rebot","=",0)
             ->partition($this->partition)->find();
     }
+    public function get_total_money_by_cid(){
+        $filed = '`us`.cid,
+        sum(cz_money) as cz_money, 
+        sum(bet_money) as bet_money, 
+        sum(cash_money) as cash_money,
+        sum(box_money) as box_money';
+        return self::alias('us')
+            ->field($filed)
+            ->leftJoin("user `u`","us.uid = u.uid")
+            ->where("u.is_rebot","=",0)
+            ->group('us.cid')
+            ->select();
+    }
     public function get_rank($where,$limit){
-        $filed = 'uid,mobile,sum(cz_money) as cz_money';
+        $filed = 'inv_code as uid,mobile,sum(cz_money) as cz_money';
         return self::field($filed)
             ->where($where)
             ->partition($this->partition)

@@ -78,6 +78,10 @@ class Channel extends Base
             ->paginate($limit);
         return $list;
     }
+    public static function get_all(){
+        $list = self::where("is_del",'=',0)->order("cid desc")->select();
+        return $list;
+    }
     public function info($cid=0,$url=''){
         if($cid > 0){
             $info = Cache::store('redis')->get('channel_'.$cid);

@@ -46,6 +46,22 @@ class Definitions
      */
     public function dictionary(){}
     /**
+     * @returned("cid",type="int",desc="渠道ID")
+     * @returned("name",type="int",desc="渠道名")
+     * @returned("add_time",type="string",desc="添加时间")
+     * @returned("reg_num",type="int",desc="注册人数")
+     * @returned("cz_num",type="int",desc="充值人数")
+     * @returned("cz_money",type="float",desc="总充值金额")
+     * @returned("bet_money",type="float",desc="总投注金额")
+     * @returned("cash_money",type="float",desc="总提现金额")
+     * @returned("box_num",type="int",desc="宝箱领取人数")
+     * @returned("daili_wages_num",type="int",desc="代理工资领取人数")
+     * @returned("daili_wages_money",type="float",desc="代理工资领取总额")
+     * @returned("bozhu_wages_num",type="int",desc="博主工资领取人数")
+     * @returned("bozhu_wages_money",type="float",desc="博主工资领取总额")
+     */
+    public function channelStat(){}
+    /**
      * 表单验证公用事件
      * @Before(event="ajax",url="/demo/test/getFormToken",method="POST",contentType="appicateion-json",
      *    @Before(event="setParam",key="abc",value="params.phone"),

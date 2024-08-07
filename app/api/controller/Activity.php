@@ -72,7 +72,7 @@ class Activity extends Base
      * @Apidoc\Method("POST")
      * @Apidoc\Author("")
      * @Apidoc\Tag("领取排行榜奖励")
-     * @Apidoc\Returned("level",type="int",desc="排名第几：1=第一名；2=第二名；3=第三名")
+     * @Apidoc\Param("level",type="int",desc="排名第几：1=第一名；2=第二名；3=第三名")
      */
     public function get_rank()
     {
