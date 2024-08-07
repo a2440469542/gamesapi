@@ -17,10 +17,7 @@ class AwsUpload
         $s3Config = [
             'region'  => 'sa-east-1',
             'version' => 'latest',
-            'credentials' => [
-                'key'    => 'AKIAQ3EGWVCZHLOPMUXI',
-                'secret' => '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',
-            ],
+
         ];
 
         // 创建S3客户端
@@ -51,10 +48,7 @@ class AwsUpload
         $s3Config = [
             'region'  => 'sa-east-1',
             'version' => 'latest',
-            'credentials' => [
-                'key'    => 'AKIAQ3EGWVCZHLOPMUXI',
-                'secret' => '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',
-            ],
+
         ];
         // 创建S3客户端
         $s3 = new S3Client($s3Config);
