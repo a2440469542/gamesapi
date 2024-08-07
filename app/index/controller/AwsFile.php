@@ -36,6 +36,33 @@ class AwsFile extends BaseController
         }
         echo "完成";
     }
+    public function get_channel(){
+        $ad = Db::name('channel')->field('cid,icon,logo')->select();
+        foreach ($ad as $k => $v) {
+            if($v['icon'] != ''){
+                $AwsUpload = new AwsUpload();
+                $savename = $AwsUpload->uploadToS32(APP_PATH.'public'.$v['icon']);
+                $update = [];
+                if(!$savename['code'] > 0){
+                    $update['icon'] = $savename['url'];
+                }
+            }
+            if($v['logo'] != ''){
+                $AwsUpload = new AwsUpload();
+                $savename = $AwsUpload->uploadToS32(APP_PATH.'public'.$v['logo']);
+                $update = [];
+                if(!$savename['code'] > 0){
+                    $update['logo'] = $savename['url'];
+                }
+            }
+            if($update){
+                Db::name('ad')->where('cid','=',$v['cid'])->update($update);
+                unlink(APP_PATH.'public'.$v['icon']);
+                unlink(APP_PATH.'public'.$v['logo']);
+            }
+        }
+        echo "完成";
+    }
     public function is_http($url){
         $parsedUrl = parse_url($url);
         // 如果URL中不包含scheme（如http或https），则认为没有域名
