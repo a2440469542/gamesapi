@@ -68,8 +68,8 @@ class Index extends Base
         if (!$channel) {
             return error("O canal não existe",10001);//渠道不存在
         }
-        $channel['icon'] = SITE_URL.$channel['icon'];
-        $channel['logo'] = SITE_URL.$channel['logo'];
+        /*$channel['icon'] = SITE_URL.$channel['icon'];
+        $channel['logo'] = SITE_URL.$channel['logo'];*/
         return success("obter sucesso",$channel);    //获取成功
     }
     /**
