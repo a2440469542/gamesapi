@@ -56,8 +56,12 @@ class AwsFile extends BaseController
             }
             if($update){
                 Db::name('channel')->where('cid','=',$v['cid'])->update($update);
-                unlink(APP_PATH.'public'.$v['icon']);
-                unlink(APP_PATH.'public'.$v['logo']);
+                if($v['icon'] != ''){
+                    unlink(APP_PATH.'public'.$v['icon']);
+                }
+                if($v['logo'] != ''){
+                    unlink(APP_PATH.'public'.$v['logo']);
+                }
             }
         }
         echo "完成";
