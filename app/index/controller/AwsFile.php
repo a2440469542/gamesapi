@@ -40,14 +40,14 @@ class AwsFile extends BaseController
         $ad = Db::name('channel')->field('cid,icon,logo')->select();
         foreach ($ad as $k => $v) {
             $update = [];
-            if($v['icon'] != ''){
+            if($v['icon'] != '' && $this->is_http($v['icon'])){
                 $AwsUpload = new AwsUpload();
                 $savename = $AwsUpload->uploadToS32(APP_PATH.'public'.$v['icon']);
                 if(!$savename['code'] > 0){
                     $update['icon'] = $savename['url'];
                 }
             }
-            if($v['logo'] != ''){
+            if($v['logo'] != '' && $this->is_http($v['logo'])){
                 $AwsUpload = new AwsUpload();
                 $savename = $AwsUpload->uploadToS32(APP_PATH.'public'.$v['logo']);
                 if(!$savename['code'] > 0){
