@@ -39,10 +39,10 @@ class AwsFile extends BaseController
     public function get_channel(){
         $ad = Db::name('channel')->field('cid,icon,logo')->select();
         foreach ($ad as $k => $v) {
+            $update = [];
             if($v['icon'] != ''){
                 $AwsUpload = new AwsUpload();
                 $savename = $AwsUpload->uploadToS32(APP_PATH.'public'.$v['icon']);
-                $update = [];
                 if(!$savename['code'] > 0){
                     $update['icon'] = $savename['url'];
                 }
@@ -50,7 +50,6 @@ class AwsFile extends BaseController
             if($v['logo'] != ''){
                 $AwsUpload = new AwsUpload();
                 $savename = $AwsUpload->uploadToS32(APP_PATH.'public'.$v['logo']);
-                $update = [];
                 if(!$savename['code'] > 0){
                     $update['logo'] = $savename['url'];
                 }
