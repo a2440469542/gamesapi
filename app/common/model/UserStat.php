@@ -86,6 +86,24 @@ class UserStat extends Base
         }
         return $list;
     }
+    public function get_list($where, $limit=10, $orderBy='id desc'){
+        $filed = 'uid,cid,mobile,
+            sum(invite_user) as invite_user,
+            sum(cz_money) as cz_money, 
+            AVG(cz_money) as avg_cz_money,
+            sum(cz_num) as cz_num, 
+            sum(bet_money) as bet_money, 
+            sum(win_money) as win_money, 
+            sum(cash_money) as cash_money,
+            sum(cash_num) as cash_num ,
+            sum(box_money) as box_money';
+        $list = self::where($where)
+            ->field($filed)
+            ->partition($this->partition)
+            ->group('uid')
+            ->paginate($limit)->toArray();
+        return $list;
+    }
     //根据条件获取当前下级的统计信息
     /**
      * @Field("uid,date,bet_money,cz_money")
@@ -188,7 +206,7 @@ class UserStat extends Base
             ->select();
     }
     public function get_rank($where,$limit){
-        $filed = 'inv_code as uid,mobile,sum(cz_money) as cz_money';
+        $filed = 'uid,inv_code,mobile,sum(cz_money) as cz_money';
         return self::field($filed)
             ->where($where)
             ->partition($this->partition)

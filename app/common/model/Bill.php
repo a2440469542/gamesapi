@@ -102,6 +102,8 @@ class Bill extends Base
             $update['water'] = Db::raw('`water` + '.$water);
         }else if($type == self::LOCK_MONEY) {
             $update['lock_money'] = Db::raw('`lock_money` + '.abs($money));
+        }else if($type ==self::RANK_MONEY) {
+            $update['water'] = Db::raw('`water` + '.($money * $multiple));
         }
         $this->setPartition($user['cid']);
         User::where("uid","=",$user['uid'])->partition($this->partition)->update($update);
