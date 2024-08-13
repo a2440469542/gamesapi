@@ -41,10 +41,18 @@ class GameLogin extends Base
                 ->where('is_rebot','=',1)->find();   //线路
         }else{
             $channel = model('app\common\model\Channel')->info($cid);
-            $lid = $channel['plate_line'][$plate['id']];
-            $line = app('app\common\model\Line')
-                ->where("lid","=",$lid)
-                ->find();
+            if(isset($channel['plate_line'][$plate['id']])){
+                $lid = $channel['plate_line'][$plate['id']];
+                $line = app('app\common\model\Line')
+                    ->where("lid","=",$lid)
+                    ->find();
+            }else{
+                $line = app('app\common\model\Line')
+                    ->where('pid',"=",$game['pid'])
+                    ->where('is_rebot','=',0)
+                    ->order('lid desc')
+                    ->find();   //线路
+            }
         }
         $this->line = $line;
         $this->game = $game->toArray();
