@@ -54,13 +54,13 @@ class GameLogin extends Base
                     ->find();   //线路
             }
         }
-        if(empty($line)) return 'Jogo não configurado';
+        if(empty($line)) return ['code'=>500,'msg'=>'Jogo não configurado'];
         $this->line = $line;
         $this->game = $game->toArray();
         $platform = $plate['code'];
         //$this->GameWallet = model('app\common\model\GameWallet',$cid);
         $this->platformService = GamePlatformFactory::getPlatformService($platform, $line, $this->user);
-        return true;
+        return ['code'=>0];
     }
 
     protected function registerUser($game_user)
@@ -175,8 +175,8 @@ class GameLogin extends Base
     public function get_game_url()
     {
         $row = $this->set_config();
-        if($row !== true) {
-            return error('');
+        if($row['code'] > 0) {
+            return error($row['msg']);
         }
         $game_user = $this->getGameUser();
         if(empty($game_user) || $game_user['is_login'] == 1){
