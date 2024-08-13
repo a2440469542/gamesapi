@@ -11,11 +11,11 @@ class Game extends BaseController
         $time = time();
         $headers = [
             'Content-Type: application/json;charset=UTF-8',
-            'X-Atgame-Mchid:10060',
+            'X-Atgame-Mchid:10287',
             'X-Atgame-Timestamp:'.$time,
-            'X-Atgame-Sign:'.strtoupper(md5($time . '8CC6C6C2B08A12D5B86A91D0A7A94DA5'))
+            'X-Atgame-Sign:'.strtoupper(md5($time . '2A1E04420A772882EC846C95E9652FD8'))
         ];
-        $row = $this->request('https://openapi.windygame.net/demo/api/game/loadlist', [], $headers);
+        $row = $this->request('https://openapi-br.atgameapp.com/pub/api/game/loadlist', [], $headers);
         if($row['code'] == 0){
             $games = $row['data']['glist'];
             $insert = [];
