@@ -54,6 +54,7 @@ class GameLogin extends Base
                     ->find();   //线路
             }
         }
+        if(empty($line)) return 'Jogo não configurado';
         $this->line = $line;
         $this->game = $game->toArray();
         $platform = $plate['code'];
@@ -175,7 +176,7 @@ class GameLogin extends Base
     {
         $row = $this->set_config();
         if($row !== true) {
-            return $row;
+            return error('');
         }
         $game_user = $this->getGameUser();
         if(empty($game_user) || $game_user['is_login'] == 1){
