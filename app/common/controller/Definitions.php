@@ -59,15 +59,10 @@ class Definitions
      * @returned("daili_wages_money",type="float",desc="代理工资领取总额")
      * @returned("bozhu_wages_num",type="int",desc="博主工资领取人数")
      * @returned("bozhu_wages_money",type="float",desc="博主工资领取总额")
+     * @returned("PG",type="string",desc="PG的RTP")
+     * @returned("JILI",type="string",desc="JILI的RTP")
+     * @returned("PP",type="string",desc="PP的RTP")
      */
     public function channelStat(){}
-    /**
-     * 表单验证公用事件
-     * @Before(event="ajax",url="/demo/test/getFormToken",method="POST",contentType="appicateion-json",
-     *    @Before(event="setParam",key="abc",value="params.phone"),
-     *    @Before(event="setParam",key="cc",value="123456"),
-     *    @After(event="setHeader",key="X-CSRF-TOKEN",value="res.data.data")
-     * )
-     */
-    public function formTokenEvent(){}
+
 }

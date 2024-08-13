@@ -146,6 +146,8 @@ class Channel extends Base{
         $UserModel = app('app\common\model\User');
         $UserStatModel = app('app\common\model\UserStat');
         $WagesModel = app('app\common\model\Wages');
+        $PlateModel = app('app\common\model\Plate');
+        $LineModel = app('app\common\model\Line');
         $reg_num = $UserModel::field('count(*) as num,cid')->where('is_rebot','=',0)->group('cid')->select();            //注册人数
         $user_money = $UserModel::field('SUM(money) as money,cid')->where('is_rebot','=',0)->group('cid')->select();     //用户余额
         $cz_num = $UserStatModel::field('count(*) as num,cid')->where("cz_money",">",0)->group('cid')->select();         //充值人数
@@ -173,6 +175,17 @@ class Channel extends Base{
             $arr['cid'] = $v['cid'];
             $arr['name'] = $v['name'];
             $arr['add_time'] = $v['add_time'];
+            if($v['plate_line']){
+                foreach($v['plate_line'] as $k1=>$v1){
+                    $plate_name = $PlateModel::where("id","=",$k1)->value('name');
+                    $line_name = $LineModel::where("lid","=",$v1)->value('title');
+                    $arr[$plate_name] = $line_name;
+                }
+            }else{
+                $arr['PG'] = '';
+                $arr['JILI'] = '';
+                $arr['PP'] = '';
+            }
             //注册人数
             if(isset($reg_num_arr[$v['cid']])){
                 $arr['reg_num'] = $reg_num_arr[$v['cid']]['num'];

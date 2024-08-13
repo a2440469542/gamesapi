@@ -15,12 +15,13 @@ use think\facade\Db;
 class RankLog extends Base
 {
     protected $pk = 'id';
-    public static function add($cid,$uid,$aid,$type,$money=0){
+    public static function add($cid,$uid,$aid,$type = 0,$inv_type = 0,$money=0){
         $data = [
             'cid' => $cid,
             'uid' => $uid,
             'aid' => $aid,
             'type' => $type,
+            'inv_type' => $inv_type,
             'money' => $money,
             'add_time' => date("Y-m-d H:i:s",time())
         ];

@@ -215,6 +215,16 @@ class UserStat extends Base
             ->group('uid')
             ->select()->toArray();
     }
+    public function get_inv_rank($where,$limit){
+        $filed = 'uid,inv_code,mobile,sum(invite_user) as invite_user';
+        return self::field($filed)
+            ->where($where)
+            ->partition($this->partition)
+            ->limit($limit)
+            ->order('invite_user desc')
+            ->group('uid')
+            ->select()->toArray();
+    }
     //获取宝箱领取金额
     public function box_num(){
         return self::where("box_money",">",0)->partition($this->partition)->count();
