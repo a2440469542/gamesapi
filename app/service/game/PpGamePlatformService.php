@@ -39,7 +39,7 @@ class PpGamePlatformService extends BaseGamePlatformService
         $params['token'] = $user['user_token'];
         $params['lang'] = "pt";
         if($user['rtp'] > 0){
-            $params['rtp'] = $user['rtp'];
+            $params['rtp_pool'] = $user['rtp'];
         }
         write_log($params,'PpGame');
         $time = time();
@@ -49,10 +49,10 @@ class PpGamePlatformService extends BaseGamePlatformService
             'X-Atgame-Timestamp:'.$time,
             'X-Atgame-Sign:'.$this->generateSign($params,$time)
         ];
-        write_log($headers,'PpGame');
+        write_log($headers,'PpGame'.$user['cid']);
         write_log("获取游戏请求地址：".$this->baseUrl.$apiUrl,'PpGame'.$user['cid']);
         $response = $this->request($apiUrl, json_encode($params), $headers);
-        write_log($response,'PpGame');
+        write_log($response,'PpGame'.$user['cid']);
         if(empty($response)) return ['code'=>1, 'msg'=>'Sob manutenção'];
         if(isset($response['code']) && $response['code'] == 0){
             Cache::store('redis')->set($user['user_token'],$user,0);
