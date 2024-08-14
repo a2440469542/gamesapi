@@ -53,7 +53,7 @@ class PpGamePlatformService extends BaseGamePlatformService
         write_log("获取游戏请求地址：".$this->baseUrl.$apiUrl,'PpGame'.$user['cid']);
         $response = $this->request($apiUrl, json_encode($params), $headers);
         write_log($response,'PpGame');
-        if(empty($response)) return ['code'=>1, 'msg'=>'获取游戏失败'];
+        if(empty($response)) return ['code'=>1, 'msg'=>'Sob manutenção'];
         if(isset($response['code']) && $response['code'] == 0){
             Cache::store('redis')->set($user['user_token'],$user,0);
             return ['code'=>0, 'msg'=>'获取成功','url'=>$response['data']['gameurl']];
