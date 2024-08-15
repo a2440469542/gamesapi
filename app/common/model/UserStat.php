@@ -104,6 +104,20 @@ class UserStat extends Base
             ->paginate($limit)->toArray();
         return $list;
     }
+    //根据渠道分组获取每天的数据
+    public function get_date_list($where=[],$limit=10, $orderBy='id desc'){
+        $filed = 'c.name,us.cid,date,
+            sum(us.cz_money) as cz_money, 
+            sum(us.bet_money) as bet_money, 
+            sum(us.cash_money) as cash_money';
+        $list = self::alias('us')
+            ->field($filed)
+            ->leftJoin("channel `c`","us.cid = c.cid")
+            ->where($where)
+            ->group('us.cid')
+            ->paginate($limit)->toArray();
+        return $list;
+    }
     //根据条件获取当前下级的统计信息
     /**
      * @Field("uid,date,bet_money,cz_money")
@@ -137,7 +151,6 @@ class UserStat extends Base
             ->partition($this->partition)
             ->group('us.uid')
             ->count();
-        write_log("查询统计：".$count,'wages');
         return $count;
     }
     //根据条件获取当前下级的总存款和总投注
@@ -172,11 +185,16 @@ class UserStat extends Base
         return $summary;
     }
     //充值人数
-    public function get_cz_num(){
-        return self::where("cz_money",">",0)->partition($this->partition)->group('uid')->count();
+    public function get_cz_num($date=''){
+        if($date){
+            return self::where("cz_money",">",0)->where('date','=',$date)->partition($this->partition)->group('uid')->count();
+        }else{
+            return self::where("cz_money",">",0)->partition($this->partition)->group('uid')->count();
+        }
+
     }
     //获取充值金额
-    public function get_total_money(){
+    public function get_total_money($date=''){
         $filed = '`us`.uid,`us`.mobile,
         sum(invite_user) as invite_user,
         sum(cz_money) as cz_money, 
@@ -186,10 +204,14 @@ class UserStat extends Base
         sum(cash_money) as cash_money,
         sum(cash_num) as cash_num ,
         sum(box_money) as box_money';
+        $where[] = ["u.is_rebot","=",0];
+        if($date){
+            $where[] = ["us.date","=",$date];
+        }
         return self::alias('us')
             ->field($filed)
             ->leftJoin("cp_user PARTITION({$this->partition}) `u`","us.uid = u.uid")
-            ->where("u.is_rebot","=",0)
+            ->where($where)
             ->partition($this->partition)->find();
     }
     public function get_total_money_by_cid(){
@@ -226,8 +248,12 @@ class UserStat extends Base
             ->select()->toArray();
     }
     //获取宝箱领取金额
-    public function box_num(){
-        return self::where("box_money",">",0)->partition($this->partition)->count();
+    public function box_num($date=''){
+        $where[] = ["box_money",">",0];
+        if($date!=''){
+            $where[] = ['date','=',$date];
+        }
+        return self::where($where)->partition($this->partition)->count();
     }
     public function get_child($cid,$uid,$type=1){
         $filed = '`us`.uid,`us`.mobile,

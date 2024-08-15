@@ -193,9 +193,17 @@ class User extends Base
         return $list;
     }
     //统计注册人数
-    public function reg_num($cid){
+    public function reg_num($cid,$date=''){
         $this->setPartition($cid);
-        return self::where('is_rebot','=',0)->partition($this->partition)->count();
+        if($date){
+            $sttime = strtotime($date);
+            $ettime = $sttime + 24*60*60;
+            return self::where('is_rebot','=',0)
+                ->where('reg_time','between',[$sttime,$ettime])
+                ->partition($this->partition)->count();
+        }else{
+            return self::where('is_rebot','=',0)->partition($this->partition)->count();
+        }
     }
     //统计用户余额
     public function user_money($cid){

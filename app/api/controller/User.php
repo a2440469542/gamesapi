@@ -271,4 +271,27 @@ class User extends Base
         }
         return array($UserStat, $box_num);
     }
+    /**
+     * @Apidoc\Title("站内信")
+     * @Apidoc\Desc("站内信")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("")
+     * @Apidoc\Tag("站内信")
+     * @Apidoc\Param(ref="pagingParam",desc="分页参数")
+     * @Apidoc\Param("orderBy", type="string",require=false, desc="字段排序")
+     * @Apidoc\Param("limit", type="int",require=true, desc="每页的条数")
+     * @Apidoc\Returned(ref="pageReturn")
+     * @Apidoc\Returned("data",type="array",desc="站内信",table="cp_mail")
+     */
+    public function mail(){
+        $cid = $this->request->cid;
+        $uid = $this->request->uid;
+        $limit = input("limit",10);
+        $orderBy = input("orderBy", 'id desc');
+        $where[] = ['uid',"=",$uid];
+        $where[] = ['cid',"=",$cid];
+        $list = app('app\common\model\Mail')->getList($where,$limit,$orderBy);
+        return success("obter sucesso",$list);//获取成功
+    }
+
 }

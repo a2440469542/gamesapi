@@ -24,6 +24,7 @@ class PayLogic {
             if ($data['status'] == 'SUCCESS') {
                 return $this->handleSuccessfulPayment($OrderModel,$data, $order, $cid);
             } else {
+                $this->handleFailedPayment($OrderModel,$data, $order);
                 $this->logError($data['status'], 'pay');
                 return false;
             }
@@ -57,7 +58,7 @@ class PayLogic {
             $user_stat['gifts_money'] = $order['gifts'];
         }
         $UserStatModel->add($user,$user_stat);
-
+        app('app\common\model\Mail')->add($cid,$order['uid'],'Recargar bem sucedido',$order['money']);
         if ($OrderModel->update_order($update)) {
             Db::commit();
             return true;
@@ -73,7 +74,7 @@ class PayLogic {
             'status' => 3,
             'orderno' => $post['orderNo']
         ];
-
+        app('app\common\model\Mail')->add($order['cid'],$order['uid'],$post['message'],$order['money']);
         if ($OrderModel->update_order($update)) {
             Db::commit();
             return true;
@@ -135,6 +136,7 @@ class PayLogic {
         $UserStatModel = model('app\common\model\UserStat', $cid);
         $user_stat = ['cash_money' => $order['money'], 'cash_num' => 1,];
         $UserStatModel->add($user,$user_stat);
+        app('app\common\model\Mail')->add($cid,$order['uid'],'Retirar bem sucedido',$order['money']);
 
         if ($CashModel->update_order($update)) {
             Db::commit();
@@ -160,6 +162,7 @@ class PayLogic {
         //提现失败返回
         $BillModel = model('app\common\model\Bill', $cid);
         $BillModel->addIntvie($user, $BillModel::CASH_RETURN, $order['money']);
+        app('app\common\model\Mail')->add($cid,$order['uid'],$post['message'],$order['money']);
         if ($CashModel->update_order($update)) {
             Db::commit();
             return true;
