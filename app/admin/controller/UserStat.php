@@ -179,6 +179,9 @@ class UserStat extends Base{
         $UserModel = app('app\common\model\User');
         foreach ($list['data'] as &$item){
             $UserStatModel = model('app\common\model\UserStat',$item['cid']);
+            $item['cz_money'] = round($item['cz_money']   ?? '0.00',2);   //总充值金额
+            $item['cash_money'] = round($item['cash_money'] ?? '0.00',2);   //总提现金额
+            $item['bet_money'] = round($item['bet_money'] ?? '0.00',2);   //总投注金额
             $item['reg_num'] = $UserModel->reg_num($item['cid'],$item['date']);     //注册人数
             $item['cz_num']  = $UserStatModel->get_cz_num($item['date']);           //充值人数
             $item['box_num'] = $UserStatModel->box_num($item['date']);              //宝箱领取人数
