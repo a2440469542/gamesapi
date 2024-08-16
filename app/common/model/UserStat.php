@@ -114,7 +114,7 @@ class UserStat extends Base
             ->field($filed)
             ->leftJoin("channel `c`","us.cid = c.cid")
             ->where($where)
-            ->group('us.cid')
+            ->group('us.cid,us.date')
             ->paginate($limit)->toArray();
         return $list;
     }
