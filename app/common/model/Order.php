@@ -84,4 +84,9 @@ class Order extends Base
         $row = self::where('id',"=",$data['id'])->partition($this->partition)->update($data);
         return $row;
     }
+    public function get_today_order($uid){
+        $time = strtotime(date("Y-m-d",time()));
+        $count = self::where('uid',"=",$uid)->where('add_time','>=',$time)->count();
+        return $count;
+    }
 }

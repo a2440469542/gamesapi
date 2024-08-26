@@ -42,7 +42,7 @@ class Index extends Base
         $cid = $this->cid;
         $num = Cache::store('redis')->get("jack_pot_".$cid);
         if(!$num){
-            $num = rand(100000,500000);
+            $num = rand(10000000,50000000);
             Cache::store('redis')->set("jack_pot_".$cid,$num,0);
         }
         $model = model('app\common\model\UserStat',$cid);

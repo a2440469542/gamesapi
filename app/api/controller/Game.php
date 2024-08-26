@@ -76,7 +76,7 @@ class Game extends Base
         $uid = $this->request->uid;
         $limit = input("limit",10);
         $orderBy = input("orderBy", 'add_time desc');
-        $where[] = ['uid',"=",$uid];
+        $where[] = ['gl.uid',"=",$uid];
         $list = model('app\common\model\GameLog',$cid)->getList($where,$limit,$orderBy);
         return success("obter sucesso",$list);//获取成功
     }

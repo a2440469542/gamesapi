@@ -113,7 +113,9 @@ class UserStat extends Base
         $list = self::alias('us')
             ->field($filed)
             ->leftJoin("channel `c`","us.cid = c.cid")
+            ->leftJoin("user `u`","us.uid = u.uid")
             ->where($where)
+            ->where("u.is_rebot","=",0)
             ->group('us.cid,us.date')
             ->paginate($limit)->toArray();
         return $list;
@@ -289,5 +291,12 @@ class UserStat extends Base
             ->group("us.uid")
             ->partition($this->partition)
             ->select();
+    }
+    //获取用户某个时间段的下注总额
+    public function get_total_bet_amount($uid, $start_date, $end_date){
+        return self::where('uid','=',$uid)
+            ->where('date','between',[$start_date, $end_date])
+            ->partition($this->partition)
+            ->sum('bet_money');
     }
 }

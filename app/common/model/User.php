@@ -112,6 +112,13 @@ class User extends Base
         $info = self::where('uid', "=", $uid)
             ->partition($this->partition)
             ->find();
+        $level = app('app\common\model\Level')->level($info['exp']);
+        if($level && $level != $info['level']){
+            self::where('uid', "=", $uid)
+                ->partition($this->partition)
+                ->update(['level'=>$level]);
+            $info['level'] = $level;
+        }
         return $info;
     }
     public function decWater($uid,$num)

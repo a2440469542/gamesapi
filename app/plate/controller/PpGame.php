@@ -111,20 +111,12 @@ class PpGame extends BaseController
             $BillModel = app('app\common\model\Bill');
             $bid = 0;
             if($UpdateCredit > 0 || $UpdateCredit < 0){
-                $row = $BillModel->addIntvie($user, $BillModel::GAME_BET, $UpdateCredit);
+                $row = $BillModel->addIntvie($user, $BillModel::GAME_BET, $UpdateCredit,0,0,$Bet);
                 $user = $row['user'];
                 $bid = $row['bid'];
             }
             $GameLog = app('app\common\model\GameLog');
             $GameLog->add($cid, $uid, $user['mobile'],$bid, $game['pid'], $game['gid'], $game['name'], $UpdateCredit, $game['code'], $Term, $Bet, $Award);
-            if($user['water'] > 0){
-                $UserModel = model('app\common\model\User',$cid);
-                if($Bet > $user['water']){
-                    $UserModel->decWater($uid,$user['water']);
-                }else{
-                    $UserModel->decWater($uid,$Bet);
-                }
-            }
             //数据统计
             $UserStatModel = model('app\common\model\UserStat',$cid);
             $stat = ['bet_money' => $Bet, 'win_money' => $UpdateCredit];

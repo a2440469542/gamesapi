@@ -33,6 +33,85 @@ class User extends Base
         return success("obter sucesso",$user);//获取成功
     }
     /**
+     * @Apidoc\Title("等级页面")
+     * @Apidoc\Desc("等级页面")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("")
+     * @Apidoc\Tag("等级页面")
+     * @Apidoc\Returned("user",type="array",desc="用户信息",table="cp_user",children={
+     *     @Apidoc\Returned("level_img",type="string",desc="等级图片"),
+     *     @Apidoc\Returned("level_exp",type="int",desc="当前等级的经验"),
+     *     @Apidoc\Returned("nex_level",type="int",desc="下级所需经验")
+     * })
+     * @Apidoc\Returned("level",type="array",desc="等级列表",table="cp_level")
+     * @Apidoc\Returned("is_get_day",type="int",desc="每日奖励：0=不能领取；1=可以领取")
+     * @Apidoc\Returned("is_get_week",type="int",desc="每周奖励：0=不能领取；1=可以领取")
+     */
+    public function get_level(){
+        $cid = $this->request->cid;
+        $uid = $this->request->uid;
+        $list = app('app\common\model\Level')->getList();
+        $UserModel = model('app\common\model\User',$cid);
+        $user = $UserModel->getInfo($uid);
+        $level = $user['level'];
+        foreach($list as $k => $v){
+            if($level == $v['level']){
+                $user['level_img'] = $v['img'];
+                $user['exp'] = (int)$user['exp'];
+                $user['level_exp'] = $v['exp'];
+                $user['nex_level'] = $list[$k+1]['exp'] - (int)$user['exp'];
+                $level_info = $v;
+                break;
+            }
+        }
+        $is_get_day = $is_get_week = 1;
+
+        $day_count = app('app\common\model\LevelLog')
+            ->where('cid', $cid)
+            ->where('uid', $uid)
+            ->where('type', '=', 1)
+            ->where('add_time', '>=', date('Y-m-d H:i:s', time()))
+            ->count();
+        $UserStatModel = model('app\common\model\UserStat', $cid);
+        if($day_count >= 1 || $level_info['beet_back_day'] <= 0){
+            $is_get_day = 0;
+        }else{
+            $startTime = date("Y-m-d 00:00:00", strtotime("-1 day"));
+            $endTime = date("Y-m-d 23:59:59", strtotime("-1 day"));
+            $userStat = $UserStatModel->get_total_bet_amount($uid, $startTime, $endTime);
+            $betMoney = $userStat['bet_money'];
+            if($betMoney <= 0){
+                $is_get_day = 0;
+            }
+        }
+
+        $start_time = strtotime('monday this week');
+        $week_count = app('app\common\model\LevelLog')
+            ->where('cid', $cid)
+            ->where('uid', $uid)
+            ->where('type', '=', 2)
+            ->where('add_time', '>=', date('Y-m-d H:i:s', $start_time))
+            ->count();
+        if($week_count >= 1 || $level_info['week_back'] <= 0){
+            $is_get_week = 0;
+        }else{
+            $startTime = date("Y-m-d 00:00:00", strtotime("last week Monday"));
+            $endTime = date("Y-m-d 23:59:59", strtotime("last week Sunday"));
+            $userStat = $UserStatModel->get_total_bet_amount($uid, $startTime, $endTime);
+            $betMoney = $userStat['bet_money'];
+            if($betMoney <= 0){
+                $is_get_day = 0;
+            }
+        }
+        $data = [
+            'level' => $list,
+            'is_get_day' => $is_get_day,
+            'is_get_week' => $is_get_week,
+            'user' => $user
+        ];
+        return success("obter sucesso",$data);//获取成功
+    }
+    /**
      * @Apidoc\Title("获取当前渠道用户宝箱列表")
      * @Apidoc\Desc("获取当前渠道用户宝箱列表")
      * @Apidoc\Method("POST")
@@ -293,5 +372,110 @@ class User extends Base
         $list = app('app\common\model\Mail')->getList($where,$limit,$orderBy);
         return success("obter sucesso",$list);//获取成功
     }
+    /**
+     * @Apidoc\Title("删除站内信")
+     * @Apidoc\Desc("删除站内信")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("")
+     * @Apidoc\Tag("删除站内信")
+     * @Apidoc\Param("id", type="int",require=true, desc="需要删除的数据")
+     */
+    public function del_mail(){
+        $id = input("id");
+        if(empty($id)) return error("Por favor seleccione os dados a suprimir");
+        app('app\common\model\Mail')->where('id','=',$id)->delete();
+        return success("Eliminar com sucesso"); //删除成功
+    }
+    /**
+     * @Apidoc\Title("领取每日返点")
+     * @Apidoc\Desc("领取每日返点")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("")
+     * @Apidoc\Tag("领取每日返点")
+     */
+    public function get_day_level() {
+        return $this->get_level_reward('day');
+    }
+    /**
+     * @Apidoc\Title("领取每周返点")
+     * @Apidoc\Desc("领取每周返点")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("")
+     * @Apidoc\Tag("领取每周返点")
+     */
+    public function get_week_level() {
+        return $this->get_level_reward('week');
+    }
+
+    private function get_level_reward($type) {
+        $cid = $this->request->cid;
+        $uid = $this->request->uid;
+
+        // 根据类型获取时间范围
+        if ($type === 'day') {
+            $startTime = date("Y-m-d 00:00:00", strtotime("-1 day"));
+            $endTime = date("Y-m-d 23:59:59", strtotime("-1 day"));
+            $logType = 1;
+            $rewardField = 'beet_back_day';
+            $start_time = time();
+        } else if ($type === 'week') {
+            $startTime = date("Y-m-d 00:00:00", strtotime("last week Monday"));
+            $endTime = date("Y-m-d 23:59:59", strtotime("last week Sunday"));
+            $logType = 2;
+            $rewardField = 'week_back';
+            $start_time = strtotime('monday this week');
+        } else {
+            return error("无效的类型");
+        }
+
+        $user = model('app\common\model\User', $cid)->getInfo($uid);
+        $count = app('app\common\model\LevelLog')
+            ->where('cid', $cid)
+            ->where('uid', $uid)
+            ->where('type', '=', $logType)
+            ->where('add_time', '>=', date('Y-m-d H:i:s', $start_time))
+            ->count();
+
+        if ($count > 0) {
+            return error('Já recebido, por favor não receba novamente'); //已领取，请勿重复领取
+        }
+
+        $level = app('app\common\model\Level')->where('level', $user['level'])->find();
+        if (empty($level)) {
+            return error("O nível não existe"); //等级不存在
+        }
+
+        if ($level[$rewardField] > 0) {
+            $UserStatModel = model('app\common\model\UserStat', $cid);
+            $userStat = $UserStatModel->get_total_bet_amount($uid, $startTime, $endTime);
+            $betMoney = $userStat['bet_money'];
+            $money = 0;
+            if ($betMoney > 0) {
+                $money = round($betMoney * ($level[$rewardField] / 100), 2);
+            }
+            if ($money > 0) {
+                Db::startTrans();
+                try {
+                    $BillModel = model('app\common\model\Bill', $cid);
+                    $BillModel->addIntvie($user, $logType === 1 ? $BillModel::DAY_LEVEL_MONEY : $BillModel::WEEK_LEVEL_MONEY, $money, 0, $level['multiple']);
+                    $row = app('app\common\model\LevelLog')->add($cid, $uid, $user['level'], $money, $logType);
+                    if (!$row) {
+                        Db::rollback();
+                        return error("Não foi possível obter", 500);    //获取失败
+                    }
+                    Db::commit();
+                } catch (\Exception $e) {
+                    Db::rollback();
+                    return error($e->getMessage());
+                }
+            } else {
+                return error("Não há recompensas para reivindicar");   //没有可领取的奖励
+            }
+        }else{
+            return error("Não há recompensas para reivindicar");   //没有可领取的奖励
+        }
+        return success("obter sucesso"); //获取成功
+    }
+
 
 }

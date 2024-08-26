@@ -29,6 +29,9 @@ class Bill extends Base
     const   LOCK_MONEY = 112;     //冻结余额
     const   RANK_MONEY = 113;     //排行榜奖励
     const   RANK_INV_MONEY = 114;     //邀请排行榜奖励
+    const   DAY_LEVEL_MONEY = 115;     //每日返现金额
+    const   WEEK_LEVEL_MONEY = 116;     //每周返现金额
+    const   SIGN_MONEY = 200;     //签到奖励
     public function getTypeText($type=0): array|string
     {
         $type_text = [
@@ -46,6 +49,9 @@ class Bill extends Base
             self::LOCK_MONEY        => 'Congelar o equilíbrio',                      //冻结余额
             self::RANK_MONEY        => 'Recompensar',                                //排行榜奖励
             self::RANK_INV_MONEY    => 'Recompensas do taboleiro de convites',       //邀请排行榜奖励
+            self::DAY_LEVEL_MONEY   => 'Valor de reembolso diário',                  //每日返现金额
+            self::WEEK_LEVEL_MONEY  => 'Valor de reembolso semanal',                 //每周返现金额
+            self::SIGN_MONEY        => 'assinar em recompensa',                      //签到奖励
         ];
         if(isset($type_text[$type])){
             return $type_text[$type];
@@ -69,6 +75,9 @@ class Bill extends Base
             self::LOCK_MONEY    => '余额冻结',     //冻结余额
             self::RANK_MONEY    => '排行榜奖励',   //排行榜奖励
             self::RANK_INV_MONEY  => '排行榜奖励',   //邀请排行榜奖励
+            self::DAY_LEVEL_MONEY  => '每日返现金额',   //每日返现金额
+            self::WEEK_LEVEL_MONEY  => '每周返现金额',   //每周返现金额
+            self::SIGN_MONEY  => '签到奖励',   //签到奖励
         ];
         if(isset($type_text[$value])){
             return $type_text[$value];
@@ -79,7 +88,7 @@ class Bill extends Base
     {
         return date("Y-m-d H:i:s",$value);
     }
-    public function addIntvie($user,$type,$money,$gifts=0,$multiple=0): array
+    public function addIntvie($user,$type,$money,$gifts=0,$multiple=0,$bet=0): array
     {
         $before_money = $user['money'];                  //账变前的金额
         $after_money = $user['money'] + $money + $gifts; //账变后的金额
@@ -105,8 +114,22 @@ class Bill extends Base
             $update['water'] = Db::raw('`water` + '.$water);
         }else if($type == self::LOCK_MONEY) {
             $update['lock_money'] = Db::raw('`lock_money` + '.abs($money));
-        }else if($type ==self::RANK_MONEY) {
+        }else if($type ==self::RANK_MONEY ||
+            $type == self::RANK_INV_MONEY ||
+            $type == self::DAY_LEVEL_MONEY ||
+            $type == self::WEEK_LEVEL_MONEY ||
+            $type == self::SIGN_MONEY)
+        {
             $update['water'] = Db::raw('`water` + '.($money * $multiple));
+        }else if($type === self::GAME_BET){
+            $update['exp'] = Db::raw('`exp` + '.$bet);
+            if($user['water'] > 0){
+                if($bet > $user['water']){
+                    $update['water'] = 0;
+                }else{
+                    $update['water'] = Db::raw('`water` - '.$bet);
+                }
+            }
         }
         $this->setPartition($user['cid']);
         User::where("uid","=",$user['uid'])->partition($this->partition)->update($update);

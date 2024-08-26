@@ -117,6 +117,11 @@ class Cash extends Base
                 Db::commit();
                 return error('Sua conta está envolvida em atividades ilegais');  //您的账户违规操作
             }
+            $count = $CashModel->cash_total($uid);
+            $level = app('app\common\model\Level')->where('level','=',$user['level'])->find();
+            if($count && $count['num'] > 0 && $count['num'] <= $level['cash_num']) return error('The daily withdrawal limit has been reached');                         //每日提款次数已达上限
+            if($count && $count['money'] > 0 && $count['money'] <= $level['cash_money']) return error('The daily withdrawal amount has reached the maximum limit');     //每日提款金额已达上限
+
             $res = $CashModel->add($cid,$uid,$order_sn,$row['type'],$account,$row['pix'],$row['name'],$money);
             if(!$res){
                 Db::rollback();
