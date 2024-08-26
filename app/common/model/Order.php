@@ -86,7 +86,7 @@ class Order extends Base
     }
     public function get_today_order($uid){
         $time = strtotime(date("Y-m-d",time()));
-        $count = self::where('uid',"=",$uid)->where('add_time','>=',$time)->count();
+        $count = self::where('uid',"=",$uid)->where("status",'=',2)->where('add_time','>=',$time)->count();
         return $count;
     }
 }

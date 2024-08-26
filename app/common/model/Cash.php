@@ -78,4 +78,8 @@ class Cash extends Base
         $total = self::field('COUNT(id) as num,SUM(money) as money')->where("uid","=",$uid)->where('status', '=', 2)->partition($this->partition)->find();
         return $total;
     }
+    public function get_cash_num($uid){
+        $count = self::where('uid',"=",$uid)->where("status",'=',2)->partition($this->partition)->count();
+        return $count;
+    }
 }

@@ -52,7 +52,15 @@ class Cash extends Base
         if($type == 'PHONE' && $mobile == '') return error('Erro de parâmetro');//参数错误
         $BankModel = model('app\common\model\Bank');
         $row = $BankModel->getInfo($cid,$uid);
-        if($row) $id = $row['id'];
+        if($row) {
+            $id = $row['id'];
+            $CashModel = model('app\common\model\Cash',$cid);
+            $count = $CashModel->get_cash_num($uid);
+            if($count > 0) return error('Esta conta foi sacada com sucesso uma vez e a conta PIX não pode ser alterada.');    //此账户已提现成功一次，无法更改PIX账户
+        }else{
+            $count = $BankModel->where('pix','=',$pix)->count();
+            if($count > 0) return error('Este cartão bancário já foi vinculado');//此银行卡已被绑定
+        }
         $res = $BankModel->add($cid,$uid,$type,$mobile,$pix,$name,$id);
         if($res){
             return success('Vinculação bem-sucedida'); //绑定成功
