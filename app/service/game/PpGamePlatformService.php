@@ -41,7 +41,7 @@ class PpGamePlatformService extends BaseGamePlatformService
         if($user['rtp'] > 0){
             $params['rtp_pool'] = $user['rtp'];
         }
-        write_log($params,'PpGame');
+        write_log($params,'PpGame'.$user['cid']);
         $time = time();
         $headers = [
             'Content-Type: application/json;charset=UTF-8',
