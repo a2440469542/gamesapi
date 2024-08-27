@@ -58,7 +58,7 @@ class Cash extends Base
             $count = $CashModel->get_cash_num($uid);
             if($count > 0) return error('Esta conta foi sacada com sucesso uma vez e a conta PIX não pode ser alterada.');    //此账户已提现成功一次，无法更改PIX账户
         }else{
-            $count = $BankModel->where('pix','=',$pix)->count();
+            $count = $BankModel->where('cid','=',$cid)->where('pix','=',$pix)->count();
             if($count > 0) return error('Este cartão bancário já foi vinculado');//此银行卡已被绑定
         }
         $res = $BankModel->add($cid,$uid,$type,$mobile,$pix,$name,$id);
