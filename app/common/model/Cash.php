@@ -75,7 +75,12 @@ class Cash extends Base
     }
     //获取当日用户提现次数以及提现金额
     public function cash_total($uid){
-        $total = self::field('COUNT(id) as num,SUM(money) as money')->where("uid","=",$uid)->where('status', '=', 2)->partition($this->partition)->find();
+        $time = strtotime(date("Y-m-d",time()));
+        $total = self::field('COUNT(id) as num,SUM(money) as money')
+            ->where("uid","=",$uid)
+            ->where('status', '=', 2)
+            ->where('add_time','>=',$time)
+            ->partition($this->partition)->find();
         return $total;
     }
     public function get_cash_num($uid){
