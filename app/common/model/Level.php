@@ -41,7 +41,7 @@ class Level extends Base
         return $list;
     }
     public function level($exp){
-        return self::where('exp',"<=",$exp)->order('exp','desc')->value('level');
+        return self::where('exp',"<=",$exp)->order('exp desc')->value('level');
     }
 
     public function stat($where=[], $limit=10, $order='id desc'){
