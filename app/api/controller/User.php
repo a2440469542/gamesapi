@@ -78,8 +78,7 @@ class User extends Base
         }else{
             $startTime = date("Y-m-d 00:00:00", strtotime("-1 day"));
             $endTime = date("Y-m-d 23:59:59", strtotime("-1 day"));
-            $userStat = $UserStatModel->get_total_bet_amount($uid, $startTime, $endTime);
-            $betMoney = $userStat['bet_money'];
+            $betMoney = $UserStatModel->get_total_bet_amount($uid, $startTime, $endTime);
             if($betMoney <= 0){
                 $is_get_day = 0;
             }
@@ -97,8 +96,7 @@ class User extends Base
         }else{
             $startTime = date("Y-m-d 00:00:00", strtotime("last week Monday"));
             $endTime = date("Y-m-d 23:59:59", strtotime("last week Sunday"));
-            $userStat = $UserStatModel->get_total_bet_amount($uid, $startTime, $endTime);
-            $betMoney = $userStat['bet_money'];
+            $betMoney = $UserStatModel->get_total_bet_amount($uid, $startTime, $endTime);
             if($betMoney <= 0){
                 $is_get_day = 0;
             }

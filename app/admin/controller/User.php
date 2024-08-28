@@ -3,6 +3,8 @@ namespace app\admin\controller;
 use hg\apidoc\annotation as Apidoc;
 use app\common\model\User as UserModel;
 use app\admin\model\Menu;
+use think\facade\Db;
+
 /**
  * 用户管理相关接口
  * @Apidoc\Title("用户管理相关")
@@ -249,5 +251,47 @@ class User extends Base{
             return success("绑定成功");
         }
         return success("绑定成功");
+    }
+    /**
+     * @Apidoc\Title("冻结余额")
+     * @Apidoc\Desc("冻结余额")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("")
+     * @Apidoc\Tag("冻结余额")
+     * @Apidoc\Param("cid", type="int",require=true, desc="渠道ID")
+     * @Apidoc\Param("uid", type="int",require=true, desc="用户ID")
+     * @Apidoc\Param("money", type="float", require=true, desc="冻结金额")
+     */
+    public function lock_money(){
+        $uid = input("uid");    //自己ID
+        $cid = input("cid");
+        $money = input("money");
+        if(!$uid){
+            return  error("缺少参数uid");
+        }
+        if(!$cid){
+            return  error("缺少参数cid");
+        }
+        if(!$money){
+            return  error("缺少参数money");
+        }
+        $UserModel = model('app\common\model\User',$cid);
+        $user = $UserModel->getInfo($uid);    //获取自己的信息
+        if($user['money'] < $money){
+            return error("余额不足");
+        }
+        $BillModel = model('app\common\model\Bill', $cid);
+        try{
+            $result = $BillModel->addIntvie($user, $BillModel::LOCK_MONEY, -$money);
+            if($result['code'] !== 0){
+                Db::rollback();
+                return error("失败");  //提现失败
+            }
+            Db::commit();
+            return success("成功");
+        }catch (\Exception $e){
+            Db::rollback();
+            return error($e->getMessage());
+        }
     }
 }
