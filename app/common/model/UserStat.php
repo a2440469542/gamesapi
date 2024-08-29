@@ -240,13 +240,15 @@ class UserStat extends Base
             ->select()->toArray();
     }
     public function get_inv_rank($where,$limit){
-        $filed = 'uid,inv_code,mobile,sum(invite_user) as invite_user';
-        return self::field($filed)
+        $filed = 'u.uid,u.inv_code,u.mobile,sum(us.invite_user) as invite_user,sum(us.cz_money) as cz_money';
+        return User::alias('u')->field($filed)
+            ->leftJoin("cp_user PARTITION({$this->partition}) `sub`","sub.uid = u.uid")
+            ->leftJoin("cp_user_stat PARTITION({$this->partition}) `us`","us.uid = sub.uid")
             ->where($where)
             ->partition($this->partition)
             ->limit($limit)
-            ->order('invite_user desc')
-            ->group('uid')
+            ->order('cz_money desc')
+            ->group('us.uid')
             ->select()->toArray();
     }
     //获取宝箱领取金额

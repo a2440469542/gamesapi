@@ -32,6 +32,7 @@ class Activity extends Base
      *      @Apidoc\Returned("inv_code",type="int",desc="用户邀请码"),
      *      @Apidoc\Returned("mobile",type="string",desc="用户手机号"),
      *      @Apidoc\Returned("invite_user",type="int",desc="邀请人数"),
+     *      @Apidoc\Returned("cz_money",type="float",desc="充值金额"),
      *      @Apidoc\Returned("is_get",type="int",desc="是否能领取:0=不能；1=可以")
      *   })
      */
