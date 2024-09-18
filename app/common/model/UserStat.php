@@ -334,7 +334,7 @@ class UserStat extends Base
                 $cash_money += $v['cash_money'];
             }
         }
-        $ctc = round($cash_money / $cz_money) * 100;
+        $ctc = $cz_money > 0 ? round($cash_money / $cz_money) * 100 : 0;
         return $ctc;
     }
 }
