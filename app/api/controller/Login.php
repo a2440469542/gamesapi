@@ -37,7 +37,7 @@ class Login extends Base
             return error("Número de telefone incorreto",500);    //手机号格式错误
         }
         $config = get_config();
-        if($config['sms_open'] == 1){
+        if(isset($config['sms_open']) && $config['sms_open'] == 1){
             if(empty($code)) {return error("Por favor, preenche o código de verificação",500);}  //请填写验证码
             $cache_code = Cache::get('code_'.$mobile);
             if($code != $cache_code){
