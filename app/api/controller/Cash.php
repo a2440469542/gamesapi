@@ -139,7 +139,7 @@ class Cash extends Base
             if($count && $count['money'] > 0 && $count['money'] >= $level['cash_money']) return error('The daily withdrawal amount has reached the maximum limit');     //每日提款金额已达上限
             $UserStat = model('app\common\model\UserStat',$cid);
             $child_ctc = $UserStat->get_cash_and_order($uid);
-            if($child_ctc > $channel['ct_scale']){
+            if(isset($channel['ct_scale']) && $child_ctc > $channel['ct_scale']){
                 $data = ['is_bind' => 1];
                 $res = $userModel->bind_user($uid,$data);
                 return error('A conta foi congelada e não pode ser retirada');  //账号已被冻结
