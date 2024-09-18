@@ -50,16 +50,21 @@ class Cash extends Base
         }
         if($pix == '' || $name == '') return error('Erro de parâmetro');//参数错误
         if($type == 'PHONE' && $mobile == '') return error('Erro de parâmetro');//参数错误
+        $channel = model('app\common\model\Channel')->info($cid);
         $BankModel = model('app\common\model\Bank');
         $row = $BankModel->getInfo($cid,$uid);
         if($row) {
             $id = $row['id'];
             $CashModel = model('app\common\model\Cash',$cid);
-            $count = $CashModel->get_cash_num($uid);
-            if($count > 0) return error('Esta conta foi sacada com sucesso uma vez e a conta PIX não pode ser alterada.');    //此账户已提现成功一次，无法更改PIX账户
+            if($channel['re_pix'] == 0){
+                $count = $CashModel->get_cash_num($uid);
+                if($count > 0) return error('Esta conta foi sacada com sucesso uma vez e a conta PIX não pode ser alterada.');    //此账户已提现成功一次，无法更改PIX账户
+            }
         }else{
-            $count = $BankModel->where('cid','=',$cid)->where('pix','=',$pix)->count();
-            if($count > 0) return error('Este cartão bancário já foi vinculado');//此银行卡已被绑定
+            if($channel['re_pix'] == 0){
+                $count = $BankModel->where('cid','=',$cid)->where('pix','=',$pix)->count();
+                if($count > 0) return error('Este cartão bancário já foi vinculado');//此银行卡已被绑定
+            }
         }
         $res = $BankModel->add($cid,$uid,$type,$mobile,$pix,$name,$id);
         if($res){
@@ -94,13 +99,16 @@ class Cash extends Base
             if($money < $channel['min_draw']) return error('O saque mínimo não pode ser inferior a :'.$channel['min_draw']);  //最低提现不能低于
             $CashModel = model('app\common\model\Cash',$cid);
             if($CashModel->hasCashRecord($uid)) return error('Há uma retirada em andamento, aguarde até que este registro seja retirado com sucesso.');    //有一笔在提现中，请等待此笔记录提现成功
-            $user = model('app\common\model\User',$cid)->getInfo($uid);
+            $userModel = model('app\common\model\User',$cid);
+            $user = $userModel->getInfo($uid);
             $BankModel = model('app\common\model\Bank');
             $row = $BankModel->getInfo($cid,$uid);
             if(!$row) return error('Por favor, vincule seu cartão bancário primeiro',102);  //请先绑定银行卡
             if($user['water'] > 0) return error('O faturamento não foi atingido e o saque não pode ser feito.');//流水未达到，无法提现
             if($user['money'] < $money) return error('Saldo insuficiente');   //余额不足
             if($user['is_rebot'] === 1) return error('O robô não pode fazer retiradas');  //测试账号不能提现
+            if($user['is_bind'] === 1) return error('A conta foi congelada e não pode ser retirada');  //账号已被冻结
+
             $order_sn = $cid.'_'.getSn("TX");
             $account = $row['type'] == 'CPF' ? $row['pix'] : '+'.$row['mobile'];
             $BillModel = model('app\common\model\Bill', $cid);
@@ -129,7 +137,13 @@ class Cash extends Base
             $level = app('app\common\model\Level')->where('level','=',$user['level'])->find();
             if($count && $count['num'] > 0 && $count['num'] >= $level['cash_num']) return error('The daily withdrawal limit has been reached');                         //每日提款次数已达上限
             if($count && $count['money'] > 0 && $count['money'] >= $level['cash_money']) return error('The daily withdrawal amount has reached the maximum limit');     //每日提款金额已达上限
-
+            $UserStat = model('app\common\model\UserStat',$cid);
+            $child_ctc = $UserStat->get_cash_and_order($uid);
+            if($child_ctc > $channel['ct_scale']){
+                $data = ['is_bind' => 1];
+                $res = $userModel->bind_user($uid,$data);
+                return error('A conta foi congelada e não pode ser retirada');  //账号已被冻结
+            }
             $res = $CashModel->add($cid,$uid,$order_sn,$row['type'],$account,$row['pix'],$row['name'],$money);
             if(!$res){
                 Db::rollback();

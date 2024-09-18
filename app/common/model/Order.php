@@ -89,4 +89,18 @@ class Order extends Base
         $count = self::where('uid',"=",$uid)->where("status",'=',2)->where('add_time','>=',$time)->count();
         return $count;
     }
+    public function get_sum_money($uid){
+        return self::where('uid',"=",$uid)->where("status",'=',2)->sum('money');
+    }
+    public function get_rank($st_time,$end_time){
+        return self::alias('o')
+            ->field('SUM(o.money) as total_money,o.uid,u.mobile,u.inv_code')
+            ->leftJoin("cp_user PARTITION({$this->partition}) `u`","o.uid = u.uid")
+            ->where("add_time","between",[$st_time,$end_time])
+            ->group('o.uid')
+            ->order('total_money desc')
+            ->partition($this->partition)
+            ->limit(20)
+            ->select();
+    }
 }

@@ -79,7 +79,7 @@ class Line extends Base{
         if(!$id){
             return error("请选择要删除的数据");
         }
-        $PlateModel = app("app\common\model\Plate");
+        $PlateModel = app('app\common\model\Line');
         $res = $PlateModel->where('lid', $id)->delete();
         if($res){
             return success("删除成功");

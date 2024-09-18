@@ -26,7 +26,7 @@ class GameLogin extends Base
     {
         $cid = $this->request->cid;
         $uid = $this->request->uid;
-        $gid = Request::post('gid'); // 从前端获取游戏类型
+        $gid = Request::post('gid',''); // 从前端获取游戏类型
         if (empty($gid)) {
             return error("Erro de parâmetro", 500);  //参数错误
         }
@@ -34,10 +34,12 @@ class GameLogin extends Base
         $this->user = model('app\common\model\User',$cid)->getInfo($uid);
         $game = model('app\common\model\Game')->find($gid);
         $plate = app('app\common\model\Plate')->getInfo($game['pid']);
+
+
         $this->plate = $plate;
         if($this->user['is_rebot'] == 1){
             $line = app('app\common\model\Line')
-                ->where('pid',"=",$game['pid'])
+                ->where('pid',"=",$plate['id'])
                 ->where('is_rebot','=',1)->find();   //线路
         }else{
             $channel = model('app\common\model\Channel')->info($cid);
@@ -48,7 +50,7 @@ class GameLogin extends Base
                     ->find();
             }else{
                 $line = app('app\common\model\Line')
-                    ->where('pid',"=",$game['pid'])
+                    ->where('pid',"=",$plate['id'])
                     ->where('is_rebot','=',0)
                     ->order('lid desc')
                     ->find();   //线路
@@ -58,7 +60,6 @@ class GameLogin extends Base
         $this->line = $line;
         $this->game = $game->toArray();
         $platform = $plate['code'];
-        //$this->GameWallet = model('app\common\model\GameWallet',$cid);
         $this->platformService = GamePlatformFactory::getPlatformService($platform, $line, $this->user);
         return ['code'=>0];
     }
@@ -94,6 +95,7 @@ class GameLogin extends Base
     }
     //上分
     protected function up_score(){
+        $GameWallet = model('app\common\model\GameWallet',$this->cid);
         Db::startTrans();
         try {
             $balance = $this->user['balance'];
@@ -101,10 +103,11 @@ class GameLogin extends Base
             $BillModel->addIntvie($this->user, $BillModel::GAME_DEPOSIT, -$balance);
             $row = $this->platformService->depositUser($this->user);
             if($row['code'] == 0){
-                $dorder_sn = $row['dorder_sn'];
+                $dorder_sn = $row['transNo'];
                 $d_tx = $row['d_tx'];
                 $pid = $this->plate['id'];
-                $this->GameWallet->add($this->cid,$pid,$this->user['uid'],$this->user['mobile'],$this->user['inv_code'],$balance,$dorder_sn,$d_tx);
+                $lid = $this->line['lid'];
+                $GameWallet->add($this->cid,$pid,$lid,$this->user['uid'],$this->user['mobile'],$this->user['inv_code'],$balance,$dorder_sn,$d_tx);
                 Db::commit();
             }else{
                 Db::rollback();

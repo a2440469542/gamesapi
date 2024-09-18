@@ -33,6 +33,7 @@ class LuckyStar extends Base
         return success("获取成功",$data);
     }
     /**
+     * @Apidoc\Title("幸运星规则保存")
      * @Apidoc\Desc("幸运星规则保存")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("jiu")
@@ -41,9 +42,6 @@ class LuckyStar extends Base
      */
     public function add(){
         $data = input("post.");
-        if(!isset($data['star_num']) || !$data['star_num']){
-            return error("请选择活动参数次数");
-        }
         foreach($data as $k=>$v){
             $res = Db::name("config")->where("code","=",$k)->find();
             if($res){

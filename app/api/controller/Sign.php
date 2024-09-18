@@ -82,6 +82,9 @@ class Sign extends Base
             }
             $money = $sign_config['money'];
             $multiple = $sign_config['multiple'];
+            $config = get_config();
+            $score = 0;
+            if($config['day_sign'] > 0) $score = $config['day_sign'];
             Db::startTrans();
             try {
                 $BillModel = model('app\common\model\Bill', $cid);
@@ -95,6 +98,7 @@ class Sign extends Base
                     }
                     $sign->num = $num;
                     $sign->last_time = time();
+                    $sign->score += $score;
                     $sign->save();
                 }else{
                     $data = [
@@ -104,6 +108,7 @@ class Sign extends Base
                         'day' => 1,
                         'last_time' => time(),
                         'sign_time' =>  date('Y-m-d H:i:s',time()),
+                        'score' => $score
                     ];
                     app('app\common\model\Sign')->insert($data);
                 }

@@ -2,6 +2,7 @@
 
 namespace app\index\controller;
 use app\BaseController;
+use app\service\game\GamePlatformFactory;
 use think\facade\Db;
 
 class Game extends BaseController
@@ -53,5 +54,58 @@ class Game extends BaseController
 
         curl_close($ch);
         return json_decode($response, true);
+    }
+    public function get_slot(){
+        $plate = app('app\common\model\Plate')->where("code","=",'IslotGame')->find();
+        if(empty($plate))
+        {
+            echo '没平台';
+            exit;
+        }
+        $line = app('app\common\model\Line')
+            ->where('pid',"=",$plate['id'])
+            ->order('lid desc')
+            ->find();   //线路
+        if(empty($line))
+        {
+            echo '没线路';
+            exit;
+        }
+        $platform = $plate['code'];
+        $platformService = GamePlatformFactory::getPlatformService($platform, $line, []);
+        $list = $platformService->get_game_list(1, 1000000000);
+        if($list['code'] != 0){
+            echo $list['code'].'-'.$list['msg'];
+            exit;
+        }
+        $data = $new_game = [];
+        $game = app('app\common\model\Game')->where("pid","=",$plate['id'])->select();
+        $gameList = [];
+        foreach($game as $val){
+            $gameList[$val['name']] = $val;
+        }
+
+        foreach($list['data']['resultsList'] as $value){
+            unset($value['machineType']);
+            $data[] = $value;
+            if(!isset($gameList[$value['gameName']])){
+                $new_game = [
+                    'pid' => $plate['id'],
+                    'code' => 0,
+                    'name' => $value['gameName'],
+                    'is_open' => 0,
+                ];
+            }
+        }
+        if($data){
+            Db::execute('TRUNCATE TABLE cp_game_slot');
+            Db::name('game_slot')->insertAll($data);
+        }else{
+            echo '没数据';
+        }
+        if($new_game){
+            Db::name('game')->insertAll($new_game);
+        }
+        echo '完成';
     }
 }

@@ -7,7 +7,7 @@ use think\facade\Cache;
 
 class Api
 {
-    const NO_LOGIN_ACTIONS = ['index.index','index.ad','index.jack_pot','index.channel','index.config','game.plate','game.get_game_list','login.register','login.user_login'];
+    const NO_LOGIN_ACTIONS = ['index.index','index.ad','index.jack_pot','index.channel','index.config','game.plate','game.get_game_list','login.register','login.logout','login.user_login','login.get_code','login.get_email_code'];
 
     /**
      * 处理请求

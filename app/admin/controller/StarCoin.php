@@ -6,8 +6,8 @@ use app\common\model\StarCoin as StarCoinModel;
 use think\facade\Db;
 
 /**
- * 活动彩金档位管理
- * @Apidoc\Title("活动彩金档位管理相关")
+ * 幸运星活动彩金档位管理
+ * @Apidoc\Title("幸运星活动彩金档位管理")
  * @Apidoc\Group("base")
  * @Apidoc\Sort(4)
  */
@@ -19,23 +19,23 @@ class StarCoin extends Base
      * @Apidoc\Method("POST")
      * @Apidoc\Author("jiu")
      * @Apidoc\Tag("活动彩金档位")
-     * @Apidoc\Param("sid", type="int",require=true, desc="活动ID")
-     * @Apidoc\Param("phrase",ref="app\common\model\StarCoin\add")
+     * @Apidoc\Param("",ref="app\common\model\StarCoin\add")
      */
     public function add(){
         $min = input("min");
         $max = input("max");
         $money = input("money");
-        if(empty($sid)) return error("缺少必要参数sid");
+        $multiple = input("multiple");
         if(empty($min)) return error("请输入邀请人区间最小数");
         if(empty($max)) return error("请输入邀请人区间最大数");
         if(empty($money)) return error("请输入彩金");
+        if(empty($multiple)) return error("请输入流水倍数");
         if($max < $min) return error("邀请人区间最大数不能小于邀请人区间最小数");
         $data = [
-            'sid' => $sid,
             'min' => $min,
             'max' => $max,
             'money' => $money,
+            'multiple' => $multiple,
             'admin_name' => $this->request->admin_name,
             'update_time' => time()
         ];

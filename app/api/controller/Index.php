@@ -84,4 +84,42 @@ class Index extends Base
         $config = get_config();
         return success("obter sucesso",$config);    //获取成功
     }
+    /**
+     * @Apidoc\Title("公共配置获取")
+     * @Apidoc\Desc("公共配置获取")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("")
+     * @Apidoc\Tag("公共配置获取")
+     * @Apidoc\Returned("",type="object",desc="公共配置")
+     */
+    public function video(){
+        $video = app('app\common\model\Video')->getList();
+        if(empty($video)) return error("O vídeo não existe",10001);//视频不存在
+        $key = Cache::store('redis')->get("video_key",0);
+        if($key > count($video)-1) $key = 0;
+        foreach($video as $k=>$v){
+            if($k == $key){
+                $info = $v;
+                Cache::store('redis')->set("video_key",$key+1,0);
+                break;
+            }
+        }
+        $config = get_config();
+        $data['url'] = $info['url'];
+        $data['tiktok_url'] = $config['tiktok_url'];
+        $data['kwain_url'] = $config['kwain_url'];
+        $data['insgram_url'] = $config['insgram_url'];
+        $data['tg_kefu'] = '';
+        $data['whatsapp_kefu'] = '';
+        $data['video_rule'] = $config['video_rule'];
+        if($config['tg_kefu']){
+            $randomKey = array_rand($config['tg_kefu']);
+            $data['tg_kefu'] = $config['tg_kefu'][$randomKey];
+        }
+        if($config['whatsapp_kefu']){
+            $randomKey = array_rand($config['whatsapp_kefu']);
+            $data['whatsapp_kefu'] = $config['whatsapp_kefu'][$randomKey];
+        }
+        return success("obter sucesso",$data);    //获取成功
+    }
 }

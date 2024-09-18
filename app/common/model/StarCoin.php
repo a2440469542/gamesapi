@@ -1,6 +1,7 @@
 <?php
 
 namespace app\common\model;
+use app\admin\model\Base;
 use hg\apidoc\annotation\Field;
 use hg\apidoc\annotation\WithoutField;
 use hg\apidoc\annotation\AddField;
@@ -16,7 +17,7 @@ class StarCoin extends Base
         }
     }
     /**
-     * @Field("id,sid,min,max,money,admin_name,update_time")
+     * @Field("id,min,max,money,admin_name,update_time")
      */
     public static function lists($where=[],$field='*',$orderBy="id desc"){
         $list = self::alias("g")->field($field)->where($where)->order($orderBy)->select();

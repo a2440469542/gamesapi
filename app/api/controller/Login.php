@@ -3,6 +3,7 @@
 namespace app\api\controller;
 use hg\apidoc\annotation as Apidoc;
 use think\facade\Cache;
+use think\facade\Db;
 
 /**
  * 登录注册相关
@@ -20,6 +21,7 @@ class Login extends Base
      * @Apidoc\Tag("用户注册")
      * @Apidoc\Param("mobile", type="string",require=true, desc="手机号")
      * @Apidoc\Param("pwd", type="string",require=true, desc="密码")
+     * @Apidoc\Param("code", type="string",require=true, desc="验证码")
      * @Apidoc\Param("inv_code", type="string",require=true, desc="邀请码")
      * @Apidoc\Returned(type="object",desc="用户相关字段",table="cp_user")
      */
@@ -27,11 +29,21 @@ class Login extends Base
         $mobile = input("mobile");
         $pwd = input("pwd");
         $inv_code = input("inv_code");
+        $code = input("code",'');
         if(empty($mobile) || empty($pwd)){
             return error("Erro de parâmetro",500);   //参数错误
         }
         if(!isPhoneNumber($mobile)){
             return error("Número de telefone incorreto",500);    //手机号格式错误
+        }
+        $config = get_config();
+        if($config['sms_open'] == 1){
+            if(empty($code)) {return error("Por favor, preenche o código de verificação",500);}  //请填写验证码
+            $cache_code = Cache::get('code_'.$mobile);
+            if($code != $cache_code){
+                return error("Erro de código de verificação");  //验证码错误
+            }
+            Cache::delete('code_'.$mobile);
         }
         $ip = get_real_ip__();
         $black = app('app\common\model\BankBlack')->where('pix',"=",$ip)->count();
@@ -47,12 +59,8 @@ class Login extends Base
         $UserModel = model('app\common\model\User',$this->cid);
         $user = null;
         if($inv_code){
-            $user = $UserModel->get_inv_info($inv_code);    //获取上级的信息
-            if($user){
-                $data['pid']   = $user['uid'];
-                $data['ppid']  = $user['pid'];
-                $data['pppid'] = $user['ppid'];
-            }
+            $res = app('app\common\logic\UserLogic')->bind_user($UserModel,$inv_code,$mobile,$this->cid);
+            $data = array_merge($data,$res);
         }
         $row = $UserModel->add($data);
         if($row['code'] > 0){
@@ -72,6 +80,40 @@ class Login extends Base
         $data['uid'] = $uid;
         Cache::set($token, $data, 0); // 设置缓存，过期时间为1天
         return success('Registro bem sucedido',$data);   //注册成功
+    }
+    /**
+     * @Apidoc\Title("短信注册登录验证码")
+     * @Apidoc\Desc("短信注册登录验证码")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("")
+     * @Apidoc\Tag("短信注册登录验证码")
+     * @Apidoc\Param("mobile", type="string",require=false, desc="手机号")
+     */
+    public function get_code(){
+        $mobile = input("mobile");
+        if(empty($mobile)){
+            return error("Erro de parâmetro",500);   //缺少参数
+        }
+        $code = rand(100000,999999);
+        $row = app('app\service\sms\Sms')->send_sms($mobile,$code);
+        if($row['code'] == 200){
+            return success("Enviado com sucesso");      //发送成功
+        }else{
+            return error($row['message']);
+        }
+    }
+    public function get_email_code(){
+        $email = input("email");
+        if(empty($email)){
+            return error("Erro de parâmetro",500);   //缺少参数
+        }
+        $code = rand(100000,999999);
+        $row = app('app\service\sms\Sms')->send_email($email,$code);
+        if($row['code'] == 200){
+            return success("Enviado com sucesso");      //发送成功
+        }else{
+            return error($row['message']);
+        }
     }
     /**
      * @Apidoc\Title("用户登录")

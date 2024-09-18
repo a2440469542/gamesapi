@@ -27,11 +27,15 @@ class Bill extends Base
     const   GAME_WITHDRAW = 109; //游戏下分
     const   WAGES_N3 = 111;     //N3工资
     const   LOCK_MONEY = 112;     //冻结余额
+    const   UNLOCK_MONEY = 203;   //解除冻结金额
+
     const   RANK_MONEY = 113;     //排行榜奖励
     const   RANK_INV_MONEY = 114;     //邀请排行榜奖励
     const   DAY_LEVEL_MONEY = 115;     //每日返现金额
     const   WEEK_LEVEL_MONEY = 116;     //每周返现金额
     const   SIGN_MONEY = 200;     //签到奖励
+    const   STAR_MONEY = 201;     //幸运星奖励
+    const   RACS_MONEY = 202;     //比赛奖励
     public function getTypeText($type=0): array|string
     {
         $type_text = [
@@ -47,11 +51,14 @@ class Bill extends Base
             self::GAME_WITHDRAW     => 'Game Lower Division',                        //游戏下分
             self::WAGES_N3          => 'Salário N3',                                 //N3工资
             self::LOCK_MONEY        => 'Congelar o equilíbrio',                      //冻结余额
+            self::UNLOCK_MONEY      => 'Quantidade inestimável',                     //解除冻结金额
             self::RANK_MONEY        => 'Recompensar',                                //排行榜奖励
             self::RANK_INV_MONEY    => 'Recompensas do taboleiro de convites',       //邀请排行榜奖励
             self::DAY_LEVEL_MONEY   => 'Valor de reembolso diário',                  //每日返现金额
             self::WEEK_LEVEL_MONEY  => 'Valor de reembolso semanal',                 //每周返现金额
             self::SIGN_MONEY        => 'assinar em recompensa',                      //签到奖励
+            self::STAR_MONEY        => 'Lucky Star Reward',                          //幸运星奖励
+            self::RACS_MONEY        => 'Recompensas da concorrência',                //比赛奖励
         ];
         if(isset($type_text[$type])){
             return $type_text[$type];
@@ -73,11 +80,14 @@ class Bill extends Base
             self::GAME_WITHDRAW => '游戏下分',     //游戏下分
             self::WAGES_N3      => 'N3工资',      //N3工资
             self::LOCK_MONEY    => '余额冻结',     //冻结余额
+            self::UNLOCK_MONEY  => '解冻金额',     //解冻金额
             self::RANK_MONEY    => '排行榜奖励',   //排行榜奖励
             self::RANK_INV_MONEY  => '排行榜奖励',   //邀请排行榜奖励
             self::DAY_LEVEL_MONEY  => '每日返现金额',   //每日返现金额
             self::WEEK_LEVEL_MONEY  => '每周返现金额',   //每周返现金额
-            self::SIGN_MONEY  => '签到奖励',   //签到奖励
+            self::SIGN_MONEY  => '签到奖励',       //签到奖励
+            self::STAR_MONEY  => '幸运星奖励',     //幸运星奖励
+            self::RACS_MONEY  => '比赛奖励',       //比赛奖励
         ];
         if(isset($type_text[$value])){
             return $type_text[$value];
@@ -114,12 +124,16 @@ class Bill extends Base
             $update['water'] = Db::raw('`water` + '.$water);
         }else if($type == self::LOCK_MONEY) {
             $update['lock_money'] = Db::raw('`lock_money` + '.abs($money));
+        }else if($type == self::UNLOCK_MONEY){
+            $update['lock_money'] = Db::raw('`lock_money` - '.$money);
         }else if($type ==self::RANK_MONEY ||
             $type == self::RANK_INV_MONEY ||
             $type == self::DAY_LEVEL_MONEY ||
             $type == self::WEEK_LEVEL_MONEY ||
-            $type == self::SIGN_MONEY)
-        {
+            $type == self::SIGN_MONEY ||
+            $type == self::STAR_MONEY ||
+            $type == self::RACS_MONEY
+        ){
             $update['water'] = Db::raw('`water` + '.($money * $multiple));
         }else if($type === self::GAME_BET){
             $update['exp'] = Db::raw('`exp` + '.$bet);

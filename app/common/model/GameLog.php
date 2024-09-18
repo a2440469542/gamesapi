@@ -64,4 +64,16 @@ class GameLog extends Base
             ->paginate($limit)->toArray();
         return $list;
     }
+    public function get_rank($st_time,$end_time,$where=[]){
+        return self::alias('gl')
+            ->field('SUM(bet) as total_money,gl.uid,u.mobile,u.inv_code')
+            ->leftJoin("cp_user PARTITION({$this->partition}) `u`","gl.uid = u.uid")
+            ->where("add_time","between",[$st_time,$end_time])
+            ->where($where)
+            ->group('gl.uid')
+            ->order('total_money desc')
+            ->partition($this->partition)
+            ->limit(20)
+            ->select();
+    }
 }

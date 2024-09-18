@@ -16,7 +16,7 @@ return [
             // （必须）唯一的key
             'key'=>'admin',
             // （选配）该应用的访问授权密码
-            'password' => '',
+            'password' => 'admin888',
             // （选配）当前应用全局参数
             'params'=>[
                 // （选配）当前应用全局的请求Header
@@ -50,7 +50,7 @@ return [
             // （必须）唯一的key
             'key'=>'api',
             // （选配）该应用的访问授权密码
-            'password' => '',
+            'password' => 'admin888',
             'params'=>[
                 // （选配）当前应用全局的请求Header
                 'header'=>[
@@ -71,7 +71,7 @@ return [
             // （必须）唯一的key
             'key'=>'agent',
             // （选配）该应用的访问授权密码
-            'password' => '',
+            'password' => 'admin888',
             'params'=>[
                 // （选配）当前应用全局的请求Header
                 'header'=>[

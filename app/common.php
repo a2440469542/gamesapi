@@ -194,7 +194,7 @@ if(!function_exists('getSn')){
 }
 function replaceStr(string $str):string
 {
-    return substr($str,0,4).'***'.substr($str,-1,2);
+    return substr($str,0,1).'***'.substr($str,-2);
 }
 function replaceStr2(string $str):string
 {
@@ -387,7 +387,12 @@ function get_config(){
     if(empty($config)){
         $list = Db::name("config")->select();
         foreach ($list as $value){
-            $config[$value["code"]] = $value["value"];
+            if($value["code"] == 'tg_kefu' || $value["code"] == 'whatsapp_kefu'){
+                $config[$value["code"]] = json_decode($value["value"]);
+            }else{
+                $config[$value["code"]] = $value["value"];
+            }
+
         }
         cache("config",$config);
     }

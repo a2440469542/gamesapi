@@ -63,7 +63,7 @@ class Activity extends Base
         $sttime = date("Y-m-d",strtotime($activity['start_time']));
         $ettime = date("Y-m-d",strtotime($activity['end_time']));
         $where[] = ['date', 'between', [$sttime, $ettime]];
-        $activity['over_time'] = max(0, strtotime($activity['start_time']) - time());
+        $activity['over_time'] = max(0, strtotime($activity['end_time']) - time());
 
         $list = $UserStat->get_rank($where, 20);
         $inv_list = $UserStat->get_inv_rank($where, 20);

@@ -19,17 +19,19 @@ class GameWallet extends Base
      * @param $cid          int     渠道ID
      * @param $uid          int     用户ID
      * @param $pid       string     游戏平台ID
+     * @param $lid       string     游戏平台线路ID
      * @param $user         int     游戏平台用户名
      * @param $player_id    int     游戏平台ID
      * @param $is_login     int     是否需要登录
      * @return mixed
      */
-    public function add($cid,$pid,$uid,$mobile,$inv_code,$deposit,$dorder_sn,$d_tx): mixed
+    public function add($cid,$pid,$lid,$uid,$mobile,$inv_code,$deposit,$dorder_sn,$d_tx): mixed
     {
         $data = [
             'cid'       => $cid,
             'uid'       => $uid,
             'pid'       => $pid,
+            'lid'       => $lid,
             'mobile'    => $mobile,
             'inv_code'  => $inv_code,
             'deposit'   => $deposit,

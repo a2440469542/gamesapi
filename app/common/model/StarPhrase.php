@@ -1,6 +1,7 @@
 <?php
 
 namespace app\common\model;
+use app\admin\model\Base;
 use hg\apidoc\annotation\Field;
 use hg\apidoc\annotation\WithoutField;
 use hg\apidoc\annotation\AddField;

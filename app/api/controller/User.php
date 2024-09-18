@@ -27,8 +27,12 @@ class User extends Base
         $UserModel = app('app\common\model\User');
         $UserModel->setPartition($cid);
         $user = $UserModel->getInfo($uid);
+        $user_info = Db::name('user_info')->where("cid","=",$cid)->where("uid","=",$uid)->find();
         if(!$user){
             return error("Usuário não existe");  //用户不存在
+        }
+        if($user_info){
+            $user['score'] = $user_info['score'];
         }
         return success("obter sucesso",$user);//获取成功
     }
@@ -474,6 +478,54 @@ class User extends Base
         }
         return success("obter sucesso"); //获取成功
     }
+    /**
+     * @Apidoc\Title("获取邮箱验证码")
+     * @Apidoc\Desc("获取邮箱验证码")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("")
+     * @Apidoc\Tag("获取邮箱验证码")
+     * @Apidoc\Param("email", type="string",require=false, desc="邮箱")
+     */
+    public function get_email_code(){
+        $cid = $this->request->cid;
+        $uid = $this->request->uid;
+        $email = input('email','');
+        if(empty($email)) return error('E-mail não pode estar vazio'); //邮箱不能为空
+        $code = rand(100000,999999);
+        $row = app('app\service\sms\Sms')->send_email($email,$code);
+        if($row['code'] > 0){
+            return error($row['msg']);
+        }
+        Cache::set('email_code_'.$uid,$code,300);
+        return success($row['data']);
+    }
+    /**
+     * @Apidoc\Title("绑定邮箱")
+     * @Apidoc\Desc("绑定邮箱")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("")
+     * @Apidoc\Tag("绑定邮箱")
+     * @Apidoc\Param("email", type="string",require=false, desc="邮箱")
+     * @Apidoc\Param("code", type="string",require=false, desc="邮箱验证码")
+     * @Apidoc\Returned(type="array",desc="用户信息",table="cp_user")
+     */
+    public function bind_email(){
+        $cid = $this->request->cid;
+        $uid = $this->request->uid;
+        $email = input('email','');
+        $code = input('code','');
 
-
+        if(empty($email)) return error('E-mail não pode estar vazio'); //邮箱不能为空
+        $code_s = Cache::get('email_code_'.$uid);
+        if($code !=  $code_s) return error('Código de verificação incorreto'); //验证码错误
+        $userModel = model('app\common\model\User', $cid);
+        $row = $userModel->update_user(['email'=>$email,'uid'=>$uid]);
+        if($row){
+            $user = $userModel->getInfo($uid);
+            Cache::delete('email_code_'.$uid);
+            return success('Ligando bem sucedido',$user);
+        }else{
+            return error('A ligação falhou');
+        }
+    }
 }

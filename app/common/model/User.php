@@ -107,6 +107,18 @@ class User extends Base
             ->paginate($limit)->toArray();
         return $list;
     }
+    public function cash_user($where=[], $limit=10, $order='uid desc'){
+        $list = self::alias('u')
+            ->field('u.*,SUM(c.money) AS cash_money')
+            ->leftJoin("cp_cash PARTITION({$this->partition}) `c`","u.uid = c.uid")
+            ->where($where)
+            ->partition($this->partition)
+            ->order($order)
+            ->group('u.uid')
+            ->having('SUM(c.money) > 0')
+            ->paginate($limit)->toArray();
+        return $list;
+    }
     public function getInfo($uid)
     {
         $info = self::where('uid', "=", $uid)
@@ -119,6 +131,11 @@ class User extends Base
                 ->update(['level'=>$level]);
             $info['level'] = $level;
         }
+        return $info;
+    }
+    public function getMobile($uid)
+    {
+        $info = self::where('uid', "=", $uid)->partition($this->partition)->value('user');
         return $info;
     }
     public function decWater($uid,$num)
@@ -218,13 +235,22 @@ class User extends Base
         return self::where('is_rebot','=',0)->partition($this->partition)->sum('money');
     }
     public function get_child($uid){
-        $list = self::field('uid,pid,ppid,pppid,user,mobile')->where('pid','=',$uid)
+        $list = self::field('uid,cid,pid,ppid,pppid,user,mobile,money,lock_money,water')->where('pid','=',$uid)
             ->partition($this->partition)
             ->select()->toArray();
         return $list;
     }
     public function update_data($where,$data){
         $row = self::where($where)->partition($this->partition)->update($data);
+        return $row;
+    }
+
+    public function bind_child_user($where,$data){
+        $row = self::where($where)->partition($this->partition)->update($data);
+        return $row;
+    }
+    public function bind_user($uid,$data){
+        $row = self::where('pid','=',$uid)->where('uid','=',$uid)->partition($this->partition)->update($data);
         return $row;
     }
 }

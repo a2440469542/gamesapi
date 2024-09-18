@@ -105,19 +105,32 @@ class UserStat extends Base
         return $list;
     }
     //根据渠道分组获取每天的数据
-    public function get_date_list($where=[],$limit=10, $orderBy='id desc'){
+    public function get_date_list($where=[],$limit=10, $orderBy='id desc',$cid=0){
         $filed = 'c.name,us.cid,date,
             sum(us.cz_money) as cz_money, 
             sum(us.bet_money) as bet_money, 
             sum(us.cash_money) as cash_money';
-        $list = self::alias('us')
-            ->field($filed)
-            ->leftJoin("channel `c`","us.cid = c.cid")
-            ->leftJoin("user `u`","us.uid = u.uid")
-            ->where($where)
-            ->where("u.is_rebot","=",0)
-            ->group('us.cid,us.date')
-            ->paginate($limit)->toArray();
+        if($cid > 0){
+            $this->setPartition($cid);
+            $list = self::alias('us')
+                ->field($filed)
+                ->leftJoin("channel `c`","us.cid = c.cid")
+                ->leftJoin("user `u`","us.uid = u.uid")
+                ->where($where)
+                ->where("u.is_rebot","=",0)
+                ->partition($this->partition)
+                ->group('us.cid,us.date')
+                ->paginate($limit)->toArray();
+        }else{
+            $list = self::alias('us')
+                ->field($filed)
+                ->leftJoin("channel `c`","us.cid = c.cid")
+                ->leftJoin("user `u`","us.uid = u.uid")
+                ->where($where)
+                ->where("u.is_rebot","=",0)
+                ->group('us.cid,us.date')
+                ->paginate($limit)->toArray();
+        }
         return $list;
     }
     //根据条件获取当前下级的统计信息
@@ -240,15 +253,15 @@ class UserStat extends Base
             ->select()->toArray();
     }
     public function get_inv_rank($where,$limit){
-        $filed = 'u.uid,u.inv_code,u.mobile,sum(us.invite_user) as invite_user,sum(us.cz_money) as cz_money';
+        $filed = 'u.uid,u.inv_code,u.mobile,COUNT(sub.uid) as invite_user,sum(us.cz_money) as cz_money';
         return User::alias('u')->field($filed)
-            ->leftJoin("cp_user PARTITION({$this->partition}) `sub`","sub.uid = u.uid")
+            ->leftJoin("cp_user PARTITION({$this->partition}) `sub`","sub.pid = u.uid")
             ->leftJoin("cp_user_stat PARTITION({$this->partition}) `us`","us.uid = sub.uid")
             ->where($where)
             ->partition($this->partition)
             ->limit($limit)
             ->order('cz_money desc')
-            ->group('us.uid')
+            ->group('u.uid')
             ->select()->toArray();
     }
     //获取宝箱领取金额
@@ -300,5 +313,28 @@ class UserStat extends Base
             ->where('date','between',[$start_date, $end_date])
             ->partition($this->partition)
             ->sum('bet_money');
+    }
+    public function get_total_bet_by_user($uid){
+        return self::where('uid',"=",$uid)->partition($this->partition)->sum('bet_money');
+    }
+    //获得下级充提差
+    public function get_cash_and_order($uid){
+        $result = self::alias("us")
+            ->field("sum(cz_money) as cz_money, sum(cash_money) as cash_money")
+            ->leftJoin("cp_user PARTITION({$this->partition}) `u`","us.uid = u.uid")
+            ->where("u.pid",'=',$uid)
+            ->group("us.uid")
+            ->partition($this->partition)
+            ->select()->toArray();
+        $cz_money = 0;
+        $cash_money = 0;
+        foreach ($result as $k=>$v){
+            if($v['cz_money']>0){
+                $cz_money += $v['cz_money'];
+                $cash_money += $v['cash_money'];
+            }
+        }
+        $ctc = round($cash_money / $cz_money) * 100;
+        return $ctc;
     }
 }

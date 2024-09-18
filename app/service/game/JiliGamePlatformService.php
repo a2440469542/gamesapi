@@ -40,10 +40,10 @@ class JiliGamePlatformService extends BaseGamePlatformService
         write_log("请求地址：".$this->baseUrl.$apiUrl,'JiliGame'.$user['cid']);
         $row = $this->request($apiUrl, http_build_query($params), $headers);
         write_log($row,'JiliGame'.$user['cid']);
-        if($row['success'] == 1){
+        if(isset($row['success']) && $row['success'] == 1){
             return ['code'=>0, 'msg'=>'登录成功','user'=>$params['player_name'],'player_id'=>$params['player_id'],'is_login'=>0];
         }else{
-            return ['code'=>$row['code'], 'msg'=>$row['message']];
+            return ['code'=>$row['status'], 'msg'=>$row['msg']];
         }
     }
 
@@ -66,10 +66,10 @@ class JiliGamePlatformService extends BaseGamePlatformService
         write_log("请求地址：".$this->baseUrl.$apiUrl,'JiliGame'.$user['cid']);
         $response = $this->request($apiUrl, http_build_query($params), $headers);
         write_log($response,'JiliGame'.$user['cid']);
-        if($response['success'] == 1){
+        if(isset($response['success']) && $response['success'] == 1){
             return ['code'=>0, 'msg'=>'获取成功','url'=>$response['play_url']];
         }else{
-            return ['code'=>$response['code'], 'msg'=>$response['message']];
+            return ['code'=>$response['status'], 'msg'=>$response['msg']];
         }
     }
 // 其它对应的API方法...
@@ -91,10 +91,10 @@ class JiliGamePlatformService extends BaseGamePlatformService
         ];
         $row = $this->request($apiUrl, http_build_query($params), $headers);
         write_log($row,'JiliGame'.$user['cid']);
-        if($row['success'] == 1){
+        if(isset($row['success']) && $row['success'] == 1){
             return ['code'=>0, 'msg'=>'获取成功','balance'=>$row['amount'],'worder_sn'=>$row['transactionid'],'w_tx'=>$row['tx']];
         }else{
-            return ['code'=>$row['code'], 'msg'=>$row['message']];
+            return ['code'=>$row['status'], 'msg'=>$row['msg']];
         }
     }
 
@@ -115,10 +115,10 @@ class JiliGamePlatformService extends BaseGamePlatformService
         ];
         $row = $this->request($apiUrl, http_build_query($params), $headers);
         write_log($row,'JiliGame'.$user['cid']);
-        if($row['success'] == 1){
+        if(isset($row['success']) && $row['success'] == 1){
             return ['code'=>0, 'msg'=>'获取成功','money'=>$user['money'],'dorder_sn'=>$row['transactionid'],'d_tx'=>$row['tx']];
         }else{
-            return ['code'=>$row['code'], 'msg'=>$row['message']];
+            return ['code'=>$row['status'], 'msg'=>$row['msg']];
         }
     }
     //查询余额
@@ -137,10 +137,10 @@ class JiliGamePlatformService extends BaseGamePlatformService
         ];
         $row = $this->request($apiUrl, http_build_query($params), $headers);
         write_log($row,'JiliGame'.$user['cid']);
-        if($row['success'] == 1){
+        if(isset($row['success']) && $row['success'] == 1){
             return ['code'=>0, 'msg'=>'获取成功','balance'=>$row['balance']];
         }else{
-            return ['code'=>$row['code'], 'msg'=>$row['message']];
+            return ['code'=>$row['status'], 'msg'=>$row['msg']];
         }
     }
     // 其它对应的API方法...
@@ -159,10 +159,10 @@ class JiliGamePlatformService extends BaseGamePlatformService
         write_log("请求地址：".$this->baseUrl.$apiUrl,'JiliGame'.$user['cid']);
         $row = $this->request($apiUrl, http_build_query($params), $headers);
         write_log($row,'JiliGame'.$user['cid']);
-        if($row['success'] == 1){
+        if(isset($row['success']) && $row['success'] == 1){
             return ['code'=>0, 'msg'=>'获取成功'];
         }else{
-            return ['code'=>$row['code'], 'msg'=>$row['message']];
+            return ['code'=>$row['status'], 'msg'=>$row['msg']];
         }
     }
 }

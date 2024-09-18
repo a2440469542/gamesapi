@@ -7,8 +7,8 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 use think\facade\Db;
 
 /**
- * 活动数据文件管理
- * @Apidoc\Title("活动数据文件相关")
+ * 幸运星活动数据文件管理
+ * @Apidoc\Title("幸运星活动数据文件管理")
  * @Apidoc\Group("base")
  * @Apidoc\Sort(3)
  */
@@ -26,9 +26,7 @@ class StarFile extends Base
     public function add(){
         set_time_limit(0);
         $file = request()->file('file');
-        $sid = input("sid");
         if (!$file) return error('请选择您要上传的文件');
-        if(empty($sid)) return error("缺少必要参数sid");
         $name = $file->getOriginalName();
         $ext_name = $file->extension();
         if (!in_array($ext_name, ['xls', 'xlsx', "csv"])) return error('请上传xls,xlsx,csv类型的文件');
@@ -46,6 +44,7 @@ class StarFile extends Base
                 continue;
             }
             $products[] = [
+                'username' => '',
                 'mobile' =>  trim(strval($row[0]))
                 // 更多字段...
             ];

@@ -1,7 +1,11 @@
 <?php
 
 namespace app\api\controller;
+use app\service\game\GamePlatformFactory;
 use hg\apidoc\annotation as Apidoc;
+use think\facade\Request;
+use think\facade\Db;
+
 /**
  * 游戏相关接口
  * @Apidoc\Title("游戏相关接口")
@@ -55,6 +59,46 @@ class Game extends Base
         /*foreach ($list['data'] as &$v){
             $v['img'] = addDomainIfMissing($v['img'],SITE_URL);
         }*/
+        return success("obter sucesso", $list);  //获取成功
+    }
+    /**
+     * @Apidoc\Title("直播游戏jackpot以及下面的分类")
+     * @Apidoc\Desc("直播游戏jackpot以及下面的分类")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("")
+     * @Apidoc\Tag("直播游戏jackpot以及下面的分类")
+     * @Apidoc\Returned("",type="array",desc="列表",table="cp_game_slot",children={
+     *     @Apidoc\Returned("gameName",type="string",desc="游戏名称"),
+     *     @Apidoc\Returned("jackpot",type="string",desc="jackpot"),
+     *     @Apidoc\Returned("long_img",type="string",desc="图标")
+     *  })
+     */
+    public function live_game_jackpot(){
+        $list = Db::name('game_slot')
+            ->alias('gs')
+            ->join('game g','gs.gameName = g.name')
+            ->group('gs.gameName')
+            ->field('gs.gameName,gs.jackpot,g.long_img')
+            ->select();
+        return success("obter sucesso", $list);  //获取成功
+    }
+    /**
+     * @Apidoc\Title("直播游戏列表")
+     * @Apidoc\Desc("直播游戏列表获取")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("")
+     * @Apidoc\Tag("直播游戏")
+     * @Apidoc\Param(ref="pagingParam",desc="分页参数")
+     * @Apidoc\Returned(ref="pageReturn")
+     * @Apidoc\Returned("data",type="array",desc="游戏列表",table="cp_game_slot")
+     */
+    public function live_game(){
+        $limit = Request::post('limit',20);
+        $list = Db::name('game_slot')
+            ->where('machineStatus','=',1)
+            ->where('state',"=",1)
+            ->where('status','=',1)
+            ->paginate($limit);
         return success("obter sucesso", $list);  //获取成功
     }
     /**

@@ -172,10 +172,7 @@ class UserStat extends Base{
         $cid = input("cid", 0);
         $limit = input("limit",10);
         $orderBy = input("orderBy", 'date desc');
-        if($cid > 0){
-            $where[] = ['us.cid','=',$cid];
-        }
-        $list = app('app\common\model\UserStat')->get_date_list($where,$limit, $orderBy);
+        $list = app('app\common\model\UserStat')->get_date_list($where,$limit, $orderBy,$cid);
         $UserModel = app('app\common\model\User');
         foreach ($list['data'] as &$item){
             $UserStatModel = model('app\common\model\UserStat',$item['cid']);

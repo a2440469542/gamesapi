@@ -6,8 +6,8 @@ use app\common\model\StarPhrase as StarPhraseModel;
 use think\facade\Db;
 
 /**
- * 活动推广短语管理
- * @Apidoc\Title("活动推广短语相关")
+ * 幸运星活动推广短语管理
+ * @Apidoc\Title("幸运星活动推广短语相关")
  * @Apidoc\Group("base")
  * @Apidoc\Sort(3)
  */
@@ -19,13 +19,10 @@ class StarPhrase extends Base
      * @Apidoc\Method("POST")
      * @Apidoc\Author("jiu")
      * @Apidoc\Tag("数据文件")
-     * @Apidoc\Param("sid", type="int",require=true, desc="活动ID")
      * @Apidoc\Param("content", type="string",require=true, desc="推广短语")
      */
     public function add(){
-        $sid = input("sid");
         $content = input("content");
-        if(empty($sid)) return error("缺少必要参数sid");
         if(empty($content))  return error("请输入推广短语");
         $data = [
             'content' => $content,
