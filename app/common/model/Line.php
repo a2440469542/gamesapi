@@ -16,13 +16,13 @@ class Line extends Base
 {
     protected $pk = 'lid';
     public static function add($data){
-        if($data['is_rebot'] == 1){
-            $count = self::where('is_rebot',"=",1)->where("pid","=",$data['pid'])->count();
-            if($count > 0)  return error("测试线路只能存在一个");
-        }
         if(isset($data['lid']) && $data['lid'] > 0){
             $row = self::where('lid',"=",$data['lid'])->update($data);
         }else{
+            if($data['is_rebot'] == 1){
+                $count = self::where('is_rebot',"=",1)->where("pid","=",$data['pid'])->count();
+                if($count > 0)  return error("测试线路只能存在一个");
+            }
             $row = self::insert($data);
         }
         if($row){
