@@ -5,11 +5,7 @@ use think\facade\Db;
 class UserLogic{
     public function bind_user($UserModel,$inv_code,$mobile,$cid){
         $user = $UserModel->get_inv_info($inv_code);    //获取上级的信息
-        $data = [];
         if($user){
-            $data['pid']   = $user['uid'];
-            $data['ppid']  = $user['pid'];
-            $data['pppid'] = $user['ppid'];
             $star_mobile = Db::name("star_mobile")
                 ->where("mobile","=",$mobile)
                 ->where("cid","=",$cid)
@@ -34,6 +30,6 @@ class UserLogic{
                 Db::name("star_mobile")->where("id","=",$star_mobile['id'])->update($update);
             }
         }
-        return $data;
+        return $user;
     }
 }

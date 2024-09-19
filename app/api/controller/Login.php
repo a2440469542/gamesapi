@@ -59,8 +59,12 @@ class Login extends Base
         $UserModel = model('app\common\model\User',$this->cid);
         $user = null;
         if($inv_code){
-            $res = app('app\common\logic\UserLogic')->bind_user($UserModel,$inv_code,$mobile,$this->cid);
-            $data = array_merge($data,$res);
+            $user = app('app\common\logic\UserLogic')->bind_user($UserModel,$inv_code,$mobile,$this->cid);
+            if($user){
+                $data['pid']   = $user['uid'];
+                $data['ppid']  = $user['pid'];
+                $data['pppid'] = $user['ppid'];
+            }
         }
         $row = $UserModel->add($data);
         if($row['code'] > 0){
