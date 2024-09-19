@@ -20,8 +20,11 @@ class Score extends Base
      * @Apidoc\Author("")
      * @Apidoc\Tag("积分活动首页信息相关接口")
      * @Apidoc\Returned("day_sign", type="int",require=false, desc="每日签到可领取的金额")
+     * @Apidoc\Returned("day_sign_desc", type="string",require=true, desc="每日签到积分说明")
      * @Apidoc\Returned("order_score", type="int",require=true, desc="充值RS1可获得多少积分")
+     * @Apidoc\Returned("order_score_desc", type="string",require=true, desc="充值兑换积分倍数说明")
      * @Apidoc\Returned("bet_score", type="int",require=true, desc="投注r$1可获得多少积分")
+     * @Apidoc\Returned("bet_score_desc", type="string",require=true, desc="投注兑换积分倍数说明")
      * @Apidoc\Returned("sign_score",type="int",desc="签到可领取的积分")
      * @Apidoc\Returned("un_get_order_score",type="int",desc="充值可领取的积分")
      * @Apidoc\Returned("un_get_bet_score",type="int",desc="下注可领取的积分")
@@ -33,8 +36,11 @@ class Score extends Base
         $uid = $this->request->uid;
         $config = get_config();
         $data['day_sign'] = $config['day_sign'] ?? 0;
+        $data['day_sign_desc'] = $config['day_sign_desc'] ?? '';
         $data['order_score'] = $config['order_score'] ?? 0;
+        $data['order_score_desc'] = $config['order_score_desc'] ?? '';
         $data['bet_score'] = $config['bet_score'] ?? 0;
+        $data['bet_score_desc'] = $config['bet_score_desc'] ?? '';
         $user_info = Db::name('user_info')->where("cid","=",$cid)->where("uid","=",$uid)->find();
         $data['score'] = 0;
         $data['sign_score'] = 0;
