@@ -22,7 +22,7 @@ class Level extends Base{
     public function index(){
         $where = [];
         $limit = input("limit");
-        $orderBy = input("orderBy", 'id desc');
+        $orderBy = input("orderBy", 'level desc');
         $cid = input("id");
         if($cid) $where[] = ['id',"=",$cid];
         $levelModel = app('app\common\model\Level');
@@ -129,7 +129,7 @@ class Level extends Base{
     public function get_stat(){
         $where = [];
         $limit = input("limit");
-        $orderBy = input("orderBy", 'id desc');
+        $orderBy = input("orderBy", 'level desc');
         $cid = input("cid");
         if($cid) $where[] = ['cid',"=",$cid];
         $levelModel = app('app\common\model\Level');
