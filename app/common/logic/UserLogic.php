@@ -1,5 +1,6 @@
 <?php
 namespace app\common\logic;
+use think\facade\Cache;
 use think\facade\Db;
 
 class UserLogic{
@@ -31,5 +32,36 @@ class UserLogic{
             }
         }
         return $user;
+    }
+    public function register($inv_code,$data,$cid){
+        $UserModel = model('app\common\model\User',$cid);
+        $user = null;
+        if($inv_code){
+            if(isset($data['mobile'])){
+                $user = $this->bind_user($UserModel,$inv_code,$data['mobile'],$cid);
+            }else{
+                $user = $UserModel->get_inv_info($inv_code);    //获取上级的信息
+            }
+            if($user){
+                $data['pid']   = $user['uid'];
+                $data['ppid']  = $user['pid'];
+                $data['pppid'] = $user['ppid'];
+            }
+        }
+        $row = $UserModel->add($data);
+        if($row['code'] > 0){
+            return error($row['msg'],500);
+        }
+        $uid = $row['uid'];
+        //数据统计
+        if($user != null){
+            $UserStatModel = model('app\common\model\UserStat',$this->cid);
+            $stat = ['invite_user' => 1];
+            $UserStatModel->add($user,$stat);
+        }
+        do {
+            $token = "api_".bin2hex(random_bytes(16));
+        } while (Cache::has($token));
+        return ['token'=>$token,'uid'=>$uid];
     }
 }

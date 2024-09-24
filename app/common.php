@@ -121,6 +121,11 @@ if(!function_exists('isPhoneNumber')){
         return $length >= 12 && $length <= 13;
     }
 }
+if(!function_exists('isEmail')){
+    function isEmail($email){
+        return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
+    }
+}
 /**
  * 获取随机字符串
  */

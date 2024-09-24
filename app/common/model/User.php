@@ -65,7 +65,7 @@ class User extends Base
      * @param $data  Object   用户登录信息
      */
     public function login($data){
-        $user = self::where('mobile',$data['mobile'])->partition($this->partition)->find();
+        $user = self::where('user',$data['user'])->partition($this->partition)->find();
         if($user) {
             $password = md5($data['pwd']);
             if ($user['pwd'] == $password){
