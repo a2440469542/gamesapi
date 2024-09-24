@@ -55,7 +55,7 @@ class UserLogic{
         $uid = $row['uid'];
         //数据统计
         if($user != null){
-            $UserStatModel = model('app\common\model\UserStat',$this->cid);
+            $UserStatModel = model('app\common\model\UserStat',$cid);
             $stat = ['invite_user' => 1];
             $UserStatModel->add($user,$stat);
         }
