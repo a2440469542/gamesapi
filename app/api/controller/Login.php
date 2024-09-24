@@ -98,6 +98,7 @@ class Login extends Base
         if($row['code'] > 0) {
             return error($row['msg'],$row['code']);   //注册失败
         }
+        print_r($row);
         $data['token'] = $row['token'];
         $data['uid'] = $row['uid'];
         Cache::set($row['token'], $data, 0); // 设置缓存，过期时间为1天
