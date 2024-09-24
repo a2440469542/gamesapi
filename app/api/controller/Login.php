@@ -95,6 +95,9 @@ class Login extends Base
             'last_login_ip' => get_real_ip__(),
         ];
         $row = app('app\common\logic\UserLogic')->register($inv_code,$data,$this->cid);
+        if($row['code'] > 0) {
+            return error($row['msg'],$row['code']);   //注册失败
+        }
         $data['token'] = $row['token'];
         $data['uid'] = $row['uid'];
         Cache::set($row['token'], $data, 0); // 设置缓存，过期时间为1天

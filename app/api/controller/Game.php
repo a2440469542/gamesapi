@@ -25,7 +25,7 @@ class Game extends Base
     public function plate(){
         $where = [];
         $limit = input("limit");
-        $orderBy = input("orderBy", 'id asc');
+        $orderBy = input("orderBy", 'is_live desc');
         $PlateModel = app('app\common\model\Plate');
         $list = $PlateModel->lists($where, $limit, $orderBy);
         return success("获取成功", $list);
@@ -89,15 +89,26 @@ class Game extends Base
      * @Apidoc\Author("")
      * @Apidoc\Tag("直播游戏")
      * @Apidoc\Param(ref="pagingParam",desc="分页参数")
+     * @Apidoc\Param("gameName", type="string",require=false, desc="游戏名称")
      * @Apidoc\Returned(ref="pageReturn")
      * @Apidoc\Returned("data",type="array",desc="游戏列表",table="cp_game_slot")
      */
     public function live_game(){
         $limit = Request::post('limit',20);
+        $gameName = input('gameName','');
+        $where = [];
+        if($gameName){
+            $where[] = ['gs.gameName',"=",$gameName];
+        }
         $list = Db::name('game_slot')
-            ->where('machineStatus','=',1)
+            ->alias('gs')
+            ->field('gs.*,g.long_img,g.img')
+            ->join('game g','gs.gameName = g.name')
+            ->where('machineStatus','>=',0)
             ->where('state',"=",1)
-            ->where('status','=',1)
+            ->where('gs.status','=',1)
+            ->where($where)
+            ->order('machineStatus desc')
             ->paginate($limit);
         return success("obter sucesso", $list);  //获取成功
     }

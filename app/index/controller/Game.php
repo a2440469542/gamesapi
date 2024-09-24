@@ -79,7 +79,7 @@ class Game extends BaseController
             exit;
         }
         $data = $new_game = [];
-        $game = app('app\common\model\Game')->where("pid","=",$plate['id'])->select();
+        $game = app('app\common\model\Game')->where("pid","=",$plate['id'])->select()->toArray();
         $gameList = [];
         foreach($game as $val){
             $gameList[$val['name']] = $val;
@@ -89,9 +89,9 @@ class Game extends BaseController
             unset($value['machineType']);
             $data[] = $value;
             if(!isset($gameList[$value['gameName']])){
-                $new_game = [
+                $new_game[] = [
                     'pid' => $plate['id'],
-                    'code' => 0,
+                    'code' => $value['gameName'],
                     'name' => $value['gameName'],
                     'is_open' => 0,
                 ];

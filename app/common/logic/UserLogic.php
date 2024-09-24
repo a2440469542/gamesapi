@@ -50,7 +50,7 @@ class UserLogic{
         }
         $row = $UserModel->add($data);
         if($row['code'] > 0){
-            return error($row['msg'],500);
+            return $row;
         }
         $uid = $row['uid'];
         //数据统计
@@ -62,6 +62,6 @@ class UserLogic{
         do {
             $token = "api_".bin2hex(random_bytes(16));
         } while (Cache::has($token));
-        return ['token'=>$token,'uid'=>$uid];
+        return ['code'=>0,'token'=>$token,'uid'=>$uid];
     }
 }
