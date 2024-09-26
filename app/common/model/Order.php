@@ -15,13 +15,14 @@ use think\facade\Db;
 class Order extends Base
 {
     protected $pk = 'id';
-    public function add($cid,$uid,$order_sn,$money,$gifts=0){
+    public function add($cid,$uid,$order_sn,$money,$gifts=0,$multiple){
         $data = [
             'uid' => $uid,
             'cid' => $cid,
             'order_sn' => $order_sn,
             'money' => $money,
             'gifts' => $gifts,
+            'multiple' => $multiple,
             'status' => 1,
             'add_time' => time(),
         ];
