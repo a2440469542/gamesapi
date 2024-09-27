@@ -449,8 +449,8 @@ class User extends Base
 
         if ($level[$rewardField] > 0) {
             $UserStatModel = model('app\common\model\UserStat', $cid);
-            $userStat = $UserStatModel->get_total_bet_amount($uid, $startTime, $endTime);
-            $betMoney = $userStat['bet_money'];
+            $bet_money = $UserStatModel->get_total_bet_amount($uid, $startTime, $endTime);
+            $betMoney = $bet_money;
             $money = 0;
             if ($betMoney > 0) {
                 $money = round($betMoney * ($level[$rewardField] / 100), 2);
