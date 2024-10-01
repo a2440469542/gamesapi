@@ -54,8 +54,8 @@ class PayLogic {
         $money = $order['money'];
 
         if(isset($channel['deposit_fee'])){
-            $money = round($money *  $channel['deposit_fee'],2);
-            $update['real_money'] = $money;
+            $fee = round($money *  $channel['deposit_fee'],2);
+            $update['real_money'] = $money - $fee;
         }
 
         $BillModel = model('app\common\model\Bill', $cid);
