@@ -49,8 +49,17 @@ class PayLogic {
             return false;
         }
 
+        $channel = model('app\common\model\Channel')->info($user['cid']);
+
+        $money = $order['money'];
+
+        if(isset($channel['deposit_fee'])){
+            $money = round($money *  $channel['deposit_fee'],2);
+            $update['real_money'] = $money;
+        }
+
         $BillModel = model('app\common\model\Bill', $cid);
-        $BillModel->addIntvie($user, $BillModel::PAY_MONEY, $order['money'] , $order['gifts'], $order['multiple']);
+        $BillModel->addIntvie($user, $BillModel::PAY_MONEY, $money , $order['gifts'], $order['multiple']);
 
         $UserStatModel = model('app\common\model\UserStat', $cid);
         $user_stat = ['cz_money' => $order['money'], 'cz_num' => 1];

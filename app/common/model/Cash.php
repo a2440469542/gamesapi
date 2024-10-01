@@ -15,7 +15,7 @@ use think\facade\Db;
 class Cash extends Base
 {
     protected $pk = 'id';
-    public function add($cid,$uid,$order_sn,$type,$account,$pix,$name,$money){
+    public function add($cid,$uid,$order_sn,$type,$account,$pix,$name,$money,$real_money){
         $data = [
             'uid' => $uid,
             'cid' => $cid,
@@ -25,6 +25,7 @@ class Cash extends Base
             'pix' => $pix,
             'name' => $name,
             'money' => $money,
+            'real_money' => $real_money,
             'status' => 1,
             'add_time' => time(),
         ];

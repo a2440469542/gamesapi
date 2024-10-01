@@ -144,7 +144,12 @@ class Cash extends Base
                 $res = $userModel->bind_user($uid,$data);
                 return error('A conta foi congelada e não pode ser retirada');  //账号已被冻结
             }
-            $res = $CashModel->add($cid,$uid,$order_sn,$row['type'],$account,$row['pix'],$row['name'],$money);
+            $real_money = $money;
+            if(isset($channel['cash_fee'])){
+                $real_money = round($money*$channel['cash_fee']);
+            }
+
+            $res = $CashModel->add($cid,$uid,$order_sn,$row['type'],$account,$row['pix'],$row['name'],$money,$real_money);
             if(!$res){
                 Db::rollback();
                 return error('Falha na retirada');   //提现失败
@@ -157,7 +162,7 @@ class Cash extends Base
             }
             $user = $result['user'];
             $BetcatPay = app('app\service\pay\KirinPay');
-            $res = $BetcatPay->cash_out($order_sn ,$money,$row['type'],$account,$row['pix'],$user);
+            $res = $BetcatPay->cash_out($order_sn ,$real_money,$row['type'],$account,$row['pix'],$user);
             if($res['code'] != 0) {
                 Db::rollback();
                 return error($res['msg']);
