@@ -146,7 +146,7 @@ class Cash extends Base
             }
             $real_money = $money;
             if(isset($channel['cash_fee'])){
-                $fee = round($money*$channel['cash_fee']);
+                $fee = round($money*$channel['cash_fee'],2);
                 $real_money = $money - $fee;
             }
             $res = $CashModel->add($cid,$uid,$order_sn,$row['type'],$account,$row['pix'],$row['name'],$money,$real_money);
