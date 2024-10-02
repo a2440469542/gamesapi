@@ -36,6 +36,8 @@ class Bill extends Base
     const   SIGN_MONEY = 200;     //签到奖励
     const   STAR_MONEY = 201;     //幸运星奖励
     const   RACS_MONEY = 202;     //比赛奖励
+
+    const   ISLOT_MONEY = 202;     //ISLOT方操作
     public function getTypeText($type=0): array|string
     {
         $type_text = [
@@ -59,6 +61,7 @@ class Bill extends Base
             self::SIGN_MONEY        => 'assinar em recompensa',                      //签到奖励
             self::STAR_MONEY        => 'Lucky Star Reward',                          //幸运星奖励
             self::RACS_MONEY        => 'Recompensas da concorrência',                //比赛奖励
+            self::ISLOT_MONEY       => 'ISLOT'                                       //ISLOT操作
         ];
         if(isset($type_text[$type])){
             return $type_text[$type];
@@ -88,6 +91,7 @@ class Bill extends Base
             self::SIGN_MONEY  => '签到奖励',       //签到奖励
             self::STAR_MONEY  => '幸运星奖励',     //幸运星奖励
             self::RACS_MONEY  => '比赛奖励',       //比赛奖励
+            self::ISLOT_MONEY => 'ISLOT'         //ISLOT操作
         ];
         if(isset($type_text[$value])){
             return $type_text[$value];
@@ -98,7 +102,7 @@ class Bill extends Base
     {
         return date("Y-m-d H:i:s",$value);
     }
-    public function addIntvie($user,$type,$money,$gifts=0,$multiple=0,$bet=0): array
+    public function addIntvie($user,$type,$money,$gifts=0,$multiple=0,$bet=0,$desc=''): array
     {
         $before_money = $user['money'];                  //账变前的金额
         $after_money = $user['money'] + $money + $gifts; //账变后的金额
@@ -110,7 +114,7 @@ class Bill extends Base
             'before_money' => $before_money,
             'after_money' => $after_money,
             'money' => $money + $gifts,
-            'desc' => $type_text,
+            'desc' => $type_text.'_'.$desc,
             'add_time' => time(),
         ];
         // 开启事务

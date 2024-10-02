@@ -15,7 +15,7 @@ use think\facade\Db;
 class Order extends Base
 {
     protected $pk = 'id';
-    public function add($cid,$uid,$order_sn,$money,$gifts=0,$multiple=0){
+    public function add($cid,$uid,$order_sn,$money,$cpf,$gifts=0,$multiple=0){
         $data = [
             'uid' => $uid,
             'cid' => $cid,
@@ -23,6 +23,7 @@ class Order extends Base
             'money' => $money,
             'gifts' => $gifts,
             'multiple' => $multiple,
+            'cpf' => $cpf,
             'status' => 1,
             'add_time' => time(),
         ];

@@ -31,7 +31,7 @@ class UserStat extends Base
             $data['date'] = $date;
             $data['cid'] = $user['cid'];
             $data['uid'] = $user['uid'];
-            $data['mobile'] = $user['mobile'];
+            $data['mobile'] = $user['user'];
             $data['inv_code'] = $user['inv_code'];
             self::insert($data);
         }else{
@@ -46,7 +46,7 @@ class UserStat extends Base
             $update['date'] = $date;
             $update['cid'] = $user['cid'];
             $update['uid'] = $user['uid'];
-            $update['mobile'] = $user['mobile'];
+            $update['mobile'] = $user['user'];
             $update['inv_code'] = $user['inv_code'];
             self::where("id","=",$stat['id'])->partition($this->partition)->update($update);
         }
