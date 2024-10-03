@@ -3,6 +3,7 @@ namespace app\api\controller;
 
 use hg\apidoc\annotation as Apidoc;
 use think\App;
+use think\facade\Cache;
 use think\facade\Db;
 use think\facade\Request;
 use app\service\game\GamePlatformFactory;
@@ -29,17 +30,23 @@ class LiveGameLogin extends Base
         $slotId = Request::post('slotId',''); // 直播游戏的ID
         $pid = Request::post('pid',''); // 平台ID
         if ((empty($pid) && empty($slotId))) {
-            return error("Erro de parâmetro", 500);  //参数错误
+            return ['code'=>500,'msg'=>'Erro de parâmetro'];  //参数错误
         }
         $this->cid = $cid;
-        $this->user = model('app\common\model\User',$cid)->getInfo($uid);
-
+        $this->user = model('app\common\model\User',$cid)->getInfo($uid)->toArray();
+        if($this->user['is_rebot'] == 1) return ['code'=>500,'msg'=>'Não posso tentar'];   //无法试玩
         $plate = app('app\common\model\Plate')->getInfo($pid);
         $game_slot = Db::name('game_slot')->where('slotId','=',$slotId)->find();
         if(empty($game_slot)){
             return ['code'=>500,'msg'=>'O jogo não existe'];
         }
-
+        if($game_slot['machineStatus'] != 1){
+            return ['code'=>500,'msg'=>'A máquina já está ocupada'];
+        }
+        $channel = model('app\common\model\Channel')->info($cid,'');
+        if (!$channel) {
+            return error("O canal não existe",10001);//渠道不存在
+        }
         $game = model('app\common\model\Game')
             ->where("pid","=",$plate['id'])
             ->where("name","=",$game_slot['gameName'])
@@ -50,6 +57,7 @@ class LiveGameLogin extends Base
         if(empty($this->line)) return ['code'=>500,'msg'=>'Jogo não configurado'];
         $this->game = $game->toArray();
         $this->game['slotId'] = $slotId;
+        $this->game['callbackPath'] = $channel['url'];
         $platform = $plate['code'];
         $this->platformService = GamePlatformFactory::getPlatformService($platform, $this->line, $this->user);
         return ['code'=>0];
@@ -84,28 +92,54 @@ class LiveGameLogin extends Base
     }
     //上分
     protected function up_score(){
+        if(round($this->user['money']/5,2) < 1){
+            return ['code'=>502,'msg'=>'Desculpe, seu crédito está diminuindo']; //余额不足
+        }
         $GameWallet = model('app\common\model\GameWallet',$this->cid);
         Db::startTrans();
         try {
-            $balance = $this->user['balance'];
+            $balance = $this->user['money'];
             $BillModel = model('app\common\model\Bill', $this->cid);
             $BillModel->addIntvie($this->user, $BillModel::GAME_DEPOSIT, -$balance);
             $row = $this->platformService->depositUser($this->user);
             if($row['code'] == 0){
                 $dorder_sn = $row['transNo'];
-                $d_tx = $row['d_tx'];
+                $d_tx = $row['d_tx'] ?? '';
                 $pid = $this->plate['id'];
                 $lid = $this->line['lid'];
-                $GameWallet->add($this->cid,$pid,$lid,$this->user['uid'],$this->user['mobile'],$this->user['inv_code'],$balance,$dorder_sn,$d_tx);
+                $GameWallet->add($this->cid,$pid,$lid,$this->user['uid'],$this->user['user'],$this->user['inv_code'],$balance,$dorder_sn,$d_tx);
                 Db::commit();
             }else{
                 Db::rollback();
-                return $row;
             }
         }catch (\Exception $e) {
             Db::rollback();
             return ['code'=>502,'msg'=>$e->getMessage()];
         }
+        return $row;
+    }
+    protected function out_games(){
+        $game_wallet = model('app\common\model\GameWallet',$this->user['uid'])
+            ->where("cid","=",$this->cid)
+            ->where('uid',"=",$this->user['uid'])
+            ->where('pid',"=",$this->plate['id'])
+            ->where("status","=",0)
+            ->find();
+        if(empty($game_wallet)){
+            return ['code'=>0,'msg'=>'Sair com sucesso']; //退出成功
+        }
+        $GameWallet = model('app\common\model\GameWallet',$this->cid);
+        $row = $this->platformService->balanceUser($this->user);
+        if($row['code'] == 0){
+            $data = [
+                'withdraw' => $row['money'] * 5,
+                'worder_sn' => $row['transNo'],
+                'up_time' => date('Y-m-d H:i:s',time()),
+            ];
+            $GameWallet->edit($game_wallet['id'],$data);
+            $this->user_blance($this->user,$data['withdraw'],$game_wallet['id']);
+        }
+        return ['code'=>0,'msg'=>'Sair com sucesso']; //退出成功
     }
     protected function rtp_limit($game_user){
         $row = $this->platformService->set_rtp_limit($this->user,$this->line['rtp']);
@@ -122,17 +156,16 @@ class LiveGameLogin extends Base
      * @Apidoc\Method("POST")
      * @Apidoc\Author("")
      * @Apidoc\Tag("获取游戏启动链接")
-     * @Apidoc\Param("gid", type="int", require=true, desc="游戏ID")
+     * @Apidoc\Param("pid", type="int", require=true, desc="平台ID")
+     * @Apidoc\Param("slotId", type="int", require=true, desc="直播机台ID")
      * @Apidoc\Returned("url", type="object", desc="游戏启动链接")
      */
     public function get_game_url()
     {
+        $slotId = Request::post('slotId',''); // 直播游戏的ID
         $row = $this->set_config();
         if($row['code'] > 0) {
             return error($row['msg']);
-        }
-        if(round($this->user['money']/5,2) < 1){
-            return error('Desculpe, seu crédito está diminuindo'); //余额不足
         }
         $game_user = $this->getGameUser();
         if(empty($game_user) || $game_user['is_login'] == 1){
@@ -141,28 +174,24 @@ class LiveGameLogin extends Base
                 return error($token['msg'], 501);    // 游戏登录失败
             }
             $this->user['user_token'] = $token['token'] ?? '';
+            Cache::store('redis')->set($this->user['user_token'], $this->user, 3600);
         }else{
             $this->user['user_token'] = md5(uniqid(md5(microtime(true)),true));
         }
+        /*$this->out_games();
+        $response = $this->up_score();
+        if ($response['code'] != 0) {
+            return error($response['msg'], 501);    // 游戏登录失败
+        }*/
         $response = $this->platformService->getGameUrl($this->user,$this->game);
         if ($response['code'] != 0) {
             return error($response['msg'], 501);    // 游戏登录失败
         }
-        $response = $this->up_score();
-        if ($response['code'] != 0) {
-            return error($response['msg'], 501);    // 游戏登录失败
-        }
+        Db::name('game_slot')->where('slotId','=',$slotId)->update(['machineStatus'=>0]);
         return success("obter sucesso", $response); //获取成功
     }
     protected function getLineInfo()
     {
-        if ($this->user['is_rebot'] == 1) {
-            return app('app\common\model\Line')
-                ->where('pid', "=", $this->plate['id'])
-                ->where('is_rebot', '=', 1)
-                ->find();
-        }
-
         $channel = model('app\common\model\Channel')->info($this->cid);
         if (isset($channel['plate_line'][$this->plate['id']])) {
             $lid = $channel['plate_line'][$this->plate['id']];
@@ -184,10 +213,12 @@ class LiveGameLogin extends Base
      * @Apidoc\Author("")
      * @Apidoc\Tag("退出游戏")
      * @Apidoc\Param("pid", type="int", require=true, desc="平台ID")
+     * @Apidoc\Param("slotId", type="int", require=true, desc="直播机台ID")
      */
     public function out_game(){
         $cid = $this->request->cid;
         $uid = $this->request->uid;
+        $slotId = Request::post('slotId',''); // 直播游戏的ID
         $pid = Request::post('pid',''); // 平台ID
         if (empty($pid)) {
             return error("Erro de parâmetro", 500);  //参数错误
@@ -212,12 +243,15 @@ class LiveGameLogin extends Base
         $row = $this->platformService->balanceUser($this->user);
         if($row['code'] == 0){
             $data = [
-                'withdraw' => $row['money'],
+                'withdraw' => $row['money'] * 5,
                 'worder_sn' => $row['transNo'],
-                'up_time' => time(),
+                'up_time' => date('Y-m-d H:i:s',time()),
             ];
             $GameWallet->edit($game_wallet['id'],$data);
-            $this->user_blance($this->user,$row['money'],$game_wallet['id']);
+            $this->user_blance($this->user,$data['withdraw'],$game_wallet['id']);
+        }
+        if($slotId != ''){
+            Db::name('game_slot')->where('slotId','=',$slotId)->update(['machineStatus'=>1]);
         }
         return success("Sair com sucesso"); //退出成功
     }
@@ -225,7 +259,8 @@ class LiveGameLogin extends Base
     {
         try {
             $BillModel = app('app\common\model\Bill');
-            $BillModel->addIntvie($user, $BillModel::GAME_WITHDRAW, $money);
+            $row = $BillModel->addIntvie($user, $BillModel::GAME_WITHDRAW, $money);
+            $this->user = $row['user'];
             $GameWallet = model('app\common\model\GameWallet',$this->cid);
             $GameWallet->edit($bid,['status'=>1]);
             Db::commit();

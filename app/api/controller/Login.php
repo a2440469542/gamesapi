@@ -122,6 +122,7 @@ class Login extends Base
         $code = rand(100000,999999);
         $row = app('app\service\sms\Sms')->send_sms($mobile,$code);
         if($row['code'] == 200){
+            Cache::set('code_'.$mobile,$code,300);
             return success("Enviado com sucesso");      //发送成功
         }else{
             return error($row['message']);
@@ -145,7 +146,7 @@ class Login extends Base
         if(empty($pwd)){
             return error("Erro de parâmetro",500);   //缺少参数
         }
-        if(empty($mobile) && $email){
+        if(empty($mobile) && empty($email)){
             return error("Erro de parâmetro",500);   //缺少参数
         }
         $data = [

@@ -3,6 +3,7 @@ namespace app\admin\controller;
 use hg\apidoc\annotation as Apidoc;
 use app\common\model\Channel as ChannelModel;
 use think\facade\Cache;
+use think\facade\Db;
 
 /**
  * 渠道管理相关接口
@@ -127,6 +128,20 @@ class Channel extends Base{
             return error("请选择要删除的数据");
         }
         $res = ChannelModel::where("cid","=",$id)->update(['is_del'=>1]);
+        Db::name("bank")->where("cid","=",$id)->delete();
+        Db::name("bill")->where("cid","=",$id)->delete();
+        Db::name("box")->where("cid","=",$id)->delete();
+        Db::name("box_log")->where("cid","=",$id)->delete();
+        Db::name("cash")->where("cid","=",$id)->delete();
+        Db::name("game_log")->where("cid","=",$id)->delete();
+        Db::name("game_user")->where("cid","=",$id)->delete();
+        Db::name("order")->where("cid","=",$id)->delete();
+        Db::name("user")->where("cid","=",$id)->delete();
+        Db::name("user_stat")->where("cid","=",$id)->delete();
+        Db::name("sign")->where("cid","=",$id)->delete();
+        Db::name("score_bill")->where("cid","=",$id)->delete();
+        Db::name("score_stat")->where("cid","=",$id)->delete();
+        Db::name("wages")->where("cid","=",$id)->delete();
         if($res){
             return success("删除成功");
         }else{

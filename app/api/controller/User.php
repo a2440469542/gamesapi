@@ -496,8 +496,8 @@ class User extends Base
         if($row['code'] > 0){
             return error($row['msg']);
         }
-        Cache::set('email_code_'.$uid,$code,300);
-        return success($row['data']);
+        Cache::store('redis')->set('email_code_'.$cid.'_'.$uid,$code,300);
+        return success("obter sucesso"); //获取成功
     }
     /**
      * @Apidoc\Title("绑定邮箱")
@@ -516,16 +516,99 @@ class User extends Base
         $code = input('code','');
 
         if(empty($email)) return error('E-mail não pode estar vazio'); //邮箱不能为空
-        $code_s = Cache::get('email_code_'.$uid);
+        $code_s = Cache::store('redis')->get('email_code_'.$cid.'_'.$uid);
         if($code !=  $code_s) return error('Código de verificação incorreto'); //验证码错误
         $userModel = model('app\common\model\User', $cid);
         $row = $userModel->update_user(['email'=>$email,'uid'=>$uid]);
         if($row){
             $user = $userModel->getInfo($uid);
-            Cache::delete('email_code_'.$uid);
+            Cache::store('redis')->delete('email_code_'.$cid.'_'.$uid);
             return success('Ligando bem sucedido',$user);
         }else{
             return error('A ligação falhou');
+        }
+    }
+
+    /**
+     * @Apidoc\Title("绑定手机验证码")
+     * @Apidoc\Desc("绑定手机验证码")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("")
+     * @Apidoc\Tag("绑定手机验证码")
+     * @Apidoc\Param("mobile", type="string",require=false, desc="手机号")
+     */
+    public function get_code(){
+        $cid = $this->request->cid;
+        $uid = $this->request->uid;
+        $mobile = input("mobile");
+        if(empty($mobile)){
+            return error("Erro de parâmetro",500);   //缺少参数
+        }
+        $code = rand(100000,999999);
+        Cache::store('redis')->set('bind_code_'.$cid.'_'.$uid,$code,300);
+        $row = app('app\service\sms\Sms')->send_sms($mobile,$code);
+        if($row['code'] == 200){
+            return success("Enviado com sucesso");      //发送成功
+        }else{
+            return error($row['message']);
+        }
+    }
+
+    /**
+     * @Apidoc\Title("绑定手机")
+     * @Apidoc\Desc("绑定手机")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("")
+     * @Apidoc\Tag("绑定手机")
+     * @Apidoc\Param("mobile", type="string",require=false, desc="手机号")
+     * @Apidoc\Param("code", type="string",require=false, desc="邮箱验证码")
+     * @Apidoc\Returned(type="array",desc="用户信息",table="cp_user")
+     */
+    public function bind_mobile(){
+        $cid = $this->request->cid;
+        $uid = $this->request->uid;
+        $mobile = input('mobile','');
+        $code = input('code','');
+
+        if(empty($mobile)) return error("Erro de parâmetro",500);   //缺少参数
+        $code_s = Cache::store('redis')->get('bind_code_'.$cid.'_'.$uid);
+        if($code !=  $code_s) return error('Código de verificação incorreto'); //验证码错误
+        $userModel = model('app\common\model\User', $cid);
+        $row = $userModel->update_user(['mobile'=>$mobile,'uid'=>$uid]);
+        if($row){
+            $user = $userModel->getInfo($uid);
+            Cache::delete('bind_code_'.$mobile);
+            return success('Ligando bem sucedido',$user);
+        }else{
+            return error('A ligação falhou');
+        }
+    }
+    /**
+     * @Apidoc\Title("修改密码")
+     * @Apidoc\Desc("修改密码")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("")
+     * @Apidoc\Tag("修改密码")
+     * @Apidoc\Param("old_pwd", type="string",require=false, desc="旧密码")
+     * @Apidoc\Param("pwd", type="string",require=false, desc="新密码")
+     * @Apidoc\Returned(type="array",desc="用户信息",table="cp_user")
+     */
+    public function update_pwd(){
+        $cid = $this->request->cid;
+        $uid = $this->request->uid;
+        $old_pwd = input('old_pwd','');
+        $pwd = input('pwd','');
+        if(empty($old_pwd) || empty($pwd)) return error("Erro de parâmetro",500);   //缺少参数
+        $userModel = model('app\common\model\User', $cid);
+        $user = $userModel->getInfo($uid);
+        if($user['pwd'] != md5($old_pwd)){
+            return error('Senha antiga incorrecta');   //旧密码错误
+        }
+        $row = $userModel->update_user(['pwd'=>md5($pwd),'uid'=>$uid]);
+        if($row){
+            return success('Modificado com sucesso');   //修改成功
+        }else{
+            return error('A modificação falhou');   //修改失败
         }
     }
 }

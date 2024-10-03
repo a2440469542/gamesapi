@@ -70,7 +70,9 @@ class Game extends Base
      * @Apidoc\Returned("",type="array",desc="列表",table="cp_game_slot",children={
      *     @Apidoc\Returned("gameName",type="string",desc="游戏名称"),
      *     @Apidoc\Returned("jackpot",type="string",desc="jackpot"),
-     *     @Apidoc\Returned("long_img",type="string",desc="图标")
+     *     @Apidoc\Returned("long_img",type="string",desc="长图标"),
+     *     @Apidoc\Returned("img",type="string",desc="图标"),
+     *     @Apidoc\Returned("num",type="int",desc="机台数量")
      *  })
      */
     public function live_game_jackpot(){
@@ -78,7 +80,7 @@ class Game extends Base
             ->alias('gs')
             ->join('game g','gs.gameName = g.name')
             ->group('gs.gameName')
-            ->field('gs.gameName,gs.jackpot,g.long_img')
+            ->field('gs.gameName,gs.jackpot,count(slotId) as num,g.long_img,g.img')
             ->select();
         return success("obter sucesso", $list);  //获取成功
     }

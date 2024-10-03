@@ -45,12 +45,14 @@ class IslotGamePlatformService extends BaseGamePlatformService
         $params['currency'] = 'USD';
         $params['aliasName'] = $user['cid'].'_'.$user['user'];
         $params['ip'] = get_real_ip__();
-        write_log($params,'Islot'.$user['cid']);
         $headers = [
             'Content-Type: application/json'
         ];
         write_log("注册用户请求地址：".$this->baseUrl.$apiUrl,'Islot'.$user['cid']);
+        write_log($params,'Islot'.$user['cid']);
         $str = $this->encrypt(json_encode($params));
+        write_log("key：".$this->secretKey,'Islot'.$user['cid']);
+        write_log($str,'Islot'.$user['cid']);
         $row = $this->request($apiUrl, $str, $headers);
         write_log($row,'Islot'.$user['cid']);
         if($row['code'] == 200){
@@ -63,18 +65,21 @@ class IslotGamePlatformService extends BaseGamePlatformService
     public function getGameUrl($user,$game)
     {
         $apiUrl = '/api/v2/gameEntrance?agent='.$this->operatorToken;
-        $params['agent'] = $this->operatorToken;
+        $params['timestamp'] = intval(microtime(true) * 1000);
         $params['ticket'] = $user['user_token'];
         $params['singleGame'] = 1;
-        $params['slotId'] = $game['code'];
+        $params['slotId'] = $game['slotId'];
         $params['lang'] = "PT";
-        $params['callbackUrl'] = SITE_URL.'/plate/IslotGame/game_out';
-        write_log($params,'Islot'.$user['cid']);
+        $params['userToken'] = $user['user_token'];
+        $params['callbackUrl'] = $game['callbackPath'];
         $headers = [
             'Content-Type: application/json'
         ];
         write_log("获取游戏请求地址：".$this->baseUrl.$apiUrl,'Islot'.$user['cid']);
+        write_log($params,'Islot'.$user['cid']);
         $str = $this->encrypt(json_encode($params));
+        write_log($str,'Islot'.$user['cid']);
+
         $response = $this->request($apiUrl, $str, $headers);
         write_log($response,'Islot'.$user['cid']);
         if(isset($response['code']) && $response['code'] == 200){
@@ -110,7 +115,7 @@ class IslotGamePlatformService extends BaseGamePlatformService
             if($money > 0){
                 return $this->depositUser($user,'OUT');
             }else{
-                return ['code'=>0, 'msg'=>'获取成功','url'=>$response['url'],'transNo'=>'','money'=>0];
+                return ['code'=>0, 'msg'=>'获取成功','transNo'=>'','money'=>0];
             }
         }else{
             return ['code'=>$response['code'], 'msg'=>$response['message']];
@@ -133,6 +138,7 @@ class IslotGamePlatformService extends BaseGamePlatformService
         $params['ip'] = get_real_ip__();
         $params['action'] = $action;
         $params['credit'] = round($user['money']/5,2);
+        write_log($user['money'],'Islot'.$user['cid']);
         write_log($params,'Islot'.$user['cid']);
         $headers = [
             'Content-Type: application/json'
@@ -142,7 +148,9 @@ class IslotGamePlatformService extends BaseGamePlatformService
         $response = $this->request($apiUrl, $str, $headers);
         write_log($response,'Islot'.$user['cid']);
         if(isset($response['code']) && $response['code'] == 200){
-            return $this->confirm_depositUser($user,$params['transNo'],$params['credit'],$action);
+            $res = $this->confirm_depositUser($user,$params['transNo'],$params['credit'],$action);
+            write_log($res,'Islot'.$user['cid']);
+            return $res;
         }else{
             return ['code'=>$response['code'], 'msg'=>$response['message']];
         }
@@ -165,7 +173,7 @@ class IslotGamePlatformService extends BaseGamePlatformService
         $response = $this->request($apiUrl, $str, $headers);
         write_log($response,'Islot'.$user['cid']);
         if(isset($response['code']) && $response['code'] == 200){
-            return ['code'=>0, 'msg'=>'获取成功','url'=>$response['url'],'transNo'=>$order_no,'money'=>$money];
+            return ['code'=>0, 'msg'=>'获取成功','transNo'=>$order_no,'money'=>$money];
         }else{
             return ['code'=>$response['cod'], 'msg'=>$response['message']];
         }

@@ -1,21 +1,42 @@
 <?php
 
-namespace app\plate\controller;
-
+namespace app\api\controller;
 use app\BaseController;
 use app\service\game\GamePlatformFactory;
+use hg\apidoc\annotation as Apidoc;
 use think\App;
-use think\facade\Db;
 use think\facade\Cache;
-class IslotGame extends BaseController
+use think\facade\Db;
+
+class V1 extends BaseController
 {
     protected $cid = 0;
     protected $key = '';
+    protected $secretKey = '';
+
+    public function __construct(App $app)
+    {
+        parent::__construct($app);
+        $plate = app('app\common\model\Plate')->where("code", 'IslotGame')->find();
+        if(empty($plate)) return $this->error("平台不存在");
+        $this->cid = $plate['id'];
+        $line = app('app\common\model\Line')
+            ->where('pid', "=", $plate['id'])
+            ->where('is_rebot', '=', 0)
+            ->order('lid desc')
+            ->find();
+        if(empty($line)) return $this->error("线路不存在");
+        $this->secretKey = $line['app_secret'];
+    }
+
 
     public function userVerify(){
-        $data = input('post.');
+        $str = request()->getContent();
         write_log('用户鉴权', 'IslotGameBet'.$this->cid);
+        write_log($str, 'IslotGameBet'.$this->cid);
+        $data = $this->decrypt($str);
         write_log($data, 'IslotGameBet'.$this->cid);
+
         if(empty($data['ticket'])){
             return $this->error('ticket不能为空');
         }
@@ -28,9 +49,13 @@ class IslotGame extends BaseController
 
     //获取余额
     public function getBalance(){
-        $data = input('post.');
+        $str = request()->getContent();
         write_log('获取余额', 'IslotGameBet'.$this->cid);
+        write_log($str, 'IslotGameBet'.$this->cid);
+        $data = $this->decrypt($str);
         write_log($data, 'IslotGameBet'.$this->cid);
+
+
         if(empty($data['ticket'])){
             return $this->error('ticket不能为空',401);
         }
@@ -45,9 +70,13 @@ class IslotGame extends BaseController
     }
 
     public function orderPush(){
-        $data = input('post.');
+        $str = request()->getContent();
         write_log('订单推送', 'IslotGameBet'.$this->cid);
+        write_log($str, 'IslotGameBet'.$this->cid);
+        $data = $this->decrypt($str);
         write_log($data, 'IslotGameBet'.$this->cid);
+
+
 
         $requiredParams = [
             'requestNo', 'transNo', 'ticket', 'timestamp', 'betOrder', 'round',
@@ -56,7 +85,7 @@ class IslotGame extends BaseController
             'afterBetMoney', 'junketsChipBetAmount',
         ];
         // 验证参数
-        $params = $this->validateParams($requiredParams);
+        $params = $this->validateParams($requiredParams,$data);
         if ($params === false) {
             // 如果验证失败，返回错误信息
             return $this->error('缺少参数');
@@ -80,8 +109,8 @@ class IslotGame extends BaseController
         if (empty($game)) return $this->error("游戏不存在");
         $user = $this->getUser($user_info['cid'], $user_info['uid']);
         if (empty($user)) return $this->error("用户不存在");
-        if($user['money'] < ($data['betMoney']*5)) return $this->error("余额不足",3202);
-        if($data['betStatus'] == 1){
+        //if($user['money'] < ($data['betMoney']*5)) return $this->error("余额不足",3202);
+        if($data['betStatus'] == 2){
             $betMoney = $data['betMoney']*5;
             $winMoney = $data['customerWin']*5;
             $award = $betMoney+$winMoney;
@@ -104,15 +133,15 @@ class IslotGame extends BaseController
     {
         Db::startTrans();
         try {
-            $BillModel = app('app\common\model\Bill');
+            /*$BillModel = app('app\common\model\Bill');
             $bid = 0;
             if($UpdateCredit > 0 || $UpdateCredit < 0){
                 $row = $BillModel->addIntvie($user, $BillModel::GAME_BET, $UpdateCredit,0,0,$Bet);
                 $user = $row['user'];
                 $bid = $row['bid'];
-            }
+            }*/
             $GameLog = app('app\common\model\GameLog');
-            $GameLog->add($cid, $uid, $user['mobile'],$bid, $game['pid'],$game['gid'],$game['name'], $UpdateCredit, $game['code'], $Term, $Bet, $Award);
+            $GameLog->add($cid, $uid, $user['user'],0, $game['pid'],$game['gid'],$game['name'], $UpdateCredit, $game['code'], $Term, $Bet, $Award);
             //数据统计
             $UserStatModel = model('app\common\model\UserStat',$cid);
             $stat = ['bet_money' => $Bet, 'win_money' => $UpdateCredit];
@@ -126,9 +155,14 @@ class IslotGame extends BaseController
     }
 
     public function transfer(){
-        $data = input('post.');
+        $str = request()->getContent();
         write_log('用户余额变更', 'IslotGameBet'.$this->cid);
+        write_log($str, 'IslotGameBet'.$this->cid);
+        $data = $this->decrypt($str);
         write_log($data, 'IslotGameBet'.$this->cid);
+
+
+
         if(empty($data['ticket'])){
             return $this->error('ticket不能为空',401);
         }
@@ -144,24 +178,29 @@ class IslotGame extends BaseController
         Db::startTrans();
         try {
             $BillModel = app('app\common\model\Bill');
-            if($amount > 0){
-                $row = $BillModel->addIntvie($user, $BillModel::ISLOT_MONEY, $amount,0,0,0,$data['transAction']);
-                $user = $row['user'];
-                Db::commit();
-            }
+            $row = $BillModel->addIntvie($user, $BillModel::ISLOT_MONEY, $amount,0,0,0,$data['transAction']);
+            $user = $row['user'];
+            $bid = $row['bid'];
+            Db::commit();
         } catch (\Exception $e) {
             Db::rollback();
             return $this->error($e->getMessage(),500);
         }
-        return $this->success_balance($user,$money,$user['money']);
+        return $this->success_balance($user,$money,$user['money'],$bid);
     }
 
+    public function confirmTransfer(){
+        return $this->success('');
+    }
+    public function transNoEvent(){
+        return $this->success('');
+    }
 
-    private function validateParams($requiredParams)
+    private function validateParams($requiredParams,$data)
     {
         $params = [];
         foreach ($requiredParams as $param) {
-            $value = input($param, "");
+            $value = $data[$param] ?? '';
             if ($value === "") {
                 return false; // 如果有任何参数为空，返回 false
             }
@@ -243,7 +282,6 @@ class IslotGame extends BaseController
     protected function error($msg = 'ok',$code=500)
     {
         write_log($msg, 'IslotGameBet'.$this->cid);
-        write_log("============================\n", 'IslotGameBet'.$this->cid);
         return json([
             'code' => $code,
             'message' => $msg,
@@ -257,7 +295,6 @@ class IslotGame extends BaseController
     protected function success($money = '', $code = 200)
     {
         write_log('成功：'.$money, 'IslotGameBet'.$this->cid);
-        write_log("============================\n", 'IslotGameBet'.$this->cid);
         return json([
             'code' => 200,
             'message' => 'ok',
@@ -267,10 +304,9 @@ class IslotGame extends BaseController
             'success' => true
         ]);
     }
-    protected function success_balance($user, $afterAmount=0,$beforeAmount=0,$code = 200)
+    protected function success_balance($user, $afterAmount=0,$beforeAmount=0,$bid = 0,$code = 200)
     {
         write_log('成功：'.$user['money'], 'IslotGameBet'.$this->cid);
-        write_log("============================\n", 'IslotGameBet'.$this->cid);
         $money = round($user['money']/5,2);
         $afterAmount = round($afterAmount/5,2);
         $beforeAmount = round($beforeAmount/5,2);
@@ -293,16 +329,10 @@ class IslotGame extends BaseController
         ];
         if($afterAmount > 0) {$data['data']['afterAmount'] = $afterAmount;}
         if($beforeAmount > 0){$data['data']['beforeAmount'] = $beforeAmount;}
+        if($bid > 0){$data['data']['transNo'] = $bid;}
         return json($data);
     }
 
-
-    /**
-     * @param string $authPwd
-     * @param string $text
-     * @return string
-     * @description: <使用MD5密文作为AES密钥加密字符串>
-     */
     public function encrypt($text)
     {
         $md5Key = md5($this->secretKey);
@@ -311,36 +341,20 @@ class IslotGame extends BaseController
         return self::parseByte2HexStr($cipherByte);
     }
 
-    /**
-     * @param string $authPwd
-     * @param string $cipherText
-     * @return string
-     * @description: <使用MD5密文作为AES密钥解密字符串>
-     */
     public function decrypt($cipherText)
     {
         $md5Key = md5($this->secretKey);
         $key = self::parseHexStr2Byte($md5Key);
         $cipherByte = self::parseHexStr2Byte($cipherText);
         $decrypted = openssl_decrypt($cipherByte, 'AES-128-ECB', $key, OPENSSL_RAW_DATA);
-        return $decrypted;
+        return  json_decode($decrypted,true);
     }
 
-    /**
-     * @param string $byteArray
-     * @return string
-     * @description: <将byte数组转换成16进制字符串>
-     */
     private static function parseByte2HexStr($byteArray)
     {
         return bin2hex($byteArray);
     }
 
-    /**
-     * @param string $hexStr
-     * @return string
-     * @description: <将16进制字符串转换成byte数组>
-     */
     private static function parseHexStr2Byte($hexStr)
     {
         return hex2bin($hexStr);
