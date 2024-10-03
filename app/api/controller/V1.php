@@ -43,6 +43,7 @@ class V1 extends BaseController
         $redis = Cache::store('redis')->handler();
         $redis->select(2);
         $user_info = $redis->get($data['ticket']);
+        $user_info = unserialize($user_info);
         if(empty($user_info)){
             return $this->error('用户不存在');
         }
@@ -64,6 +65,7 @@ class V1 extends BaseController
         $redis = Cache::store('redis')->handler();
         $redis->select(2);
         $user_info = $redis->get($data['ticket']);
+        $user_info = unserialize($user_info);
         if(empty($user_info)){
             return $this->error('用户不存在',500);
         }
@@ -97,6 +99,7 @@ class V1 extends BaseController
         $redis = Cache::store('redis')->handler();
         $redis->select(2);
         $user_info = $redis->get($data['ticket']);
+        $user_info = unserialize($user_info);
         if(empty($user_info)){
             return $this->error('用户不存在',500);
         }
@@ -175,6 +178,7 @@ class V1 extends BaseController
         $redis = Cache::store('redis')->handler();
         $redis->select(2);
         $user_info = $redis->get($data['ticket']);
+        $user_info = unserialize($user_info);
         if(empty($user_info)){
             return $this->error('用户不存在',500);
         }

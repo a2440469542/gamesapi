@@ -87,4 +87,40 @@ class Line extends Base{
             return error("删除失败");
         }
     }
+    /**
+     * @Apidoc\Title("设置默认平台线路")
+     * @Apidoc\Desc("设置默认平台线路")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("")
+     * @Apidoc\Tag("设置默认平台线路")
+     * @Apidoc\Param("lid", type="int",require=true, desc="要设置的平台线路ID")
+     * @Apidoc\Param("pid", type="int",require=true, desc="要设置的平台pid")
+     * @Apidoc\Param("is_default", type="int",require=true, desc="0=不是默认；1=默认")
+     */
+    public function set_default(){
+        $lid = input("lid");
+        $pid = input("pid");
+        $is_default = input("is_default",'');
+        if(!$lid){
+            return error("请选择要设置的线路");
+        }
+        if(!$pid){
+            return error("请选择要设置的平台");
+        }
+        if($is_default == ''){
+            return error("请选择要设置的平台");
+        }
+        $LineModel = app('app\common\model\Line');
+        if($is_default == 1){
+            $count = $LineModel->where('pid','=',$pid)->where('is_default','=',1)->count();
+            if($count > 1){
+                return error("该平台已存在默认线路");
+            }
+        }
+        $data = [
+            'lid'=>$lid,
+            'is_default'=>$is_default
+        ];
+        return $LineModel->add($data);
+    }
 }

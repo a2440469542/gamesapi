@@ -176,7 +176,7 @@ class LiveGameLogin extends Base
             $this->user['user_token'] = $token['token'] ?? '';
             $redis = Cache::store('redis')->handler();
             $redis->select(2);
-            $redis->set($this->user['user_token'], $this->user, 3600);
+            $redis->set($this->user['user_token'], serialize($this->user), 5*60*60);
         }else{
             $this->user['user_token'] = md5(uniqid(md5(microtime(true)),true));
         }
