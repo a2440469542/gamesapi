@@ -28,13 +28,13 @@ class GameLogin extends Base
         $uid = $this->request->uid;
         $gid = Request::post('gid',''); // 从前端获取游戏类型
         if (empty($gid)) {
-            return error("Erro de parâmetro", 500);  //参数错误
+            //参数错误
+            return ['code'=>500,'msg'=>'rro de parâmetro'];
         }
         $this->cid = $cid;
         $this->user = model('app\common\model\User',$cid)->getInfo($uid);
         $game = model('app\common\model\Game')->find($gid);
         $plate = app('app\common\model\Plate')->getInfo($game['pid']);
-
 
         $this->plate = $plate;
         if($this->user['is_rebot'] == 1){
@@ -43,18 +43,19 @@ class GameLogin extends Base
                 ->where('is_rebot','=',1)->find();   //线路
         }else{
             $channel = model('app\common\model\Channel')->info($cid);
-            if(isset($channel['plate_line'][$plate['id']])){
-                $lid = $channel['plate_line'][$plate['id']];
-                $line = app('app\common\model\Line')
-                    ->where("lid","=",$lid)
-                    ->find();
-            }else{
-                $line = app('app\common\model\Line')
-                    ->where('pid',"=",$plate['id'])
-                    ->where('is_rebot','=',0)
-                    ->order('lid desc')
-                    ->find();   //线路
+            $line = app('app\common\model\Line')->where('pid',"=",$plate['id'])->where('is_default','=',1)->find();   //线路
+            if(empty($line)){
+                if(isset($channel['plate_line'][$plate['id']])){
+                    $lid = $channel['plate_line'][$plate['id']];
+                    $line = app('app\common\model\Line')
+                        ->where("lid","=",$lid)
+                        ->find();
+                }else{
+                    return ['code'=>500,'msg'=>'Jogo não configurado'];
+                }
             }
+
+
         }
         if(empty($line)) return ['code'=>500,'msg'=>'Jogo não configurado'];
         $this->line = $line;

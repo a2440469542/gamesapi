@@ -174,7 +174,9 @@ class LiveGameLogin extends Base
                 return error($token['msg'], 501);    // 游戏登录失败
             }
             $this->user['user_token'] = $token['token'] ?? '';
-            Cache::store('redis')->set($this->user['user_token'], $this->user, 3600);
+            $redis = Cache::store('redis')->handler();
+            $redis->select(2);
+            $redis->set($this->user['user_token'], $this->user, 3600);
         }else{
             $this->user['user_token'] = md5(uniqid(md5(microtime(true)),true));
         }

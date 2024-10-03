@@ -40,7 +40,9 @@ class V1 extends BaseController
         if(empty($data['ticket'])){
             return $this->error('ticket不能为空');
         }
-        $user_info = Cache::store('redis')->get($data['ticket']);
+        $redis = Cache::store('redis')->handler();
+        $redis->select(2);
+        $user_info = $redis->get($data['ticket']);
         if(empty($user_info)){
             return $this->error('用户不存在');
         }
@@ -59,7 +61,9 @@ class V1 extends BaseController
         if(empty($data['ticket'])){
             return $this->error('ticket不能为空',401);
         }
-        $user_info = Cache::store('redis')->get($data['ticket']);
+        $redis = Cache::store('redis')->handler();
+        $redis->select(2);
+        $user_info = $redis->get($data['ticket']);
         if(empty($user_info)){
             return $this->error('用户不存在',500);
         }
@@ -90,7 +94,9 @@ class V1 extends BaseController
             // 如果验证失败，返回错误信息
             return $this->error('缺少参数');
         }
-        $user_info = Cache::store('redis')->get($data['ticket']);
+        $redis = Cache::store('redis')->handler();
+        $redis->select(2);
+        $user_info = $redis->get($data['ticket']);
         if(empty($user_info)){
             return $this->error('用户不存在',500);
         }
@@ -166,7 +172,9 @@ class V1 extends BaseController
         if(empty($data['ticket'])){
             return $this->error('ticket不能为空',401);
         }
-        $user_info = Cache::store('redis')->get($data['ticket']);
+        $redis = Cache::store('redis')->handler();
+        $redis->select(2);
+        $user_info = $redis->get($data['ticket']);
         if(empty($user_info)){
             return $this->error('用户不存在',500);
         }

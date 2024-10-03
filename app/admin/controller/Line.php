@@ -19,7 +19,7 @@ class Line extends Base{
      * @Apidoc\Param(ref="pagingParam",desc="分页参数")
      * @Apidoc\Param("lid", type="int",require=false, desc="线路ID")
      * @Apidoc\Param("pid", type="int",require=false, desc="平台ID")
-     * @Apidoc\Returned(type="array",desc="平台线路列表",table="cp_plate")
+     * @Apidoc\Returned(type="array",desc="平台线路列表",table="cp_line")
      */
     public function index(){
         $where = [];
@@ -43,7 +43,7 @@ class Line extends Base{
      * @Apidoc\Method("POST")
      * @Apidoc\Author("")
      * @Apidoc\Tag("平台线路")
-     * @Apidoc\Param("",type="array",table="cp_plate")
+     * @Apidoc\Param("",type="array",table="cp_line")
      */
     public function edit(){
         $data = input("post.");
