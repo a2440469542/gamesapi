@@ -30,6 +30,7 @@ class IslotGamePlatformService extends BaseGamePlatformService
         ];
         $str = $this->encrypt(json_encode($params));
         $row = $this->request($apiUrl, $str, $headers);
+        print_r($row);
         if($row['code'] == 200){
             return ['code'=>0, 'data'=>$row['data']];
         }else{
