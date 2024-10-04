@@ -72,20 +72,14 @@ class Game extends BaseController
             exit;
         }
         $platform = $plate['code'];
-        $platformService = GamePlatformFactory::getPlatformService($platform, $line, []);
-        $list = $platformService->get_game_list(1, 1000000000);
-        if($list['code'] != 0){
-            echo $list['code'].'-'.$list['msg'];
-            exit;
-        }
         $data = $new_game = [];
         $game = app('app\common\model\Game')->where("pid","=",$plate['id'])->select()->toArray();
         $gameList = [];
         foreach($game as $val){
             $gameList[$val['name']] = $val;
         }
-
-        foreach($list['data']['resultsList'] as $value){
+        $list = $this->get_slot_list($platform,$line);
+        foreach($list as $value){
             unset($value['machineType']);
             $data[] = $value;
             if(!isset($gameList[$value['gameName']])){
@@ -107,5 +101,17 @@ class Game extends BaseController
             Db::name('game')->insertAll($new_game);
         }
         echo '完成';
+    }
+    public function get_slot_list($platform,$line,$page=1,$pageSize=10){
+        $platformService = GamePlatformFactory::getPlatformService($platform, $line, []);
+        $list = $platformService->get_game_list($page, $pageSize);
+        $games = [];
+        if(isset($list['data']['resultsList']) && $list['data']['resultsList']){
+            $row = $this->get_slot_list($platform,$line,$page+1,$pageSize=10);
+            $games = array_merge($list['data']['resultsList'],$row);
+        }else{
+            print_r($list);
+        }
+        return $games;
     }
 }
