@@ -274,6 +274,7 @@ class User extends Base{
      * @Apidoc\Returned("",type="array",desc="用户列表",table="cp_user_stat",children={
      *      @Apidoc\Returned("mobile",type="string",desc="试玩手机号"),
      *      @Apidoc\Returned("inv_code",type="string",desc="邀请码"),
+     *     @Apidoc\Returned("last_login_ip",type="string",desc="最后登录时间"),
      *      @Apidoc\Returned("money",type="float",desc="金额")
      * })
      */
