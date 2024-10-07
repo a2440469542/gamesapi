@@ -273,7 +273,7 @@ class UserStat extends Base
         return self::where($where)->partition($this->partition)->count();
     }
     public function get_child($cid,$uid,$type=1){
-        $filed = '`us`.uid,`us`.mobile,
+        $filed = '`us`.uid,`us`.mobile,`u`.last_login_ip,
         sum(invite_user) as invite_user,
         sum(cz_money) as cz_money, 
         sum(cz_num) as cz_num, 
