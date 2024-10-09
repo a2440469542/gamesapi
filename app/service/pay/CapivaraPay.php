@@ -45,7 +45,7 @@ class CapivaraPay{
             $row['data']['paymentLinkUrl'] = $ret['payURL'];
         }else{
             $row['code'] = 500;
-            $row['msg'] = $ret['stateInfo'];
+            $row['msg'] = $ret['stateInfo'] ?? '404 error';
         }
         return $row;
     }
@@ -82,7 +82,7 @@ class CapivaraPay{
             $row['code'] = 0;
         }else{
             $row['code'] = 500;
-            $row['msg'] = $ret['resultMsg'];
+            $row['msg'] = $ret['resultMsg'] ?? '404 error';
         }
         return $row;
     }
