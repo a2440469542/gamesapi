@@ -98,7 +98,7 @@ class Cash extends Base
             $channel = model('app\common\model\Channel')->info($cid);
             if($money < $channel['min_draw']) return error('O saque mínimo não pode ser inferior a :'.$channel['min_draw']);  //最低提现不能低于
             $CashModel = model('app\common\model\Cash',$cid);
-            if($CashModel->hasCashRecord($uid)) return error('Há uma retirada em andamento, aguarde até que este registro seja retirado com sucesso.');    //有一笔在提现中，请等待此笔记录提现成功
+            //if($CashModel->hasCashRecord($uid)) return error('Há uma retirada em andamento, aguarde até que este registro seja retirado com sucesso.');    //有一笔在提现中，请等待此笔记录提现成功
             $userModel = model('app\common\model\User',$cid);
             $user = $userModel->getInfo($uid);
             $BankModel = model('app\common\model\Bank');
