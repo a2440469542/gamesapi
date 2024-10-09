@@ -102,7 +102,7 @@ class CapivaraPayLogic {
         $post['NoticeParams'] = json_decode($data['NoticeParams'], true);
         write_log($post, "cash");
         $pay_class = app('app\service\pay\CapivaraPay');
-        $sign = $pay_class->check_pay_sign($data,"cash");
+        $sign = $pay_class->check_pay_sign($post,"cash");
         if ($sign !== true) return false;
         $post = $data['NoticeParams'];
         $order_sn = explode('_', $post['outTradeNo']);
