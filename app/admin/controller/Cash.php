@@ -114,12 +114,12 @@ class Cash extends Base{
 
                 $BillModel->addIntvie($user, $BillModel::CASH_RETURN, $order['money']);
                 app('app\common\model\Mail')->add($cid,$order['uid'],$desc,$order['money']);
-                if ($CashModel->update_order($update)) {
-                    Db::commit();
-                } else {
-                    Db::rollback();
-                    return error("操作失败");
-                }
+            }
+            if ($CashModel->update_order($update)) {
+                Db::commit();
+            } else {
+                Db::rollback();
+                return error("操作失败");
             }
         } catch (\Exception $e) {
             Db::rollback();
