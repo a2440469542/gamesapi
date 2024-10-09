@@ -3,16 +3,17 @@ namespace app\common\logic;
 
 use think\facade\Db;
 
-class PayLogic {
+class CapivaraPayLogic {
     public function pay($post) {
-        $pay_class = app('app\service\pay\KirinPay');
+        $pay_class = app('app\service\pay\CapivaraPay');
+        $post['NoticeParams'] = json_decode($post['NoticeParams'], true);
         $sign = $pay_class->check_pay_sign($post);
         if ($sign !== true) return false;
-        $data = $post['data'];
-        $order_sn = explode('_', $data['merchantOrderNo']);
+        $data = $post['NoticeParams'];
+        $order_sn = explode('_', $data['outTradeNo']);
         $cid = $order_sn[0];
         $OrderModel = model('app\common\model\Order', $cid);
-        $order = $OrderModel->getInfo($data['merchantOrderNo']);
+        $order = $OrderModel->getInfo($data['outTradeNo']);
 
         if (empty($order)) {
             $this->logError("订单不存在", 'pay');
@@ -21,7 +22,7 @@ class PayLogic {
 
         Db::startTrans();
         try {
-            if ($data['status'] == 'SUCCESS') {
+            if ($data['payCode'] == '0000') {
                 return $this->handleSuccessfulPayment($OrderModel,$data, $order, $cid);
             } else {
                 $this->handleFailedPayment($OrderModel,$data, $order);
@@ -39,7 +40,7 @@ class PayLogic {
         $update = [
             'id' => $order['id'],
             'status' => 2,
-            'orderno' => $post['orderNo']
+            'orderno' => $post['outTradeNo']
         ];
 
         $UserModel = model('app\common\model\User', $cid);
@@ -82,7 +83,7 @@ class PayLogic {
         $update = [
             'id' => $order['id'],
             'status' => 3,
-            'orderno' => $post['orderNo']
+            'orderno' => $post['outTradeNo']
         ];
         app('app\common\model\Mail')->add($order['cid'],$order['uid'],$post['message'],$order['money']);
         if ($OrderModel->update_order($update)) {
@@ -98,14 +99,15 @@ class PayLogic {
         write_log("====错误信息=====\n" . $message . "\n", $type);
     }
     public function cash_out($data) {
-        $pay_class = app('app\service\pay\KirinPay');
+        $post['NoticeParams'] = json_decode($data['NoticeParams'], true);
+        $pay_class = app('app\service\pay\CapivaraPay');
         $sign = $pay_class->check_pay_sign($data,"cash");
         if ($sign !== true) return false;
-        $post = $data['data'];
-        $order_sn = explode('_', $post['merchantOrderNo']);
+        $post = $data['NoticeParams'];
+        $order_sn = explode('_', $post['outTradeNo']);
         $cid = $order_sn[0];
         $OrderModel = model('app\common\model\Cash', $cid);
-        $order = $OrderModel->getInfo($post['merchantOrderNo']);
+        $order = $OrderModel->getInfo($post['outTradeNo']);
 
         if (empty($order)) {
             $this->logError("订单不存在", 'cash');
@@ -113,9 +115,18 @@ class PayLogic {
         }
         Db::startTrans();
         try {
-            if ($post['status'] == "SUCCESS") {
+            if ($post['remitResult'] == "00") {
                 return $this->handleSuccessfulCash($OrderModel,$post, $order, $cid);
-            } elseif ($post['status'] == "FAILURE" ||  $post['status'] == "FAIL") {
+            } elseif($post['remitResult'] == "99" || $post['remitResult'] == "01" || $post['remitResult'] == "06"){
+                return false;
+            }elseif ($post['remitResult'] == "50" ||
+                $post['remitResult'] == "02" ||
+                $post['remitResult'] == "04" ||
+                $post['remitResult'] == "05" ||
+                $post['remitResult'] == "12" ||
+                $post['remitResult'] == "13" ||
+                $post['remitResult'] == "1000"
+            ) {
                 return $this->handleFailedCash($OrderModel,$post, $order, $cid);
             } else {
                 return true;
@@ -130,7 +141,7 @@ class PayLogic {
         $update = [
             'id' => $order['id'],
             'status' => 2,
-            'orderno' => $post['orderNo']
+            'orderno' => $post['outTradeNo']
         ];
 
         $UserModel = model('app\common\model\User', $cid);
@@ -161,7 +172,7 @@ class PayLogic {
         $update = [
             'id' => $order['id'],
             'status' => -2,
-            'orderno' => $post['orderNo']
+            'orderno' => $post['outTradeNo']
         ];
         $UserModel = model('app\common\model\User', $cid);
         $user = $UserModel->getInfo($order['uid']);

@@ -149,25 +149,36 @@ class Cash extends Base
                 $fee = round($money*$channel['cash_fee'],2);
                 $real_money = $money - $fee;
             }
-            $res = $CashModel->add($cid,$uid,$order_sn,$row['type'],$account,$row['pix'],$row['name'],$money,$real_money);
+            $config = get_config();
+            $status = 1;
+            if(isset($config['cash_sh_num']) && $money >= $config['cash_sh_num']){
+                $status = 0;
+            }
+            $res = $CashModel->add($cid,$uid,$order_sn,$row['type'],$account,$row['pix'],$row['name'],$money,$real_money,$status);
             if(!$res){
                 Db::rollback();
                 return error('Falha na retirada');   //提现失败
             }
-
             $result = $BillModel->addIntvie($user, $BillModel::CASH_MONEY, -$money);
             if($result['code'] !== 0){
                 Db::rollback();
                 return error("Falha na retirada");  //提现失败
             }
-            $user = $result['user'];
-            $BetcatPay = app('app\service\pay\KirinPay');
-            $res = $BetcatPay->cash_out($order_sn ,$real_money,$row['type'],$account,$row['pix'],$user);
-            if($res['code'] != 0) {
-                Db::rollback();
-                return error($res['msg']);
+            if($status == 0){
+                Db::commit();
+            }else{
+                $user = $result['user'];
+                $payClass = app('app\service\pay\KirinPay');
+                if(isset($config['pay_config'])){
+                    $payClass = app('app\service\pay\\'.$config['cash_pay_config']);
+                }
+                $res = $payClass->cash_out($order_sn ,$real_money,$row['type'],$account,$row['pix'],$user);
+                if($res['code'] != 0) {
+                    Db::rollback();
+                    return error($res['msg']);
+                }
+                Db::commit();
             }
-            Db::commit();
         }catch (\Exception $e) {
             Db::rollback();
             write_log($e->getMessage(),'cash_out');

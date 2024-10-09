@@ -15,8 +15,12 @@ class Notify extends BaseController
             write_log("接收参数下面进入",'cash');
             echo "error";exit;
         }
-        $PayLogic = new \app\common\logic\PayLogic();
-        $res = $PayLogic->cash_out($row);
+        $config = get_config();
+        $payClass = app('app\common\logic\KirinPayLogic');
+        if(isset($config['pay_config'])){
+            $payClass = app('app\common\logic\\'.$config['pay_config'].'Logic');
+        }
+        $res = $payClass->cash_out($row);
         write_log("====付款通知处理结果=====\n",'cash');
         write_log($res,'cash');
         if($res){
@@ -33,8 +37,12 @@ class Notify extends BaseController
             write_log("接收参数下面进入",'pay');
             echo "error";exit;
         }
-        $PayLogic = new \app\common\logic\PayLogic();
-        $res = $PayLogic->pay($row);
+        $config = get_config();
+        $payClass = app('app\common\logic\KirinPayLogic');
+        if(isset($config['pay_config'])){
+            $payClass = app('app\common\logic\\'.$config['pay_config'].'Logic');
+        }
+        $res = $payClass->pay($row);
         write_log("====支付通知处理结果=====\n",'pay');
         write_log($res,'pay');
         if($res){

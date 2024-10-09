@@ -26,7 +26,12 @@ class Order extends Base
             'cpf' => $cpf,
             'status' => 1,
             'add_time' => time(),
+            'is_first' => 0,
         ];
+        $count = self::partition($this->partition)->where("uid","=",$uid)->where("status","=",2)->count();
+        if($count < 1){
+            $data['is_first'] = 1;
+        }
         return self::partition($this->partition)->insertGetId($data);
     }
     public function getAddTimeAttr($value): string

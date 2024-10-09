@@ -299,6 +299,8 @@ function httpRequest($url, $method="GET", $postfields = null, $headers = array()
     $http_code = curl_getinfo($ci, CURLINFO_HTTP_CODE);
 
     if ($debug) {
+        echo "=====http_code======\r\n";
+        var_dump($http_code);
         echo "=====post data======\r\n";
         var_dump($postfields);
         echo "=====info===== \r\n";

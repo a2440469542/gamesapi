@@ -15,7 +15,7 @@ use think\facade\Db;
 class Cash extends Base
 {
     protected $pk = 'id';
-    public function add($cid,$uid,$order_sn,$type,$account,$pix,$name,$money,$real_money){
+    public function add($cid,$uid,$order_sn,$type,$account,$pix,$name,$money,$real_money,$status=1){
         $data = [
             'uid' => $uid,
             'cid' => $cid,
@@ -26,7 +26,7 @@ class Cash extends Base
             'name' => $name,
             'money' => $money,
             'real_money' => $real_money,
-            'status' => 1,
+            'status' => $status,
             'add_time' => time(),
         ];
         return self::partition($this->partition)->insertGetId($data);
@@ -34,6 +34,10 @@ class Cash extends Base
     public function getAddTimeAttr($value): string
     {
         return date("Y-m-d H:i:s",$value);
+    }
+    public function getUpdateTimeAttr($value): string
+    {
+        return $value > 0 ? date("Y-m-d H:i:s",$value) : '';
     }
     public function lists($where=[], $limit=10, $order='id desc'){
         if($this->partition){
@@ -59,6 +63,10 @@ class Cash extends Base
             ->partition($this->partition)
             ->paginate($limit)->toArray();
         return $list;
+    }
+    public function getByIdInfo($id){
+        $row = self::where('id',"=",$id)->partition($this->partition)->find();
+        return $row;
     }
     public function getInfo($order_sn){
         $row = self::where('order_sn',"=",$order_sn)->partition($this->partition)->find();

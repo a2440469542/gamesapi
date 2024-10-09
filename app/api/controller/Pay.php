@@ -66,10 +66,17 @@ class Pay extends Base
             return error('Usuário não existe');      //用户不存在
         }
         $merOrderNo = $cid.'_'.getSn("CZ");
+
+
+
         $id = model('app\common\model\Order',$cid)->add($cid,$uid,$merOrderNo,$money,$row['pix'],$gifts,$multiple);
         if(!$id) return error('Falha na geração do pedido');    //订单生成失败
-        $BetcatPay = app('app\service\pay\KirinPay');
-        $res = $BetcatPay->pay($merOrderNo,$money,$row['pix']);
+        $config = get_config();
+        $payClass = app('app\service\pay\KirinPay');
+        if(isset($config['pay_config'])){
+            $payClass = app('app\service\pay\\'.$config['pay_config']);
+        }
+        $res = $payClass->pay($merOrderNo,$money,$row['pix']);
         //$res = json_decode($res,true);
         if($res['code'] == 0){
             $data = [
