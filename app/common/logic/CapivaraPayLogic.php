@@ -100,6 +100,7 @@ class CapivaraPayLogic {
     }
     public function cash_out($data) {
         $post['NoticeParams'] = json_decode($data['NoticeParams'], true);
+        write_log($post, "cash");
         $pay_class = app('app\service\pay\CapivaraPay');
         $sign = $pay_class->check_pay_sign($data,"cash");
         if ($sign !== true) return false;
