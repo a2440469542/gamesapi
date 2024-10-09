@@ -71,6 +71,7 @@ class CapivaraPay{
         $data['sign'] = $this->generateSignature($data);
         write_log($data,'cash_out');
         $url = $this->api_url.'/cashOutVp/apply.shtml';
+        write_log($url,'cash_out');
         $applyParamsJson = self::json_encode($data);
         write_log($data,'cash_out');
         write_log($applyParamsJson,'cash_out');
