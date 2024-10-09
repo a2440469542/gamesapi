@@ -104,7 +104,6 @@ class CapivaraPayLogic {
         $pay_class = app('app\service\pay\CapivaraPay');
         $sign = $pay_class->check_pay_sign($post,"cash");
         if ($sign !== true) return false;
-        $post = $data['NoticeParams'];
         $order_sn = explode('_', $post['outTradeNo']);
         $cid = $order_sn[0];
         $OrderModel = model('app\common\model\Cash', $cid);
