@@ -89,6 +89,7 @@ class CapivaraPay{
     }
     public function check_pay_sign($data,$file='pay'){
         $returnArray = $data['NoticeParams'];
+        write_log($returnArray,$file);
         $sign = $returnArray['sign'];
         write_log("====返回签名=====\n".$sign."\n",$file);
         unset($returnArray['sign']);
