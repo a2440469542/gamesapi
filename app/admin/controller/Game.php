@@ -15,6 +15,7 @@ class Game extends Base{
      * @Apidoc\Author("")
      * @Apidoc\Tag("游戏")
      * @Apidoc\Param(ref="pagingParam",desc="分页参数")
+     * @Apidoc\Param("pid", type="int",require=true, desc="游戏平台ID")
      * @Apidoc\Param("keyword", type="string",require=false, desc="游戏名：搜索时候传")
      * @Apidoc\Returned(ref="pageReturn")
      * @Apidoc\Returned("data",type="array",desc="游戏平台列表",table="cp_game")
@@ -25,8 +26,12 @@ class Game extends Base{
             $limit = input("limit");
             $orderBy = input("orderBy", 'sort desc,gid desc');
             $keyword = input("keyword");
+            $pid = input("pid");
             if ($keyword) {
                 $where[] = ['name', 'like', '%' . $keyword . '%'];
+            }
+            if($pid){
+                $where[] = ["pid","=",$pid];
             }
             $GameModel = app("app\common\model\Game");
             $list = $GameModel->lists($where, $limit, $orderBy);
