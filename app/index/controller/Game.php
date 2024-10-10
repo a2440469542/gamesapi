@@ -91,7 +91,7 @@ class Game extends BaseController
         $list = $this->get_slot_list($platform,$line);
         foreach($list as $value){
             unset($value['machineType']);
-            $value['jackpot'] = $jackpotData[$value['gameName']] ?? 0;
+            $value['jackpot'] = $jackpotData[$value['machineName']] ?? 0;
             $data[] = $value;
             if(!isset($gameList[$value['gameName']]) && !isset($games[$value['gameName']])){
                 $new_game[] = [
