@@ -83,7 +83,7 @@ class Game extends BaseController
         foreach($jackpot as $value){
             $mcIds = explode(',',$value['mcIds']);
             foreach($mcIds as $v){
-                $k = trim($value['jackpot']);
+                $k = trim($v);
                 $jackpotData[$k] = $value['jackpot'];
             }
         }
