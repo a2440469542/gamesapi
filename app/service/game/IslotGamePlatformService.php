@@ -83,7 +83,7 @@ class IslotGamePlatformService extends BaseGamePlatformService
         $params['ticket'] = $user['user_token'];
         $params['singleGame'] = 1;
         $params['slotId'] = $game['slotId'];
-        $params['lang'] = "PT";
+        $params['lang'] = "pt";
         $params['userToken'] = $user['user_token'];
         $params['callbackUrl'] = $game['callbackPath'];
         $headers = [
