@@ -37,6 +37,19 @@ class IslotGamePlatformService extends BaseGamePlatformService
             return ['code'=>$row['code'], 'msg'=>$row['message']];
         }
     }
+    public function get_jackpot_list(){
+        $apiUrl = '/api/v1/getJackpots?agent='.$this->operatorToken;
+        $params['timestamp'] = round(microtime(true) * 1000);
+        $headers = ['Content-Type: application/json'];
+        $str = $this->encrypt(json_encode($params));
+        $row = $this->request($apiUrl, $str, $headers);
+        print_r($row);
+        if($row['code'] == 200){
+            return ['code'=>0, 'data'=>$row['data']];
+        }else{
+            return ['code'=>$row['code'], 'msg'=>$row['message']];
+        }
+    }
     public function registerUser($user)
     {
         $apiUrl = '/api/v1/userLogin?agent='.$this->operatorToken;

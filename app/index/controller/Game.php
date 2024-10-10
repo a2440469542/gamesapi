@@ -78,9 +78,17 @@ class Game extends BaseController
         foreach($game as $val){
             $gameList[$val['name']] = $val;
         }
+        $jackpot = $this->get_jackpot($platform,$line);
+        $jackpotData = [];
+        foreach($jackpot as $value){
+            $key = strtoupper($value['jackpotName']);
+            $jackpotData[$key] = $value['jackpot'];
+        }
+        print_r($jackpotData);
         $list = $this->get_slot_list($platform,$line);
         foreach($list as $value){
             unset($value['machineType']);
+            $value['jackpot'] = $jackpotData[$value['gameName']] ?? 0;
             $data[] = $value;
             if(!isset($gameList[$value['gameName']]) && !isset($games[$value['gameName']])){
                 $new_game[] = [
@@ -114,5 +122,14 @@ class Game extends BaseController
             print_r($list);
         }
         return $games;
+    }
+    public function get_jackpot($platform,$line){
+        $platformService = GamePlatformFactory::getPlatformService($platform, $line, []);
+        $list = $platformService->get_jackpot_list();
+        if(isset($list['data']['jackpotList']) && $list['data']['jackpotList']){
+            return $list['data']['jackpotList'];
+        }else{
+            return [];
+        }
     }
 }
