@@ -81,8 +81,10 @@ class Game extends BaseController
         $jackpot = $this->get_jackpot($platform,$line);
         $jackpotData = [];
         foreach($jackpot as $value){
-            $key = strtoupper($value['jackpotName']);
-            $jackpotData[$key] = $value['jackpot'];
+            $mcIds = explode(',',$value['mcId']);
+            foreach($mcIds as $v){
+                $jackpotData[$v] = $value['jackpot'];
+            }
         }
         print_r($jackpotData);
         $list = $this->get_slot_list($platform,$line);
