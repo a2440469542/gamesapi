@@ -50,8 +50,7 @@ class Cash extends Base
         }else{
             $list = self::alias("c")
                 ->field("c.*,u.mobile,u.inv_code,ch.name as cname")
-                ->leftJoin("cp_user `u`","c.uid = u.uid")
-                ->leftJoin("cp_channel ch",'c.cid = ch.cid')
+
                 ->where($where)
                 ->order($order)->paginate($limit)->toArray();
         }
