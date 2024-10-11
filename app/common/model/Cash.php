@@ -40,20 +40,20 @@ class Cash extends Base
         return $value > 0 ? date("Y-m-d H:i:s",$value) : '';
     }
     public function lists($where=[], $limit=10, $order='id desc'){
-        if($this->partition){
-            $list = self::alias("c")
-                ->field("c.*,u.mobile,u.inv_code,ch.name as cname")
-                ->leftJoin("cp_user PARTITION({$this->partition}) `u`","c.uid = u.uid")
-                ->leftJoin("cp_channel ch",'c.cid = ch.cid')
-                ->where($where)
-                ->order($order)->partition($this->partition)->paginate($limit)->toArray();
-        }else{
-            $list = self::alias("c")
-                ->field("c.*,u.mobile,u.inv_code,ch.name as cname")
+        $query = self::alias("c")
+            ->field("c.id, c.uid, c.cid, c.other_fields, u.mobile, u.inv_code, ch.name as cname")
+            ->leftJoin("cp_channel ch", 'c.cid = ch.cid')
+            ->where($where)
+            ->order($order);
 
-                ->where($where)
-                ->order($order)->paginate($limit)->toArray();
+        if ($this->partition) {
+            $query = $query->leftJoin("cp_user PARTITION({$this->partition}) `u`", "c.uid = u.uid")
+                ->partition($this->partition);
+        } else {
+            $query = $query->leftJoin("cp_user `u`", "c.uid = u.uid");
         }
+
+        $list = $query->cache(true, 60)->paginate($limit)->toArray();
         return $list;
     }
     public function getList($where=[], $limit=10, $order='id desc'){
