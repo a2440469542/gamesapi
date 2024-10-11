@@ -99,7 +99,19 @@ class IslotGamePlatformService extends BaseGamePlatformService
         if(isset($response['code']) && $response['code'] == 200){
             return ['code'=>0, 'msg'=>'获取成功','url'=>$response['data']['gameUrl']];
         }else{
-            return ['code'=>$response['code'], 'msg'=>$response['message']];
+            $msg = '';
+            if($response['code'] == 'USER_BALANCE_NOT_ENOUGH_1112'){
+                $msg = 'Insufficient Balance';
+            }elseif($response['code'] == 'GAME_SLOT_UNAVAILABLE_1110'){
+                $msg = 'Escritorio não disponível';
+            }elseif($response['code'] == 'GAME_SLOT_FULL_1111'){
+                $msg = 'A mesa está cheia';
+            }elseif($response['code'] == 'GAME_SLOT_OFFLINE_1113'){
+                $msg = 'A mesa foi desconectada';
+            }elseif($response['code'] == 'GAME_SLOT_MAINTENANCE_1114'){
+                $msg = 'Mantenimento de mesa em curso';
+            }
+            return ['code'=>$response['code'], 'msg'=>$msg];
         }
     }
     // 其它对应的API方法...
