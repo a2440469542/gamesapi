@@ -3,6 +3,7 @@
 namespace app\api\controller;
 use hg\apidoc\annotation as Apidoc;
 use think\facade\Cache;
+use think\facade\Db;
 /**
  * 首页信息相关接口
  * @Apidoc\Title("首页信息相关接口")
@@ -68,6 +69,16 @@ class Index extends Base
         if (!$channel) {
             return error("O canal não existe",10001);//渠道不存在
         }
+        $ip = get_real_ip__();
+        $web_log = Db::name('web_log')
+            ->where('cid','=',$cid)
+            ->where('date','=',date('Y-m-d'))
+            ->where('ip',"=",$ip)
+            ->find();
+        if(empty($web_log)){
+            Db::name('web_log')->insert(['date'=>date('Y-m-d'),'ip'=>$ip,'cid'=>$cid]);
+        }
+
         /*$channel['icon'] = SITE_URL.$channel['icon'];
         $channel['logo'] = SITE_URL.$channel['logo'];*/
         return success("obter sucesso",$channel);    //获取成功

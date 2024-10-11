@@ -26,6 +26,19 @@ class Pay extends Base
         return success("obter sucesso",$list);   //获取成功
     }
     /**
+     * @Apidoc\Title("支付列表")
+     * @Apidoc\Desc("支付列表")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("")
+     * @Apidoc\Tag("支付列表")
+     * @Apidoc\Returned("name",type="string",desc="支付名称")
+     * @Apidoc\Returned("code",type="string",desc="支付CODE")
+     */
+    public function pay_list(){
+        $list = [['name' => 'PIX B','code' => 'CapivaraPay'],['name' => 'PIX A','code' => 'KirinPay']];
+        return success("obter sucesso",$list);   //获取成功
+    }
+    /**
      * @Apidoc\Title("充值接口")
      * @Apidoc\Desc("充值接口")
      * @Apidoc\Method("POST")
@@ -33,6 +46,7 @@ class Pay extends Base
      * @Apidoc\Tag("充值接口")
      * @Apidoc\Param("rid", type="int",require=true, desc="充值价格表ID")
      * @Apidoc\Param("money", type="float",require=true, desc="充值金额")
+     * @Apidoc\Param("pay_code", type="string",require=true, desc="支付平台code")
      * @Apidoc\Returned("url",type="string",desc="支付链接")
      * @Apidoc\Returned("qrcode",type="string",desc="支付二维码")
      */
@@ -42,6 +56,8 @@ class Pay extends Base
         $cid = $this->request->cid;
         $rid = $this->request->post('rid',0);
         $money = $this->request->post('money',0);
+        $pay_code = $this->request->post('pay_code','');
+        if($pay_code == '') return error('Por favor, selecione o método de pagamento');  //请选择支付方式
         $gifts = 0;
         $multiple = 0;
         $BankModel = model('app\common\model\Bank');
@@ -67,15 +83,16 @@ class Pay extends Base
         }
         $merOrderNo = $cid.'_'.getSn("CZ");
 
-
-
         $id = model('app\common\model\Order',$cid)->add($cid,$uid,$merOrderNo,$money,$row['pix'],$gifts,$multiple);
         if(!$id) return error('Falha na geração do pedido');    //订单生成失败
-        $config = get_config();
+        //$config = get_config();
         $payClass = app('app\service\pay\KirinPay');
-        if(isset($config['pay_config'])){
-            $payClass = app('app\service\pay\\'.$config['pay_config']);
+        if($pay_code){
+            $payClass = app('app\service\pay\\'.$pay_code);
         }
+        /*if(isset($config['pay_config'])){
+            $payClass = app('app\service\pay\\'.$config['pay_config']);
+        }*/
         $res = $payClass->pay($merOrderNo,$money,$row['pix']);
         //$res = json_decode($res,true);
         if($res['code'] == 0){

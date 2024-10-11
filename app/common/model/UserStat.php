@@ -40,6 +40,7 @@ class UserStat extends Base
                 if($key === 'cid') continue;
                 if($key === 'uid') continue;
                 if($key === 'mobile') continue;
+                if($key === 'is_login') $update[$key] = $val;
                 $update[$key] = Db::raw('`'.$key.'` + '.$val);
                 //$update[$key] = $stat[$key] + $val;
             }

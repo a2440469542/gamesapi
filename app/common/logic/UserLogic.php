@@ -64,4 +64,13 @@ class UserLogic{
         } while (Cache::has($token));
         return ['code'=>0,'token'=>$token,'uid'=>$uid];
     }
+    public function login_log($user){
+        $day_time = strtotime(date("Y-m-d"));
+        if($user['last_login_time'] < $day_time){
+            $UserStatModel = model('app\common\model\UserStat',$user['cid']);
+            $stat = ['is_login' => 1];
+            $UserStatModel->add($user,$stat);
+        }
+        return true;
+    }
 }
