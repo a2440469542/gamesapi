@@ -38,10 +38,14 @@ class Notify extends BaseController
             echo "error";exit;
         }
         $config = get_config();
-        $payClass = app('app\common\logic\KirinPayLogic');
-        if(isset($config['pay_config'])){
-            $payClass = app('app\common\logic\\'.$config['pay_config'].'Logic');
+        if(isset($row['NoticeParams'])){
+            $payClass = app('app\common\logic\CapivaraPayLogic');
+        }else{
+            $payClass = app('app\common\logic\KirinPayLogic');
         }
+        /*if(isset($config['pay_config'])){
+            $payClass = app('app\common\logic\\'.$config['pay_config'].'Logic');
+        }*/
         $res = $payClass->pay($row);
         write_log("====支付通知处理结果=====\n",'pay');
         write_log($res,'pay');
