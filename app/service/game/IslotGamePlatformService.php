@@ -99,7 +99,7 @@ class IslotGamePlatformService extends BaseGamePlatformService
         if(isset($response['code']) && $response['code'] == 200){
             return ['code'=>0, 'msg'=>'获取成功','url'=>$response['data']['gameUrl']];
         }else{
-            $msg = '';
+            $msg = 'A aquisição falhou';
             if($response['code'] == 'USER_BALANCE_NOT_ENOUGH_1112'){
                 $msg = 'Insufficient Balance';
             }elseif($response['code'] == 'GAME_SLOT_UNAVAILABLE_1110'){
