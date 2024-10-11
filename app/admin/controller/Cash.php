@@ -37,7 +37,7 @@ class Cash extends Base{
             $order_sn = input("order_sn",'');
             $pix = input("pix",'');
             $status = input("status",'');
-            if($status){
+            if($status != ''){
                 $where[] = ['c.status',"=",$status];
             }
             if($order_sn){
