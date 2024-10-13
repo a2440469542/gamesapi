@@ -98,6 +98,7 @@ class KirinPayLogic {
         write_log("====错误信息=====\n" . $message . "\n", $type);
     }
     public function cash_out($data) {
+        write_log($data, "cash");
         $pay_class = app('app\service\pay\KirinPay');
         $sign = $pay_class->check_pay_sign($data,"cash");
         if ($sign !== true) return false;
