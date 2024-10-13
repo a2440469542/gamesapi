@@ -20,6 +20,7 @@ class Notify extends BaseController
         if(isset($config['pay_config'])){
             $payClass = app('app\common\logic\\'.$config['pay_config'].'Logic');
         }
+        write_log($payClass,'cash');
         $res = $payClass->cash_out($row);
         write_log("====付款通知处理结果=====\n",'cash');
         write_log($res,'cash');
