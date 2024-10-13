@@ -78,8 +78,8 @@ class Cash extends Base{
         $id = input("id");
         $cid = input('cid');
         $desc = input("desc");
-        $status = input("status");
-        if(empty($id) || empty($status) || empty($cid)) return error("参数错误");
+        $status = input("status",'');
+        if(empty($id) || $status == '' || empty($cid)) return error("参数错误");
         $CashModel = model('app\common\model\Cash', $cid);
         $order = $CashModel->getByIdInfo($id);
         $BillModel = model('app\common\model\Bill', $cid);
