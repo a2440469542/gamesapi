@@ -1,6 +1,7 @@
 <?php
 // 应用公共文件
 use app\common\model\Config;
+use think\facade\Cache;
 use think\facade\Log;
 use think\facade\Db;
 
@@ -390,7 +391,7 @@ function get_ip_city($ip)
  * 获取网站配置信息
  */
 function get_config(){
-    $config = cache("config");
+    $config = Cache::store('redis')->get('config');
     if(empty($config)){
         $list = Db::name("config")->select();
         foreach ($list as $value){
@@ -401,7 +402,8 @@ function get_config(){
             }
 
         }
-        cache("config",$config);
+        //cache("config",$config);
+        Cache::store('redis')->set('config',$config,0);
     }
     return $config;
 }
