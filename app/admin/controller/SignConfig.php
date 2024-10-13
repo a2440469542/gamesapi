@@ -81,7 +81,7 @@ class SignConfig extends Base{
         }else{
             Db::name("config")->insert(['code'=>'sign_rule','value'=>$sign_rule]);
         }
-        cache('config',null);
+        Cache::store('redis')->delete('config');
         return success("保存成功");
     }
     /**

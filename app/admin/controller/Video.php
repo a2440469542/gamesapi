@@ -114,7 +114,7 @@ class Video extends Base{
                 Db::name("config")->insert(['code'=>$k,'value'=>$v]);
             }
         }
-        cache('config',null);
+        Cache::store('redis')->delete('config');
         return success("保存成功");
     }
 }

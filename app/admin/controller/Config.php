@@ -1,6 +1,7 @@
 <?php
 namespace app\admin\controller;
 use hg\apidoc\annotation as Apidoc;
+use think\facade\Cache;
 use think\facade\Db;
 
 /**
@@ -42,7 +43,7 @@ class Config extends Base{
                 Db::name("config")->insert(['code'=>$k,'value'=>$v]);
             }
         }
-        cache('config',null);
+        Cache::store('redis')->delete('config');
         return success("保存成功");
     }
 }
