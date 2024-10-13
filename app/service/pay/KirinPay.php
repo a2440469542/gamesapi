@@ -75,15 +75,20 @@ class KirinPay{
         return json_decode($ret,true);
     }
     public function check_pay_sign($data,$file='pay'){
-        $returnArray = $data['data'];
-        $sign = $data['signature'];
-        //echo $sign;
-        $merchant_key = $this->merchantKey;//'merchant_key';
-        $aes_key = $this->aesKey;//'aes_key';
-        $lsign = md5($merchant_key.json_encode($returnArray).$aes_key);
-        write_log("====签名=====\n".$lsign."\n",$file);
-        if($lsign != $sign){
-            write_log("====签名错误=====\n",$file);
+        try{
+            $returnArray = $data['data'];
+            $sign = $data['signature'];
+            //echo $sign;
+            $merchant_key = $this->merchantKey;//'merchant_key';
+            $aes_key = $this->aesKey;//'aes_key';
+            $lsign = md5($merchant_key.json_encode($returnArray).$aes_key);
+            write_log("====签名=====\n".$lsign."\n",$file);
+            if($lsign != $sign){
+                write_log("====签名错误=====\n",$file);
+                return false;
+            }
+        }catch(Exception $e){
+            write_log($e->getMessage(),$file);
             return false;
         }
         return true;
