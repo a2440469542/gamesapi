@@ -17,8 +17,8 @@ class Notify extends BaseController
         }
         $config = get_config();
         $payClass = app('app\common\logic\KirinPayLogic');
-        if(isset($config['pay_config'])){
-            $payClass = app('app\common\logic\\'.$config['pay_config'].'Logic');
+        if(isset($config['cash_pay_config'])){
+            $payClass = app('app\common\logic\\'.$config['cash_pay_config'].'Logic');
         }
         write_log($payClass,'cash');
         $res = $payClass->cash_out($row);
