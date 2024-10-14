@@ -161,7 +161,12 @@ class Activity extends Base
         $sttime = date("Y-m-d", strtotime($activity['start_time']));
         $ettime = date("Y-m-d", strtotime($activity['end_time']));
         $where[] = ['date', 'between', [$sttime, $ettime]];
-        $list = $UserStat->get_rank($where, 3);
+        if($isInv){
+            $list = $UserStat->get_inv_rank($where, 3);
+        }else{
+            $list = $UserStat->get_rank($where, 3);
+        }
+
 
         $money = $this->getRewardMoney($activity, $level, $isInv);
         $user = model('app\common\model\User', $cid)->getInfo($uid);
