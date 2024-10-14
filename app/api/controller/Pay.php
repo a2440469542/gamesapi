@@ -35,7 +35,12 @@ class Pay extends Base
      * @Apidoc\Returned("code",type="string",desc="支付CODE")
      */
     public function pay_list(){
-        $list = [['name' => 'PIX B','code' => 'CapivaraPay'],['name' => 'PIX A','code' => 'KirinPay']];
+        $config = get_config();
+        if($config['pay_config'] === 'CapivaraPay'){
+            $list = [['name' => 'PIX B','code' => 'CapivaraPay'],['name' => 'PIX A','code' => 'KirinPay']];
+        }else{
+            $list = [['name' => 'PIX A','code' => 'KirinPay'],['name' => 'PIX B','code' => 'CapivaraPay']];
+        }
         return success("obter sucesso",$list);   //获取成功
     }
     /**
