@@ -11,7 +11,7 @@ class CapivaraPayLogic {
         if ($sign !== true) return false;
         $data = $post['NoticeParams'];
         if(isset($post['Message'])){
-            $data['message'] = $post['message'];
+            $data['message'] = $post['Message'];
         }
         $order_sn = explode('_', $data['outTradeNo']);
         $cid = $order_sn[0];
@@ -109,7 +109,7 @@ class CapivaraPayLogic {
         if ($sign !== true) return false;
         $post = $post['NoticeParams'];
         if(isset($post['Message'])){
-            $data['message'] = $post['message'];
+            $post['message'] = $post['Message'];
         }
         $order_sn = explode('_', $post['outTradeNo']);
         $cid = $order_sn[0];
