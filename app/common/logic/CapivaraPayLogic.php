@@ -134,6 +134,7 @@ class CapivaraPayLogic {
                 $post['remitResult'] == "13" ||
                 $post['remitResult'] == "1000"
             ) {
+                write_log($post, "cash");
                 return $this->handleFailedCash($OrderModel,$post, $order, $cid);
             } else {
                 return true;
