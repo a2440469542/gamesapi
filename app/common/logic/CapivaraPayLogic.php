@@ -10,6 +10,9 @@ class CapivaraPayLogic {
         $sign = $pay_class->check_pay_sign($post);
         if ($sign !== true) return false;
         $data = $post['NoticeParams'];
+        if(isset($post['Message'])){
+            $data['message'] = $post['message'];
+        }
         $order_sn = explode('_', $data['outTradeNo']);
         $cid = $order_sn[0];
         $OrderModel = model('app\common\model\Order', $cid);
@@ -105,6 +108,9 @@ class CapivaraPayLogic {
         $sign = $pay_class->check_pay_sign($post,"cash");
         if ($sign !== true) return false;
         $post = $post['NoticeParams'];
+        if(isset($post['Message'])){
+            $data['message'] = $post['message'];
+        }
         $order_sn = explode('_', $post['outTradeNo']);
         $cid = $order_sn[0];
         $OrderModel = model('app\common\model\Cash', $cid);
