@@ -40,7 +40,10 @@ class UserStat extends Base
                 if($key === 'cid') continue;
                 if($key === 'uid') continue;
                 if($key === 'mobile') continue;
-                if($key === 'is_login') $update[$key] = $val;
+                if($key === 'is_login') {
+                    $update[$key] = $val;
+                    continue;
+                }
                 $update[$key] = Db::raw('`'.$key.'` + '.$val);
                 //$update[$key] = $stat[$key] + $val;
             }
@@ -253,11 +256,17 @@ class UserStat extends Base
             ->group('uid')
             ->select()->toArray();
     }
-    public function get_inv_rank($where,$limit){
+    public function get_inv_rank($where,$limit,$type){
         $filed = 'u.uid,u.inv_code,u.mobile,COUNT(sub.uid) as invite_user,sum(us.cz_money) as cz_money';
-        return User::alias('u')->field($filed)
-            ->leftJoin("cp_user PARTITION({$this->partition}) `sub`","sub.pid = u.uid")
-            ->leftJoin("cp_user_stat PARTITION({$this->partition}) `us`","us.uid = sub.uid")
+        $UserRank = User::alias('u')->field($filed);
+        if($type==2){
+            $UserRank->leftJoin("cp_user PARTITION({$this->partition}) `sub`","sub.pid = u.uid");
+        }elseif($type == 3){
+            $UserRank->leftJoin("cp_user PARTITION({$this->partition}) `sub`","sub.ppid = u.uid");
+        }else{
+            $UserRank->leftJoin("cp_user PARTITION({$this->partition}) `sub`","sub.pppid = u.uid");
+        }
+        return $UserRank->leftJoin("cp_user_stat PARTITION({$this->partition}) `us`","us.uid = sub.uid")
             ->where($where)
             ->partition($this->partition)
             ->limit($limit)

@@ -18,6 +18,7 @@ class Activity extends Base
     public static function add($data){
         if(isset($data['id']) && $data['id'] > 0){
             $row = self::where('id',"=",$data['id'])->update($data);
+            Cache::store('redis')->delete('activity_'.$data['id']);
         }else{
             $row = self::insert($data);
         }
@@ -44,5 +45,13 @@ class Activity extends Base
     public function getList($cid){
         $list = self::where('cid',"=",$cid)->order('id desc')->select()->toArray();
         return $list;
+    }
+    public function info($aid){
+        $activity = Cache::store('redis')->get('activity_'.$aid);
+        if(!$activity){
+            $activity = app('app\common\model\Activity')->where("id",'=',$aid)->find();
+            Cache::store('redis')->set('activity_'.$aid,$activity,24*60*60);
+        }
+        return $activity;
     }
 }

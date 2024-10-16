@@ -38,6 +38,10 @@ class Bill extends Base
     const   RACS_MONEY = 202;     //比赛奖励
 
     const   ISLOT_MONEY = 202;     //ISLOT方操作
+
+    const   N1_RANK_MONEY = 203;     //N1排行榜奖励
+    const   N2_RANK_MONEY = 204;     //N2排行榜奖励
+    const   N3_RANK_MONEY = 205;     //N3排行榜奖励
     public function getTypeText($type=0): array|string
     {
         $type_text = [
@@ -61,7 +65,10 @@ class Bill extends Base
             self::SIGN_MONEY        => 'assinar em recompensa',                      //签到奖励
             self::STAR_MONEY        => 'Lucky Star Reward',                          //幸运星奖励
             self::RACS_MONEY        => 'Recompensas da concorrência',                //比赛奖励
-            self::ISLOT_MONEY       => 'ISLOT'                                       //ISLOT操作
+            self::ISLOT_MONEY       => 'ISLOT',                                      //ISLOT操作
+            self::N1_RANK_MONEY     => 'recompensas do painel de liderança N1',      //N1排行榜奖励
+            self::N2_RANK_MONEY     => 'recompensas do painel de liderança N2',      //N2排行榜奖励
+            self::N3_RANK_MONEY     => 'recompensas do painel de liderança N3',      //N3排行榜奖励
         ];
         if(isset($type_text[$type])){
             return $type_text[$type];
@@ -91,7 +98,10 @@ class Bill extends Base
             self::SIGN_MONEY  => '签到奖励',       //签到奖励
             self::STAR_MONEY  => '幸运星奖励',     //幸运星奖励
             self::RACS_MONEY  => '比赛奖励',       //比赛奖励
-            self::ISLOT_MONEY => 'ISLOT'         //ISLOT操作
+            self::ISLOT_MONEY => 'ISLOT',         //ISLOT操作
+            self::N1_RANK_MONEY     => 'N1排行榜奖励',      //N1排行榜奖励
+            self::N2_RANK_MONEY     => 'N2排行榜奖励',      //N2排行榜奖励
+            self::N3_RANK_MONEY     => 'N3排行榜奖励',      //N3排行榜奖励
         ];
         if(isset($type_text[$value])){
             return $type_text[$value];
@@ -132,6 +142,9 @@ class Bill extends Base
             $update['lock_money'] = Db::raw('`lock_money` - '.$money);
         }else if($type ==self::RANK_MONEY ||
             $type == self::RANK_INV_MONEY ||
+            $type == self::N1_RANK_MONEY ||
+            $type == self::N2_RANK_MONEY ||
+            $type == self::N3_RANK_MONEY ||
             $type == self::DAY_LEVEL_MONEY ||
             $type == self::WEEK_LEVEL_MONEY ||
             $type == self::SIGN_MONEY ||

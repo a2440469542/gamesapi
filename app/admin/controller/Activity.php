@@ -38,9 +38,10 @@ class Activity extends Base{
         $data = input("post.");
         $requiredFields = [
             'name' => '请输入活动名称',
-            'first_reward' => '请输入第一名奖励',
-            'second_reward' => '请输入第二名奖励',
-            'third_reward' => '请输入第三名奖励',
+            'user_reward' => '请输入玩家奖励',
+            'n1_reward' => '请输入N1奖励',
+            'n2_reward' => '请输入N2奖励',
+            'n3_reward' => '请输入N3奖励',
             'multiple'  =>   '请输入投注流水倍数',
             'start_time' => '请输入开始时间',
             'end_time' => '请输入结束时间',

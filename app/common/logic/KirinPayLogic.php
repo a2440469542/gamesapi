@@ -145,7 +145,7 @@ class KirinPayLogic {
         $BillModel->addIntvie($user, $BillModel::CASH_MONEY, -$order['money']);*/
 
         $UserStatModel = model('app\common\model\UserStat', $cid);
-        $user_stat = ['cash_money' => $order['money'], 'cash_num' => 1,];
+        $user_stat = ['cash_money' => $order['money'], 'cash_num' => 1];
         $UserStatModel->add($user,$user_stat);
         app('app\common\model\Mail')->add($cid,$order['uid'],'Retirar bem sucedido',$order['money']);
 

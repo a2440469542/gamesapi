@@ -14,11 +14,45 @@ use think\facade\Db;
 class Activity extends Base
 {
     /**
+     * @Apidoc\Title("用户排行榜配置接口")
+     * @Apidoc\Desc("用户排行榜配置接口")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("")
+     * @Apidoc\Tag("用户排行榜配置接口")
+     * @Apidoc\Returned("rank",type="object",desc="活动配置相关信息",table="cp_activity")
+     */
+    public function rank_config(){
+        $cid = $this->request->cid;
+        $channel = model('app\common\model\Channel')->info($cid,'');
+        if (!$channel) {
+            return error("O canal não existe",10001);//渠道不存在
+        }
+        if(!isset($channel['activity']['rank']) || $channel['activity']['rank'] == 0){
+            return error("Actividade não ativada",10001);//获取未开启
+        }
+        $aid = $channel['activity']['rank'];
+        if(empty($aid)) {
+            return error("A atividade não existe",10001);//活动不存在
+        }
+        $activity = app('app\common\model\Activity')->info($aid);
+        if(empty($activity)) {
+            return error("A atividade não existe",10001);//活动不存在
+        }
+
+        if($activity['start_time'] >= date("Y-m-d H:i:s")){
+            return error("A atividade ainda não começou",500);//活动未开始
+        }
+        $activity['over_time'] = max(0, strtotime($activity['end_time']) - time());
+        return success('obter sucesso',$activity);   //获取成功
+    }
+    /**
      * @Apidoc\Title("用户排行榜")
      * @Apidoc\Desc("用户排行榜")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("")
      * @Apidoc\Tag("用户排行榜")
+     * @Apidoc\Param("aid",type="int",desc="活动ID")
+     * @Apidoc\Param("type",type="int",desc="类型：1=玩家充值排行榜；2=N1充值排行榜；3=N3充值排行榜；4=N4充值排行榜")
      * @Apidoc\Returned("rank",type="object",desc="活动配置相关信息",table="cp_activity")
      * @Apidoc\Returned("list",type="array",desc="充值排行榜",children={
      *     @Apidoc\Returned("uid",type="int",desc="用户uid"),
@@ -27,7 +61,7 @@ class Activity extends Base
      *     @Apidoc\Returned("cz_money",type="float",desc="充值金额"),
      *     @Apidoc\Returned("is_get",type="int",desc="是否能领取:0=不能；1=可以")
      *  })
-     * @Apidoc\Returned("inv_list",type="array",desc="邀请排行榜",children={
+     * @Apidoc\Returned("list",type="array",desc="排行榜字段",children={
      *      @Apidoc\Returned("uid",type="int",desc="用户uid"),
      *      @Apidoc\Returned("inv_code",type="int",desc="用户邀请码"),
      *      @Apidoc\Returned("mobile",type="string",desc="用户手机号"),
@@ -40,7 +74,12 @@ class Activity extends Base
     {
         $cid = $this->request->cid;
         $uid = $this->request->uid;
-        $channel = model('app\common\model\Channel')->info($cid,'');
+        $type = input('type',1);
+        $aid = input('aid',0);
+        if(empty($aid)) {
+            return error("A atividade não existe",10001);//活动不存在
+        }
+        /*$channel = model('app\common\model\Channel')->info($cid,'');
         if (!$channel) {
             return error("O canal não existe",10001);//渠道不存在
         }
@@ -48,11 +87,13 @@ class Activity extends Base
             return error("Actividade não ativada",10001);//获取未开启
         }
         $aid = $channel['activity']['rank'];
-        $activity = app('app\common\model\Activity')->where("id",'=',$aid)->find();
+        if(empty($aid)) {
+            return error("A atividade não existe",10001);//活动不存在
+        }*/
+        $activity = app('app\common\model\Activity')->info($aid);
         if(empty($activity)) {
             return error("A atividade não existe",10001);//活动不存在
         }
-
         if($activity['start_time'] >= date("Y-m-d H:i:s")){
             return error("A atividade ainda não começou",500);//活动未开始
         }
@@ -63,20 +104,23 @@ class Activity extends Base
         $sttime = date("Y-m-d",strtotime($activity['start_time']));
         $ettime = date("Y-m-d",strtotime($activity['end_time']));
         $where[] = ['date', 'between', [$sttime, $ettime]];
-        $activity['over_time'] = max(0, strtotime($activity['end_time']) - time());
 
-        $list = $UserStat->get_rank($where, 20);
-        $inv_list = $UserStat->get_inv_rank($where, 20);
+        if($type == 1){
+            $list = $UserStat->get_rank($where, 20);
+            $this->processRankList($list, $uid, $cid, $aid, $activity,$type);
+        }else{
+            $list = $UserStat->get_inv_rank($where, 20,$type);
+            $this->processRankList($list, $uid, $cid, $aid, $activity, $type);
+        }
 
-        $this->processRankList($list, $uid, $cid, $aid, $activity);
-        $this->processRankList($inv_list, $uid, $cid, $aid, $activity, true);
+        //$inv_list = $UserStat->get_inv_rank($where, 20);
 
         $data['rank'] = $activity;
         $data['list'] = $list;
-        $data['inv_list'] = $inv_list;
+        //$data['inv_list'] = $inv_list;
         return success('obter sucesso',$data);   //获取成功
     }
-    private function processRankList(&$list, $uid, $cid, $aid, $activity, $isInv = false)
+    private function processRankList(&$list, $uid, $cid, $aid, $activity, $type=1)
     {
         foreach ($list as $key => &$value) {
             if ($key <= 2) {
@@ -86,7 +130,7 @@ class Activity extends Base
                         ['uid', '=', $value['uid']],
                         ['cid', '=', $cid],
                         ['aid', '=', $aid],
-                        [$isInv ? 'inv_type' : 'type', '=', $key + 1]
+                        ['inv_type', '=', $type]
                     ];
                     $log = app('app\common\model\RankLog')->where($logCondition)->count();
                     if (!$log) {
@@ -102,27 +146,16 @@ class Activity extends Base
      * @Apidoc\Method("POST")
      * @Apidoc\Author("")
      * @Apidoc\Tag("领取排行榜奖励")
-     *
+     * @Apidoc\Param("type",type="int",desc="类型：1=玩家充值排行榜；2=N1充值排行榜；3=N3充值排行榜；4=N4充值排行榜")
      * @Apidoc\Param("level",type="int",desc="排名第几：1=第一名；2=第二名；3=第三名")
      */
     public function get_rank()
     {
-        return $this->processGetRank(false);
-    }
-    /**
-     * @Apidoc\Title("领取邀请排行榜奖励")
-     * @Apidoc\Desc("领取邀请排行榜奖励")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("")
-     * @Apidoc\Tag("领取邀请排行榜奖励")
-     * @Apidoc\Param("level",type="int",desc="排名第几：1=第一名；2=第二名；3=第三名")
-     */
-    public function get_inv_rank()
-    {
-        return $this->processGetRank(true);
+        $type = input('type', 1);
+        return $this->processGetRank($type);
     }
 
-    private function processGetRank($isInv)
+    private function processGetRank($type)
     {
         $cid = $this->request->cid;
         $uid = $this->request->uid;
@@ -161,21 +194,21 @@ class Activity extends Base
         $sttime = date("Y-m-d", strtotime($activity['start_time']));
         $ettime = date("Y-m-d", strtotime($activity['end_time']));
         $where[] = ['date', 'between', [$sttime, $ettime]];
-        if($isInv){
-            $list = $UserStat->get_inv_rank($where, 3);
-        }else{
+        if($type == 1){
             $list = $UserStat->get_rank($where, 3);
+            $this->processRankList($list, $uid, $cid, $aid, $activity,$type);
+        }else{
+            $list = $UserStat->get_inv_rank($where, 3,$type);
+            $this->processRankList($list, $uid, $cid, $aid, $activity, $type);
         }
-
-
-        $money = $this->getRewardMoney($activity, $level, $isInv);
+        $money = $this->getRewardMoney($activity, $level, $type);
         $user = model('app\common\model\User', $cid)->getInfo($uid);
         $BillModel = model('app\common\model\Bill', $cid);
         $logCondition = [
             ['uid', '=', $uid],
             ['cid', '=', $cid],
             ['aid', '=', $aid],
-            [$isInv ? 'inv_type' : 'type', '=', $level]
+            ['inv_type', '=', $type]
         ];
         $log = app('app\common\model\RankLog')->where($logCondition)->count();
         if ($log > 0) {
@@ -188,12 +221,21 @@ class Activity extends Base
             $row = false;
             foreach ($list as $key => &$value) {
                 if ($key + 1 == $level && $value['uid'] == $uid) {
-                    $result = $BillModel->addIntvie($user, $isInv ? $BillModel::RANK_INV_MONEY : $BillModel::RANK_MONEY, $money, 0, $activity['multiple']);
+                    if($type == 1){
+                        $bill_type = $BillModel::RANK_MONEY;
+                    }elseif($type == 2){
+                        $bill_type = $BillModel::N1_RANK_MONEY;
+                    }elseif($type == 3){
+                        $bill_type = $BillModel::N2_RANK_MONEY;
+                    }else{
+                        $bill_type = $BillModel::N3_RANK_MONEY;
+                    }
+                    $result = $BillModel->addIntvie($user, $bill_type, $money, 0, $activity['multiple']);
                     if ($result['code'] !== 0) {
                         Db::rollback();
                         return error("A coleção falhou");   //领取失败
                     }
-                    $row = app('app\common\model\RankLog')->add($cid, $uid, $aid, $isInv ? 0 : $level, $isInv ? $level : 0, $money);
+                    $row = app('app\common\model\RankLog')->add($cid, $uid, $aid,  $level, $type, $money);
                     break;
                 }
             }
@@ -212,14 +254,23 @@ class Activity extends Base
         return success("Recebido com sucesso"); //领取成功
     }
 
-    private function getRewardMoney($activity, $level, $isInv)
+    private function getRewardMoney($activity, $level, $type)
     {
+        if($type == 1){
+            $reward = explode("|", $activity['user_reward']);
+        }elseif($type == 2){
+            $reward = explode("|", $activity['n1_reward']);
+        }elseif($type == 3){
+            $reward = explode("|", $activity['n2_reward']);
+        }else{
+            $reward = explode("|", $activity['n3_reward']);
+        }
         if ($level == 1) {
-            return $isInv ? $activity['inv_first_reward'] : $activity['first_reward'];
+            return $reward[0];
         } elseif ($level == 2) {
-            return $isInv ? $activity['inv_second_reward'] : $activity['second_reward'];
+            return $reward[1];
         } elseif ($level == 3) {
-            return $isInv ? $activity['inv_third_reward'] : $activity['third_reward'];
+            return $reward[2];
         }
         return 0;
     }
