@@ -63,7 +63,7 @@ class CapivaraPay{
             'bankLastName' => $Des3->encryptText('tiantian',$this->aesIv),
             'bankAcctNo' => $Des3->encryptText($accountNo,$this->aesIv),
             'totalAmount' => $Des3->encryptText($amount * 100,$this->aesIv),
-            'accPhone' => $Des3->encryptText('+'.$accountNo,$this->aesIv),
+            'accPhone' => $Des3->encryptText($accountNo,$this->aesIv),
             'notifyUrl' => SITE_URL.'/api/notify/cash_out',
             'identityNo' => $document,
             'identityType' => $type
