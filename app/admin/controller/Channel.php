@@ -123,11 +123,11 @@ class Channel extends Base{
      * @Apidoc\Param("cid", type="int",require=true, desc="删除数据的ID")
      */
     public function del(){
+        set_time_limit(0);
         $id = input("cid");
         if(!$id){
             return error("请选择要删除的数据");
         }
-        $res = ChannelModel::where("cid","=",$id)->update(['is_del'=>1]);
         Db::name("bank")->where("cid","=",$id)->delete();
         Db::name("bill")->where("cid","=",$id)->delete();
         Db::name("box")->where("cid","=",$id)->delete();
@@ -141,6 +141,7 @@ class Channel extends Base{
         Db::name("sign")->where("cid","=",$id)->delete();
         Db::name("score_bill")->where("cid","=",$id)->delete();
         Db::name("wages")->where("cid","=",$id)->delete();
+        $res = ChannelModel::where("cid","=",$id)->delete();
         if($res){
             return success("删除成功");
         }else{
