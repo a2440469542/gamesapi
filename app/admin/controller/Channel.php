@@ -140,7 +140,6 @@ class Channel extends Base{
         Db::name("user_stat")->where("cid","=",$id)->delete();
         Db::name("sign")->where("cid","=",$id)->delete();
         Db::name("score_bill")->where("cid","=",$id)->delete();
-        Db::name("score_stat")->where("cid","=",$id)->delete();
         Db::name("wages")->where("cid","=",$id)->delete();
         if($res){
             return success("删除成功");
