@@ -75,7 +75,39 @@ class IslotGamePlatformService extends BaseGamePlatformService
             return ['code'=>$row['code'], 'msg'=>$row['message']];
         }
     }
+    public function quick_seat($user){
+        $apiUrl = '/api/v1/getQuickSeat?agent='.$this->operatorToken;
+        $params['timestamp'] = intval(microtime(true) * 1000);
+        $params['lang'] = "pt";
+        $params['userName'] = $user['cid'].'_'.$user['uid'];
+        $headers = [
+            'Content-Type: application/json'
+        ];
+        write_log("快速入座请求地址：".$this->baseUrl.$apiUrl,'Islot'.$user['cid']);
+        write_log($params,'Islot'.$user['cid']);
+        $str = $this->encrypt(json_encode($params));
+        write_log($str,'Islot'.$user['cid']);
 
+        $response = $this->request($apiUrl, $str, $headers);
+        write_log($response,'Islot'.$user['cid']);
+        if(isset($response['code']) && $response['code'] == 200){
+            return ['code'=>0, 'msg'=>'获取成功','slotId'=>$response['data']['slotId']];
+        }else{
+            $msg = 'A aquisição falhou';
+            if($response['code'] == 'USER_BALANCE_NOT_ENOUGH_1112'){
+                $msg = 'Insufficient Balance';
+            }elseif($response['code'] == 'GAME_SLOT_UNAVAILABLE_1110'){
+                $msg = 'Escritorio não disponível';
+            }elseif($response['code'] == 'GAME_SLOT_FULL_1111'){
+                $msg = 'A mesa está cheia';
+            }elseif($response['code'] == 'GAME_SLOT_OFFLINE_1113'){
+                $msg = 'A mesa foi desconectada';
+            }elseif($response['code'] == 'GAME_SLOT_MAINTENANCE_1114'){
+                $msg = 'Mantenimento de mesa em curso';
+            }
+            return ['code'=>$response['code'], 'msg'=>$msg];
+        }
+    }
     public function getGameUrl($user,$game)
     {
         $apiUrl = '/api/v2/gameEntrance?agent='.$this->operatorToken;
@@ -205,7 +237,7 @@ class IslotGamePlatformService extends BaseGamePlatformService
         }
     }
     public function get_order($start_time,$end_time){
-        $apiUrl = '/api/v1/getOrders?agent=?agent='.$this->operatorToken;
+        $apiUrl = '/api/v1/getOrders?agent='.$this->operatorToken;
         $params['timestamp'] = round(microtime(true) * 1000);
         $params['beginDate'] = date('Y-m-d H:i:s',$start_time);
         $params['endDate'] = date('Y-m-d H:i:s',$end_time);

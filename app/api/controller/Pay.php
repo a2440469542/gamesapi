@@ -66,8 +66,8 @@ class Pay extends Base
         $gifts = 0;
         $multiple = 0;
         $BankModel = model('app\common\model\Bank');
-        $row = $BankModel->getInfo($cid,$uid);
-        if(!$row) return error('Por favor, vincule seu cartão bancário primeiro',102);  //请先绑定银行卡
+        //$row = $BankModel->getInfo($cid,$uid);
+        //if(!$row) return error('Por favor, vincule seu cartão bancário primeiro',102);  //请先绑定银行卡
         if($rid > 0){
             $recharge = model('app\common\model\Recharge')->getInfo($rid,$cid);
             if($recharge){
@@ -87,8 +87,8 @@ class Pay extends Base
             return error('Usuário não existe');      //用户不存在
         }
         $merOrderNo = $cid.'_'.getSn("CZ");
-
-        $id = model('app\common\model\Order',$cid)->add($cid,$uid,$merOrderNo,$money,$row['pix'],$gifts,$multiple);
+        $pix = '32132142132';
+        $id = model('app\common\model\Order',$cid)->add($cid,$uid,$merOrderNo,$money,$pix,$gifts,$multiple);
         if(!$id) return error('Falha na geração do pedido');    //订单生成失败
         //$config = get_config();
         $payClass = app('app\service\pay\KirinPay');
@@ -98,7 +98,7 @@ class Pay extends Base
         /*if(isset($config['pay_config'])){
             $payClass = app('app\service\pay\\'.$config['pay_config']);
         }*/
-        $res = $payClass->pay($merOrderNo,$money,$row['pix']);
+        $res = $payClass->pay($merOrderNo,$money,$pix);
         //$res = json_decode($res,true);
         if($res['code'] == 0){
             $data = [
@@ -106,7 +106,7 @@ class Pay extends Base
             ];
             return success("Pedido criado com sucesso",$data);    //创建订单成功
         }else{
-            return error($res['msg']);
+            return error($res['msg'],404);
         }
     }
 }

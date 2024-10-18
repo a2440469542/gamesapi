@@ -152,8 +152,8 @@ class User extends Base{
             return  error("请选择某个渠道要删除的数据");
         }
         $userModel = app("app\common\model\User");
-
-        $res = $userModel::partition($cid)->where('uid', $uid)->delete();
+        $userModel->setPartition($cid);
+        $res = $userModel::partition($userModel->partition)->where('uid', '=',$uid)->delete();
         if($res){
             return success("删除成功");
         }else{

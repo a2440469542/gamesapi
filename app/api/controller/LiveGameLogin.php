@@ -29,13 +29,34 @@ class LiveGameLogin extends Base
         $uid = $this->request->uid;
         $slotId = Request::post('slotId',''); // 直播游戏的ID
         $pid = Request::post('pid',''); // 平台ID
-        if ((empty($pid) && empty($slotId))) {
+        if ((empty($pid))) {
             return ['code'=>500,'msg'=>'Erro de parâmetro'];  //参数错误
         }
         $this->cid = $cid;
         $this->user = model('app\common\model\User',$cid)->getInfo($uid)->toArray();
         if($this->user['is_rebot'] == 1) return ['code'=>500,'msg'=>'Não posso tentar'];   //无法试玩
         $plate = app('app\common\model\Plate')->getInfo($pid);
+        $platform = $plate['code'];
+        $this->line = $this->getLineInfo();
+        if(empty($this->line)) return ['code'=>500,'msg'=>'Jogo não configurado'];   //游戏未配置
+
+        $this->platformService = GamePlatformFactory::getPlatformService($platform, $this->line, $this->user);
+        $is_quick = Request::post('is_quick',0); // 是否快速
+        if($is_quick == 1){
+            $response = $this->platformService->quick_seat($this->user);
+            if ($response['code'] != 0) {
+                return error($response['msg'], 501);    // 游戏登录失败
+            }
+            $this->game['slotId'] = $response['slotId'];
+        }else{
+            $slotId = Request::post('slotId',0);
+            if(empty($slotId)){
+                return error("Erro de parâmetro");
+            }
+        }
+
+
+
         $game_slot = Db::name('game_slot')->where('slotId','=',$slotId)->find();
         if(empty($game_slot)){
             return ['code'=>500,'msg'=>'O jogo não existe'];
@@ -53,13 +74,11 @@ class LiveGameLogin extends Base
             ->find();
 
         $this->plate = $plate;
-        $this->line = $this->getLineInfo();
-        if(empty($this->line)) return ['code'=>500,'msg'=>'Jogo não configurado'];
         $this->game = $game->toArray();
         $this->game['slotId'] = $slotId;
         $this->game['callbackPath'] = $channel['url'];
-        $platform = $plate['code'];
-        $this->platformService = GamePlatformFactory::getPlatformService($platform, $this->line, $this->user);
+
+
         return ['code'=>0];
     }
 
@@ -158,11 +177,11 @@ class LiveGameLogin extends Base
      * @Apidoc\Tag("获取游戏启动链接")
      * @Apidoc\Param("pid", type="int", require=true, desc="平台ID")
      * @Apidoc\Param("slotId", type="int", require=true, desc="直播机台ID")
+     * @Apidoc\Param("is_quick", type="int", require=true, desc="是否快速进入游戏：0=不是；1=是")
      * @Apidoc\Returned("url", type="object", desc="游戏启动链接")
      */
     public function get_game_url()
     {
-        $slotId = Request::post('slotId',''); // 直播游戏的ID
         $row = $this->set_config();
         if($row['code'] > 0) {
             return error($row['msg']);
@@ -189,7 +208,7 @@ class LiveGameLogin extends Base
         if ($response['code'] != 0) {
             return error($response['msg'], 501);    // 游戏登录失败
         }
-        Db::name('game_slot')->where('slotId','=',$slotId)->update(['machineStatus'=>0]);
+        Db::name('game_slot')->where('slotId','=',$this->game['slotId'])->update(['machineStatus'=>0]);
         return success("obter sucesso", $response); //获取成功
     }
     protected function getLineInfo()
