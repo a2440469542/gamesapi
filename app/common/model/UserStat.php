@@ -258,7 +258,7 @@ class UserStat extends Base
     }
     public function get_inv_rank($where,$limit,$type){
 
-        $filed = 'u.uid,u.inv_code,u.mobile,SUM(sub.total_recharge) as cz_money';
+        $filed = 'u.uid,u.inv_code,u.mobile,COALESCE(sub.total_recharge, 0) as cz_money';
         $UserRank = User::alias('u')->field($filed);
 
         if($type == 2){
