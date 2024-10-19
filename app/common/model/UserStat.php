@@ -264,7 +264,7 @@ class UserStat extends Base
         if($type == 2){
             $subQuery = Db::table('user')
                 ->alias('sub')
-                ->join('cp_user_stat PARTITION({$this->partition}) `us`', 'us.uid = sub.uid')
+                ->join("cp_user_stat PARTITION({$this->partition}) `us`", 'us.uid = sub.uid')
                 ->where($where)
                 ->group('sub.pid')
                 ->partition($this->partition)
@@ -277,7 +277,7 @@ class UserStat extends Base
         }elseif($type == 3){
             $subQuery = Db::table('user')
                 ->alias('sub')
-                ->join('cp_user_stat PARTITION({$this->partition}) `us`', 'us.uid = sub.uid')
+                ->join("cp_user_stat PARTITION({$this->partition}) `us`", 'us.uid = sub.uid')
                 ->where($where)
                 ->group('sub.ppid')
                 ->partition($this->partition)
@@ -290,7 +290,7 @@ class UserStat extends Base
         }else{
             $subQuery = Db::table('user')
                 ->alias('sub')
-                ->join('cp_user_stat PARTITION({$this->partition}) `us`', 'us.uid = sub.uid')
+                ->join("cp_user_stat PARTITION({$this->partition}) `us`", 'us.uid = sub.uid')
                 ->where($where)
                 ->group('sub.pppid')
                 ->partition($this->partition)
