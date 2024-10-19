@@ -257,21 +257,54 @@ class UserStat extends Base
             ->select()->toArray();
     }
     public function get_inv_rank($where,$limit,$type){
-        $filed = 'u.uid,u.inv_code,u.mobile,COUNT(sub.uid) as invite_user,sum(us.cz_money) as cz_money';
+
+        $filed = 'u.uid,u.inv_code,u.mobile,COALESCE(SUM(sub.cz_money), 0) as cz_money';
         $UserRank = User::alias('u')->field($filed);
-        if($type==2){
-            $UserRank->leftJoin("cp_user PARTITION({$this->partition}) `sub`","sub.pid = u.uid");
+
+        if($type == 2){
+            $subQuery = Db::table('user')
+                ->alias('sub')
+                ->join('cp_user_stat PARTITION({$this->partition}) `us`', 'us.uid = sub.uid')
+                ->where($where)
+                ->group('sub.pid')
+                ->partition($this->partition)
+                ->field([
+                    'sub.pid',
+                    'SUM(us.cz_money) as total_recharge'
+                ])
+                ->buildSql();
+            $UserRank->join([$subQuery=>'sub'],'u.uid = sub.pid');
         }elseif($type == 3){
-            $UserRank->leftJoin("cp_user PARTITION({$this->partition}) `sub`","sub.ppid = u.uid");
+            $subQuery = Db::table('user')
+                ->alias('sub')
+                ->join('cp_user_stat PARTITION({$this->partition}) `us`', 'us.uid = sub.uid')
+                ->where($where)
+                ->group('sub.ppid')
+                ->partition($this->partition)
+                ->field([
+                    'sub.ppid',
+                    'SUM(us.cz_money) as total_recharge'
+                ])
+                ->buildSql();
+            $UserRank->join([$subQuery=>'sub'],'u.uid = sub.ppid');
         }else{
-            $UserRank->leftJoin("cp_user PARTITION({$this->partition}) `sub`","sub.pppid = u.uid");
+            $subQuery = Db::table('user')
+                ->alias('sub')
+                ->join('cp_user_stat PARTITION({$this->partition}) `us`', 'us.uid = sub.uid')
+                ->where($where)
+                ->group('sub.pppid')
+                ->partition($this->partition)
+                ->field([
+                    'sub.pppid',
+                    'SUM(us.cz_money) as total_recharge'
+                ])
+                ->buildSql();
+            $UserRank->join([$subQuery=>'sub'],'u.uid = sub.pppid');
         }
-        return $UserRank->leftJoin("cp_user_stat PARTITION({$this->partition}) `us`","us.uid = sub.uid")
-            ->where($where)
+        return $UserRank
             ->partition($this->partition)
             ->limit($limit)
             ->order('cz_money desc')
-            ->group('u.uid')
             ->select()->toArray();
     }
     //获取宝箱领取金额
