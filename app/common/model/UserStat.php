@@ -262,7 +262,7 @@ class UserStat extends Base
         $UserRank = User::alias('u')->field($filed);
 
         if($type == 2){
-            $subQuery = Db::table('users')
+            $subQuery = Db::name('user')
                 ->alias('sub')
                 ->join("cp_user_stat PARTITION({$this->partition}) `us`", 'us.uid = sub.uid')
                 ->where($where)
@@ -275,7 +275,7 @@ class UserStat extends Base
                 ->buildSql();
             $UserRank->join([$subQuery=>'sub'],'u.uid = sub.pid');
         }elseif($type == 3){
-            $subQuery = Db::table('users')
+            $subQuery = Db::name('user')
                 ->alias('sub')
                 ->join("cp_user_stat PARTITION({$this->partition}) `us`", 'us.uid = sub.uid')
                 ->where($where)
@@ -288,7 +288,7 @@ class UserStat extends Base
                 ->buildSql();
             $UserRank->join([$subQuery=>'sub'],'u.uid = sub.ppid');
         }else{
-            $subQuery = Db::table('users')
+            $subQuery = Db::name('user')
                 ->alias('sub')
                 ->join("cp_user_stat PARTITION({$this->partition}) `us`", 'us.uid = sub.uid')
                 ->where($where)
