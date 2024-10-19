@@ -103,7 +103,7 @@ class Activity extends Base
         $UserStat = model('app\common\model\UserStat',$cid);
         $sttime = date("Y-m-d",strtotime($activity['start_time']));
         $ettime = date("Y-m-d",strtotime($activity['end_time']));
-        $where[] = ['us.date', 'between', [$sttime, $ettime]];
+        $where[] = ['date', 'between', [$sttime, $ettime]];
 
         if($type == 1){
             $list = $UserStat->get_rank($where, 20);
@@ -193,7 +193,7 @@ class Activity extends Base
         $UserStat = model('app\common\model\UserStat', $cid);
         $sttime = date("Y-m-d", strtotime($activity['start_time']));
         $ettime = date("Y-m-d", strtotime($activity['end_time']));
-        $where[] = ['us.date', 'between', [$sttime, $ettime]];
+        $where[] = ['date', 'between', [$sttime, $ettime]];
         if($type == 1){
             $list = $UserStat->get_rank($where, 3);
             $this->processRankList($list, $uid, $cid, $aid, $activity,$type);
