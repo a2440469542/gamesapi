@@ -18,7 +18,7 @@ class KirinPay{
             'merchantOrderNo' => $merOrderNo,
             'amount' => number_format(trim($amount), 2, '.', ''),
             'notifyUrl' => SITE_URL.'/api/notify/pay',
-            'customerCpf' => $customerCpf
+            //'customerCpf' => $customerCpf
         ];
         $url = $this->api_url.'/gateway/payment/init';
         $str = json_encode($data);
