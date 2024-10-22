@@ -79,6 +79,16 @@ class Wages extends Base
 
             $czInfo = $this->getCzInfo($cid, $uid, $config);
 
+            $configs = get_config();
+            if(isset($configs['min_wages'])){
+                $bozhuUnMoney = $czInfo['bozhu_money'] - $wages['bozhu'];
+                $dailiUnMoney = $czInfo['daili_money'] - $wages['daili'];
+                $N3UnMoney = $czInfo['n3_money'] - $wages['n3'];
+                if($bozhuUnMoney+$dailiUnMoney+$N3UnMoney < $configs['min_wages']){
+                    return error("O valor mínimo de ganho é ".$configs['min_wages']);    //最小领取金额
+                }
+            }
+
             Db::startTrans();
             try {
                 $user = $this->processWages($user, $wages, $czInfo, $config);
