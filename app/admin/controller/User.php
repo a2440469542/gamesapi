@@ -134,6 +134,39 @@ class User extends Base{
         }
     }
     /**
+     * @Apidoc\Title("设置下级充值限制")
+     * @Apidoc\Desc("设置下级充值限制")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("")
+     * @Apidoc\Tag("设置下级充值限制")
+     * @Apidoc\Param("uid", type="int",require=true, desc="用户ID")
+     * @Apidoc\Param("cid", type="int",require=true, desc="渠道ID")
+     * @Apidoc\Param("max_money", type="float",require=true, desc="金额")
+     */
+    public function set_max_money(){
+        $uid = input("uid");
+        $cid = input("cid");
+        $max_money = input("max_money",'');
+        if(!$uid) {
+            return error("请选择要冻结的账户");
+        }
+        if(!$cid){
+            return  error("缺少参数cid");
+        }
+        if(!$max_money){
+            return  error("缺少参数max_money");
+        }
+        $userModel = app('app\common\model\User');
+        $userModel->setPartition($cid);
+        $data = ['uid' => $uid, 'max_money' => $max_money];
+        $res = $userModel->update_user($data);
+        if($res){
+            return success("设置成功");
+        }else{
+            return error("设置成功");
+        }
+    }
+    /**
      * @Apidoc\Title("删除用户")
      * @Apidoc\Desc("删除用户")
      * @Apidoc\Method("POST")

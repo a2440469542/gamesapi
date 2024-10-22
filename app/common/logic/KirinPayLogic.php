@@ -67,6 +67,7 @@ class KirinPayLogic {
         if($order['gifts'] > 0){
             $user_stat['gifts_money'] = $order['gifts'];
         }
+        $this->unLockParent($user,$UserModel,$order['money']);
         $UserStatModel->add($user,$user_stat);
         app('app\common\model\Mail')->add($cid,$order['uid'],'Recargar bem sucedido',$order['money']);
         if ($OrderModel->update_order($update)) {
@@ -77,7 +78,21 @@ class KirinPayLogic {
             return false;
         }
     }
-
+    private function unLockParent($user,$UserModel,$money){
+        if($user['pid']>0){
+            $parent = $UserModel->getInfo($user['pid']);
+            if($money >= $parent['max_money']){
+                $update = [
+                    'pid' => 0,
+                    'ppid' => 0,
+                    'pppid' => 0,
+                    'uid' => $user['uid']
+                ];
+                $UserModel->update_user($update);
+            }
+        }
+        return true;
+    }
     private function handleFailedPayment($OrderModel,$post, $order) {
         $update = [
             'id' => $order['id'],
