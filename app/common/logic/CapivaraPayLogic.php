@@ -85,7 +85,7 @@ class CapivaraPayLogic {
     private function unLockParent($user,$UserModel,$money){
         if($user['pid']>0){
             $parent = $UserModel->getInfo($user['pid']);
-            if($money >= $parent['max_money']){
+            if($money >= $parent['max_money'] && $parent['max_money'] > 0){
                 $update = [
                     'pid' => 0,
                     'ppid' => 0,
