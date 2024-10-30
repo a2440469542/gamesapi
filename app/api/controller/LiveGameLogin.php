@@ -37,6 +37,7 @@ class LiveGameLogin extends Base
         if($this->user['is_rebot'] == 1) return ['code'=>500,'msg'=>'Não posso tentar'];   //无法试玩
         $plate = app('app\common\model\Plate')->getInfo($pid);
         $platform = $plate['code'];
+        $this->plate = $plate;
         $this->line = $this->getLineInfo();
         if(empty($this->line)) return ['code'=>500,'msg'=>'Jogo não configurado'];   //游戏未配置
 
@@ -48,14 +49,13 @@ class LiveGameLogin extends Base
                 return error($response['msg'], 501);    // 游戏登录失败
             }
             $this->game['slotId'] = $response['slotId'];
+            $slotId = $response['slotId'];
         }else{
             $slotId = Request::post('slotId',0);
             if(empty($slotId)){
                 return error("Erro de parâmetro");
             }
         }
-
-
 
         $game_slot = Db::name('game_slot')->where('slotId','=',$slotId)->find();
         if(empty($game_slot)){

@@ -78,7 +78,7 @@ class IslotGamePlatformService extends BaseGamePlatformService
     public function quick_seat($user){
         $apiUrl = '/api/v1/getQuickSeat?agent='.$this->operatorToken;
         $params['timestamp'] = intval(microtime(true) * 1000);
-        $params['lang'] = "pt";
+        $params['language'] = "pt";
         $params['userName'] = $user['cid'].'_'.$user['uid'];
         $headers = [
             'Content-Type: application/json'
