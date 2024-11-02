@@ -34,10 +34,10 @@ class Api
             $url = $request->post("url");
             $channel = model('app\common\model\Channel')->info($cid,$url);
             if (!$channel) {
-                return error("O canal não existe",10001);//渠道不存在
+                //return error("O canal não existe",10001);//渠道不存在
             }
             if (!$channel) {
-                return error("O ID do canal não pode ficar vazio",10001);//渠道ID不能为空
+                //return error("O ID do canal não pode ficar vazio",10001);//渠道ID不能为空
             }else{
                 $request->cid = $cid;
             }
