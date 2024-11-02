@@ -77,7 +77,7 @@ class Wages extends Base
                 return error("A configuração salarial não existe");
             }
 
-            $czInfo = $this->getCzInfo($cid, $uid, $config);
+            $czInfo = $this->getCzInfo($cid, $uid, $config,$user);
 
             //$configs = get_config();
             $channel = model('app\common\model\Channel')->where("cid", $cid)->find();
