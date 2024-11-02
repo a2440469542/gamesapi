@@ -142,6 +142,8 @@ class IslotGamePlatformService extends BaseGamePlatformService
                 $msg = 'A mesa foi desconectada';
             }elseif($response['code'] == 'GAME_SLOT_MAINTENANCE_1114'){
                 $msg = 'Mantenimento de mesa em curso';
+            }else{
+                $msg = $response['message'];
             }
             return ['code'=>$response['code'], 'msg'=>$msg];
         }

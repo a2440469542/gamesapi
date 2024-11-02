@@ -46,14 +46,14 @@ class LiveGameLogin extends Base
         if($is_quick == 1){
             $response = $this->platformService->quick_seat($this->user);
             if ($response['code'] != 0) {
-                return error($response['msg'], 501);    // 游戏登录失败
+                return ['code'=>501,'msg'=>$response['msg']];    // 游戏登录失败
             }
             $this->game['slotId'] = $response['slotId'];
             $slotId = $response['slotId'];
         }else{
             $slotId = Request::post('slotId',0);
             if(empty($slotId)){
-                return error("Erro de parâmetro");
+                return ['code'=>501,'msg'=>"Erro de parâmetro"];
             }
         }
 
@@ -66,7 +66,7 @@ class LiveGameLogin extends Base
         }
         $channel = model('app\common\model\Channel')->info($cid,'');
         if (!$channel) {
-            return error("O canal não existe",10001);//渠道不存在
+            return ['code'=>10001,'msg'=>'O canal não existe'];//渠道不存在
         }
         $game = model('app\common\model\Game')
             ->where("pid","=",$plate['id'])

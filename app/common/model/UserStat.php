@@ -203,6 +203,19 @@ class UserStat extends Base
             ->find();
         return $summary;
     }
+    public function get_user_cz_money($uid){
+        $filed = 'uid,mobile,
+        sum(invite_user) as invite_user,
+        sum(cz_money) as total_deposit, 
+        sum(cz_num) as cz_num, 
+        sum(bet_money) as bet_money, 
+        sum(win_money) as win_money, 
+        sum(cash_money) as cash_money,
+        sum(cash_num) as cash_num ,
+        sum(box_money) as box_money';
+        $summary = self::where('uid', '=', $uid)->partition($this->partition)->sum('cz_money');
+        return $summary;
+    }
     //充值人数
     public function get_cz_num($date=''){
         if($date){

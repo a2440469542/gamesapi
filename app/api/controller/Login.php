@@ -55,6 +55,7 @@ class Login extends Base
             'pwd' => $pwd,
             'last_login_time' => time(),
             'last_login_ip' => get_real_ip__(),
+            'reg_ip' => $ip
         ];
         $row = app('app\common\logic\UserLogic')->register($inv_code,$data,$this->cid);
         if($row['code'] > 0) {
@@ -97,6 +98,7 @@ class Login extends Base
             'pwd' => $pwd,
             'last_login_time' => time(),
             'last_login_ip' => get_real_ip__(),
+            'reg_ip' => $ip
         ];
         $row = app('app\common\logic\UserLogic')->register($inv_code,$data,$this->cid);
         if($row['code'] > 0) {

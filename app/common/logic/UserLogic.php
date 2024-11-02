@@ -46,6 +46,9 @@ class UserLogic{
                 $data['pid']   = $user['uid'];
                 $data['ppid']  = $user['pid'];
                 $data['pppid'] = $user['ppid'];
+                if($user['reg_ip'] == $data['reg_ip']){
+                    $data['is_valid'] = 0;
+                }
             }
         }
         $row = $UserModel->add($data);

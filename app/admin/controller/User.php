@@ -68,6 +68,8 @@ class User extends Base{
         }
         $userModel = app('app\common\model\User');
         $userModel->setPartition($cid);
+        $userStatModel = app('app\common\model\UserStat');
+        $userStatModel->setPartition($cid);
         if($is_cash > 0){
             $where[] = ['c.status',"=",2];
             $list = $userModel->cash_user($where, $limit, "u.uid desc");
@@ -83,6 +85,7 @@ class User extends Base{
             if($user_info){
                 $v['score'] = $user_info['score'];
             }
+            $v['cz_money'] = $userStatModel->get_user_cz_money($v['uid']);
         }
         return success("获取成功", $list);
     }

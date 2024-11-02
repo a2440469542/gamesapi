@@ -38,7 +38,7 @@ class Wages extends Base
             return error("A configuração salarial não existe");
         }
         $wages = $this->getWagesInfo($cid, $uid);
-        $czInfo = $this->getCzInfo($cid, $uid, $config);
+        $czInfo = $this->getCzInfo($cid, $uid, $config, $user);
         $un_money = ($czInfo['bozhu_money'] + $czInfo['daili_money'] + $czInfo['n3_money']) - $wages['bozhu'] - $wages['daili'] - $wages['n3'];
         $data = [
             'money' => round($wages['bozhu'] + $wages['daili'] + $wages['n3'],2),
@@ -79,13 +79,16 @@ class Wages extends Base
 
             $czInfo = $this->getCzInfo($cid, $uid, $config);
 
-            $configs = get_config();
-            if(isset($configs['min_wages'])){
+            //$configs = get_config();
+            $channel = model('app\common\model\Channel')->where("cid", $cid)->find();
+
+
+            if(isset($channel['min_wages'])){
                 $bozhuUnMoney = $czInfo['bozhu_money'] - $wages['bozhu'];
                 $dailiUnMoney = $czInfo['daili_money'] - $wages['daili'];
                 $N3UnMoney = $czInfo['n3_money'] - $wages['n3'];
-                if($bozhuUnMoney+$dailiUnMoney+$N3UnMoney < $configs['min_wages']){
-                    return error("O valor mínimo de ganho é ".$configs['min_wages']);    //最小领取金额
+                if($bozhuUnMoney+$dailiUnMoney+$N3UnMoney < $channel['min_wages']){
+                    return error("O valor mínimo de ganho é ".$channel['min_wages']);    //最小领取金额
                 }
             }
 
@@ -126,21 +129,21 @@ class Wages extends Base
         return $WagesConfig->getInfo($cid);
     }
 
-    private function getCzInfo($cid, $uid, $config)
+    private function getCzInfo($cid, $uid, $config, $user)
     {
         $UserStat = model('app\common\model\UserStat', $cid);
 
         $czNumBozhu = $UserStat->get_deposit_num([['u.pid', '=', $uid]]);
         write_log('博主充值人数:'.$czNumBozhu,'wages');
-        $czMoneyBozhu = $UserStat->get_deposit_and_bet([['u.pid', '=', $uid]])['cz_money'] ?? 0.00;
+        $czMoneyBozhu = $UserStat->get_deposit_and_bet([['u.pid', '=', $uid],['u.is_valid',"=",1]])['cz_money'] ?? 0.00;
         write_log('博主充值金额:'.$czMoneyBozhu,'wages');
         $czNumDaili = $UserStat->get_deposit_num([['u.ppid', '=', $uid]]);
         write_log('代理充值人数:'.$czNumDaili,'wages');
-        $czMoneyDaili = $UserStat->get_deposit_and_bet([['u.ppid', '=', $uid]])['cz_money'] ?? 0.00;
+        $czMoneyDaili = $UserStat->get_deposit_and_bet([['u.ppid', '=', $uid],['u.is_valid',"=",1]])['cz_money'] ?? 0.00;
         write_log('代理充值金额:'.$czMoneyDaili,'wages');
         $czNumN3 = $UserStat->get_deposit_num([['u.pppid', '=', $uid]]);
         write_log('N3充值人数:'.$czNumN3,'wages');
-        $czMoneyN3 = $UserStat->get_deposit_and_bet([['u.pppid', '=', $uid]])['cz_money'] ?? 0.00;
+        $czMoneyN3 = $UserStat->get_deposit_and_bet([['u.pppid', '=', $uid],['u.is_valid',"=",1]])['cz_money'] ?? 0.00;
         write_log('代理充值金额:'.$czMoneyN3,'wages');
 
         $bozhuMoney = $dailiMoney = $n3Money =  0;
