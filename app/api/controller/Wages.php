@@ -135,16 +135,31 @@ class Wages extends Base
 
         $czNumBozhu = $UserStat->get_deposit_num([['u.pid', '=', $uid]]);
         write_log('博主充值人数:'.$czNumBozhu,'wages');
-        $czMoneyBozhu = $UserStat->get_deposit_and_bet([['u.pid', '=', $uid],['u.is_valid',"=",1]])['cz_money'] ?? 0.00;
-        write_log('博主充值金额:'.$czMoneyBozhu,'wages');
-        $czNumDaili = $UserStat->get_deposit_num([['u.ppid', '=', $uid]]);
-        write_log('代理充值人数:'.$czNumDaili,'wages');
-        $czMoneyDaili = $UserStat->get_deposit_and_bet([['u.ppid', '=', $uid],['u.is_valid',"=",1]])['cz_money'] ?? 0.00;
-        write_log('代理充值金额:'.$czMoneyDaili,'wages');
-        $czNumN3 = $UserStat->get_deposit_num([['u.pppid', '=', $uid]]);
-        write_log('N3充值人数:'.$czNumN3,'wages');
-        $czMoneyN3 = $UserStat->get_deposit_and_bet([['u.pppid', '=', $uid],['u.is_valid',"=",1]])['cz_money'] ?? 0.00;
-        write_log('代理充值金额:'.$czMoneyN3,'wages');
+        $configs = get_config();
+        if($configs['same_ip'] == 1){
+            $czMoneyBozhu = $UserStat->get_deposit_and_bet([['u.pid', '=', $uid],['u.is_valid',"=",1]])['cz_money'] ?? 0.00;
+            write_log('博主充值金额:'.$czMoneyBozhu,'wages');
+            $czNumDaili = $UserStat->get_deposit_num([['u.ppid', '=', $uid]]);
+            write_log('代理充值人数:'.$czNumDaili,'wages');
+            $czMoneyDaili = $UserStat->get_deposit_and_bet([['u.ppid', '=', $uid],['u.is_valid',"=",1]])['cz_money'] ?? 0.00;
+            write_log('代理充值金额:'.$czMoneyDaili,'wages');
+            $czNumN3 = $UserStat->get_deposit_num([['u.pppid', '=', $uid]]);
+            write_log('N3充值人数:'.$czNumN3,'wages');
+            $czMoneyN3 = $UserStat->get_deposit_and_bet([['u.pppid', '=', $uid],['u.is_valid',"=",1]])['cz_money'] ?? 0.00;
+            write_log('代理充值金额:'.$czMoneyN3,'wages');
+        }else{
+            $czMoneyBozhu = $UserStat->get_deposit_and_bet([['u.pid', '=', $uid]])['cz_money'] ?? 0.00;
+            write_log('博主充值金额:'.$czMoneyBozhu,'wages');
+            $czNumDaili = $UserStat->get_deposit_num([['u.ppid', '=', $uid]]);
+            write_log('代理充值人数:'.$czNumDaili,'wages');
+            $czMoneyDaili = $UserStat->get_deposit_and_bet([['u.ppid', '=', $uid]])['cz_money'] ?? 0.00;
+            write_log('代理充值金额:'.$czMoneyDaili,'wages');
+            $czNumN3 = $UserStat->get_deposit_num([['u.pppid', '=', $uid]]);
+            write_log('N3充值人数:'.$czNumN3,'wages');
+            $czMoneyN3 = $UserStat->get_deposit_and_bet([['u.pppid', '=', $uid]])['cz_money'] ?? 0.00;
+            write_log('代理充值金额:'.$czMoneyN3,'wages');
+        }
+
 
         $bozhuMoney = $dailiMoney = $n3Money =  0;
         if ($config['type'] == 1) {
