@@ -87,13 +87,9 @@ class Pay extends Base
         }
         $merOrderNo = $cid.'_'.getSn("CZ");
 
-        if($pay_code == 'CapivaraPay'){
-            $row = $BankModel->getInfo($cid,$uid);
-            if(!$row) return error('Por favor, vincule seu cartão bancário primeiro',102);  //请先绑定银行卡
-            $pix = $row['pix'];
-        }else{
-            $pix = '32132142132';
-        }
+        $row = $BankModel->getInfo($cid,$uid);
+        if(!$row) return error('Por favor, vincule seu cartão bancário primeiro',102);  //请先绑定银行卡
+        $pix = $row['pix'];
         $id = model('app\common\model\Order',$cid)->add($cid,$uid,$merOrderNo,$money,$pix,$gifts,$multiple);
         if(!$id) return error('Falha na geração do pedido');    //订单生成失败
         //$config = get_config();
@@ -104,7 +100,7 @@ class Pay extends Base
         /*if(isset($config['pay_config'])){
             $payClass = app('app\service\pay\\'.$config['pay_config']);
         }*/
-        $res = $payClass->pay($merOrderNo,$money,$pix);
+        $res = $payClass->pay($merOrderNo,$money,$row['pix'],$row['name']);
         //$res = json_decode($res,true);
         if($res['code'] == 0){
             $data = [

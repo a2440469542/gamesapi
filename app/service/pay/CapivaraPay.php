@@ -14,7 +14,7 @@ class CapivaraPay{
      * @param $amount       string 订单金额
      * @return array
      */
-    public function pay(string $merOrderNo , string $amount,string $customerCpf, string $currency='BRL',){
+    public function pay(string $merOrderNo , string $amount,string $customerCpf,string $customerName, string $currency='BRL',){
         $data = [
             'appID' => $this->merchantKey,
             'currencyCode' => $currency,
@@ -25,7 +25,7 @@ class CapivaraPay{
             'productTitle' => 'k7pay',
             'notifyUrl' => SITE_URL.'/api/notify/pay',
             'tradeIP' => get_real_ip__(),
-            'payName' => 'xiaotiantian',
+            'payName' => $customerName,
             'payEmail' => 'xiaotiantian@gmail.com',
             'payPhone' => $customerCpf,
             'payBankCard' => $customerCpf,
