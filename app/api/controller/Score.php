@@ -62,7 +62,7 @@ class Score extends Base
         }
         if($user_info){
             $data['un_get_order_score'] = $data['un_get_order_score'] - $user_info['get_order_score'];
-            $data['un_get_bet_score'] = $data['un_get_bet_score'] <= $user_info['get_bet_score'] ? 0 : $data['un_get_bet_score'] - $user_info['get_bet_score'];
+            $data['un_get_bet_score'] = $data['un_get_bet_score'] <= $user_info['get_bet_score'] ? 0 : round($data['un_get_bet_score'] - $user_info['get_bet_score'],2);
             $data['score'] = $user_info['score'];
         }
         return success('obter sucesso',$data);   //获取成功
