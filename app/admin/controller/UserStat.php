@@ -136,19 +136,23 @@ class UserStat extends Base{
         $date = input("date",'');
         $list = ChannelModel::lists($where,$limit);
         $UserModel = app('app\common\model\User');
-        foreach ($list['data'] as &$item){
+        foreach ($list['data'] as $key=>&$item){
             $UserStatModel = model('app\common\model\UserStat',$item['cid']);
             $WagesModel = model('app\common\model\Wages',$item['cid']);
             $reg_num = $UserModel->reg_num($item['cid'],$date);     //注册人数
             $cz_num = $UserStatModel->get_cz_num($date);             //充值人数
             $user_stat = $UserStatModel->get_total_money($date); //统计信息
             $box_num = $UserStatModel->box_num($date);           //宝箱领取人数
-            $item['cz_num'] = $cz_num;
-            $item['reg_num'] = $reg_num;
-            $item['cz_money'] = round($user_stat['cz_money']   ?? '0.00',2);   //总充值金额
-            $item['cash_money'] = round($user_stat['cash_money'] ?? '0.00',2);   //总提现金额
-            $item['bet_money'] = round($user_stat['bet_money'] ?? '0.00',2);   //总投注金额
-            $item['box_num'] = $box_num;
+            if($cz_num == 0){
+                unset($list['data'][$key]);
+            }else{
+                $item['cz_num'] = $cz_num;
+                $item['reg_num'] = $reg_num;
+                $item['cz_money'] = round($user_stat['cz_money']   ?? '0.00',2);   //总充值金额
+                $item['cash_money'] = round($user_stat['cash_money'] ?? '0.00',2);   //总提现金额
+                $item['bet_money'] = round($user_stat['bet_money'] ?? '0.00',2);   //总投注金额
+                $item['box_num'] = $box_num;
+            }
         }
         return success("获取成功",$list);
     }
