@@ -91,6 +91,7 @@ class Cash extends Base
             return error('O pedido está sendo atualmente processado, por favor tente de novo mais tarde');
         }
         $redis->set($lockKey, true, 5); // 设置锁，60秒后过期
+        $config = get_config();
         Db::startTrans();
         // 处理请求
         try {
@@ -99,7 +100,10 @@ class Cash extends Base
             if($money < $channel['min_draw']) return error('O saque mínimo não pode ser inferior a :'.$channel['min_draw']);  //最低提现不能低于
             $CashModel = model('app\common\model\Cash',$cid);
             //if($CashModel->hasCashRecord($uid)) return error('Há uma retirada em andamento, aguarde até que este registro seja retirado com sucesso.');    //有一笔在提现中，请等待此笔记录提现成功
-            if($CashModel->get_cash_by_num($uid)) return error('Você só pode se retirar uma vez em 30 minutos.');    //30分钟内只能提现一次
+            if(isset($config['cash_time']) && $config['cash_time'] > 0){
+                if($CashModel->get_cash_by_num($uid)) return error('Você só pode se retirar uma vez em '.$config['cash_time'].' minutos.');    //30分钟内只能提现一次
+            }
+
             $userModel = model('app\common\model\User',$cid);
             $user = $userModel->getInfo($uid);
             $BankModel = model('app\common\model\Bank');
@@ -150,7 +154,7 @@ class Cash extends Base
                 $fee = round($money*$channel['cash_fee'],2);
                 $real_money = $money - $fee;
             }
-            $config = get_config();
+
             $status = 1;
             if(isset($config['cash_sh_num']) && $money >= $config['cash_sh_num']){
                 $status = 0;
