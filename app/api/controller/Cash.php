@@ -99,6 +99,7 @@ class Cash extends Base
             if($money < $channel['min_draw']) return error('O saque mínimo não pode ser inferior a :'.$channel['min_draw']);  //最低提现不能低于
             $CashModel = model('app\common\model\Cash',$cid);
             //if($CashModel->hasCashRecord($uid)) return error('Há uma retirada em andamento, aguarde até que este registro seja retirado com sucesso.');    //有一笔在提现中，请等待此笔记录提现成功
+            if($CashModel->get_cash_by_num($uid)) return error('Você só pode se retirar uma vez em 30 minutos.');    //30分钟内只能提现一次
             $userModel = model('app\common\model\User',$cid);
             $user = $userModel->getInfo($uid);
             $BankModel = model('app\common\model\Bank');

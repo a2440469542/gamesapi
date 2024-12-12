@@ -96,4 +96,12 @@ class Cash extends Base
         $count = self::where('uid',"=",$uid)->where("status",'=',2)->partition($this->partition)->count();
         return $count;
     }
+    public function get_cash_by_num($uid){
+        $time = strtotime(date("Y-m-d",time())) - 30*60;
+        $count = self::where('uid',"=",$uid)
+            ->where("status",'=',2)
+            ->where('add_time','>=',$time)
+            ->partition($this->partition)->count();
+        return $count;
+    }
 }
