@@ -33,18 +33,23 @@ class Bill extends Base{
             $mobile = input("mobile", '');
             $order_sn  = input("order_sn", '');
             $type  = input("type", '');
-            $cid  = input("cid", '');
+            $cid  = input("cid", 0);
             $inv_code = input("inv_code",'');
-            if($cid === ''){
+            /*if($cid === ''){
                 return error("渠道ID不能为空");
-            }
+            }*/
             if($inv_code){
                 $where[] = ['u.inv_code',"=",$inv_code];
             }
             if($order_sn !== '') $where[] = ['order_sn', '=', $order_sn];
             if($mobile !== '') $where[] = ['mobile', '=', $mobile];
             if($type !== '') $where[] = ['type', '=', $type];
-            $BillModel = model('app\common\model\Bill',$cid);
+            if($cid > 0){
+                $BillModel = model('app\common\model\Bill',$cid);
+            }else{
+                $BillModel = app('app\common\model\Bill');
+            }
+
             $list = $BillModel->lists($where, $limit, $orderBy);
             return success("获取成功", $list);
         }
