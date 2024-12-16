@@ -84,10 +84,12 @@ class Bill extends Base{
         $user_info = $user->getInfo($uid);
         if(!$user_info) return error("用户不存在");
         if($money < 0 && $user_info['money'] < abs($money)) return error("余额不足");
+        $admin =  session('admin');
+        $admin_name = $admin['user_name'];
         // 启动事务
         Db::startTrans();
         try {
-            $BillModel->addIntvie($user_info,$BillModel::ADMIN_MONEY,$money);
+            $BillModel->addIntvie($user_info,$BillModel::ADMIN_MONEY,$money,0,0,0,':'.$admin_name);
             // 提交事务
             Db::commit();
         } catch (\Exception $e) {
