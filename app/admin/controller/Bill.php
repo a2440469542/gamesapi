@@ -46,11 +46,12 @@ class Bill extends Base{
             if($type !== '') $where[] = ['type', '=', $type];
             if($cid > 0){
                 $BillModel = model('app\common\model\Bill',$cid);
+                $list = $BillModel->lists($where, $limit, $orderBy);
             }else{
                 $BillModel = app('app\common\model\Bill');
+                $list =  $BillModel->listsall($where, $limit, $orderBy);
             }
 
-            $list = $BillModel->lists($where, $limit, $orderBy);
             return success("获取成功", $list);
         }
         return view();

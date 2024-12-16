@@ -178,4 +178,13 @@ class Bill extends Base
             ->paginate($limit)->toArray();
         return $list;
     }
+    public function listsall($where=[], $limit=10, $order='id desc'){
+        $list = self::alias("b")
+            ->field("b.*,u.mobile,u.inv_code")
+            ->leftJoin("cp_user `u`","b.uid = u.uid")
+            ->where($where)
+            ->order($order)
+            ->paginate($limit)->toArray();
+        return $list;
+    }
 }
