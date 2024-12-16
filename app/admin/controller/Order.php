@@ -32,7 +32,7 @@ class Order extends Base{
             $orderBy = input("orderBy", 'id desc');
             $mobile = input("mobile", '');
             $order_sn  = input("order_sn", '');
-            $cid  = input("cid", '');
+            $cid  = input("cid", 0);
             $inv_code = input("inv_code",'');
             $money = input("money",0);
             if($cid === ''){
@@ -47,7 +47,7 @@ class Order extends Base{
             if($inv_code){
                 $where[] = ['u.inv_code',"=",$inv_code];
             }
-            if($order_sn){
+            if($order_sn || $cid==0){
                 $OrderModel = app('app\common\model\Order');
             }else{
                 $OrderModel = model('app\common\model\Order',$cid);
