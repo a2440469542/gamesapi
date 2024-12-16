@@ -250,4 +250,11 @@ class Channel extends Base{
         }
         return success("获取成功",$data);
     }
+    public function export_user(){
+        $cid = $this->request->param('cid');
+        $userModel = app('app\common\model\UserStat');
+        $userModel->setPartition($cid);
+        $list = $userModel->user_stat();
+        return success("获取成功", $list);
+    }
 }

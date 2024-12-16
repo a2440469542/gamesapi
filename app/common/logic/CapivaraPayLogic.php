@@ -72,6 +72,22 @@ class CapivaraPayLogic {
             $user_stat['gifts_money'] = $order['gifts'];
         }
         $UserStatModel->add($user,$user_stat);
+        if($user['pid'] > 0){
+            $p_user = $UserModel->getInfo($user['pid']);
+            $puser_stat = ['n1_cz_money' => $money];
+            $UserStatModel->add($p_user,$puser_stat);
+        }
+        if($user['ppid'] > 0){
+            $pp_user = $UserModel->getInfo($user['ppid']);
+            $ppuser_stat = ['n2_cz_money' => $money];
+            $UserStatModel->add($pp_user,$ppuser_stat);
+        }
+        if($user['pppid'] > 0){
+            $ppp_user = $UserModel->getInfo($user['pppid']);
+            $pppuser_stat = ['n3_cz_money' => $money];
+            $UserStatModel->add($ppp_user,$pppuser_stat);
+        }
+
         $this->unLockParent($user,$UserModel,$order['money']);
         app('app\common\model\Mail')->add($cid,$order['uid'],'Recargar bem sucedido',$order['money']);
         if ($OrderModel->update_order($update)) {

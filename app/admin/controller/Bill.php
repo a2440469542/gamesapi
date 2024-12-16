@@ -90,18 +90,27 @@ class Bill extends Base{
         $user_info = $user->getInfo($uid);
         if(!$user_info) return error("用户不存在");
         if($money < 0 && $user_info['money'] < abs($money)) return error("余额不足");
-        $admin =  session('admin');
-        $admin_name = $admin['user_name'];
+        $admin_name =  $this->request->admin_name;
         // 启动事务
         Db::startTrans();
         try {
             $BillModel->addIntvie($user_info,$BillModel::ADMIN_MONEY,$money,0,0,0,':'.$admin_name);
+            $data = [
+                'cid'=>$cid,
+                'uid'=>$uid,
+                'inv_code' => $user_info['inv_code'],
+                'mobile' =>$user_info['mobile'],
+                'money'=>$money,
+                'admin'=>$admin_name,
+                'add_time'=>time()
+            ];
+            app('app\common\model\BillLog')->insert($data);
             // 提交事务
             Db::commit();
         } catch (\Exception $e) {
             // 回滚事务
             Db::rollback();
-            return error($e->getMessage());
+            return error($e->getLine().":".$e->getMessage());
         }
         return success("操作成功");
     }
