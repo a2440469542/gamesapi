@@ -334,6 +334,7 @@ class UserStat extends Base
             ->leftJoin("cp_user PARTITION({$this->partition}) `u`","us.uid = u.uid")
             ->group("us.uid")
             ->partition($this->partition)
+            ->where('is_rebot',"=",0)
             ->select();
     }
     //获取宝箱领取金额
