@@ -137,7 +137,7 @@ class Game extends BaseController
         }
     }
     public function get_cz_total(){
-        $wages = app('app\common\model\Wages')->alias('w')
+        /*$wages = app('app\common\model\Wages')->alias('w')
             ->field('w.uid,w.mobile,w.cid,sub1.uid,sub2.uid,sub3.uid,SUM(o1.money) as n1_money,SUM(o2.money) as n2_money,SUM(o3.money) as n3_money')
             ->leftJoin('cp_user PARTITION(p9) sub1','sub1.pid = w.uid')
             ->leftJoin('cp_user PARTITION(p9) sub2','sub2.ppid = w.uid')
@@ -147,6 +147,31 @@ class Game extends BaseController
             ->leftJoin('cp_order PARTITION(p9) o3','o3.uid = sub3.uid')
             ->partition('p9')
             ->group('w.uid')->select()->toArray();
+        print_r($wages);*/
+        $wages = app('app\common\model\Wages')->field('uid,mobile,cid')->partition('p9')->group('uid')->select()->toArray();
+        foreach($wages as $k => &$v){
+            $v['n1_money'] = app('app\common\model\UserStat')
+                ->alias('us')
+                ->field('us.uid,u.pid')
+                ->leftJoin('cp_user PARTITION(p9) u','u.uid = us.uid')
+                ->partition('p9')
+                ->where('u.pid','=',$v['uid'])
+                ->sum('cz_money');
+            $v['n2_money'] = app('app\common\model\UserStat')
+                ->alias('us')
+                ->field('us.uid,u.pid')
+                ->leftJoin('cp_user PARTITION(p9) u','u.uid = us.uid')
+                ->partition('p9')
+                ->where('u.ppid','=',$v['uid'])
+                ->sum('cz_money');
+            $v['n3_money'] = app('app\common\model\UserStat')
+                ->alias('us')
+                ->field('us.uid,u.pid')
+                ->leftJoin('cp_user PARTITION(p9) u','u.uid = us.uid')
+                ->partition('p9')
+                ->where('u.pppid','=',$v['uid'])
+                ->sum('cz_money');
+        }
         print_r($wages);
     }
 }
