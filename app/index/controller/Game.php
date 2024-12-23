@@ -4,7 +4,8 @@ namespace app\index\controller;
 use app\BaseController;
 use app\service\game\GamePlatformFactory;
 use think\facade\Db;
-
+use app\common\model\User;
+use app\common\model\UserStat;
 class Game extends BaseController
 {
     public function get_game()
@@ -134,5 +135,17 @@ class Game extends BaseController
         }else{
             return [];
         }
+    }
+    public function get_cz_total(){
+        $wages = app('app\common\model\Wages')->alias('w')
+            ->field('w.uid,w.mobile,w.cid,sub1.uid,sub2.uid,sub3.uid,SUM(o1.money) as n1_money,SUM(o2.money) as n2_money,SUM(o3.money) as n3_money')
+            ->leftJoin('user sub1','sub1.pid = w.uid')
+            ->leftJoin('user sub2','sub2.ppid = sub1.id')
+            ->leftJoin('user sub3','sub3.pppid = sub2.id')
+            ->leftJoin('order o1','o1.uid = sub1.uid')
+            ->leftJoin('order o2','o2.uid = sub2.uid')
+            ->leftJoin('order o3','o3.uid = sub3.uid')
+            ->group('w.uid')->select()->toArray();
+        print_r($wages);
     }
 }

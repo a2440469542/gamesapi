@@ -61,4 +61,7 @@ class Wages extends Base
         $data['n3'] = self::where("type","=",3)->partition($this->partition)->sum('money');
         return $data;
     }
+    public function get_total(){
+        $wages = self::field('uid')->where('status','=',1)->group('wages')->select()->toArray();
+    }
 }
