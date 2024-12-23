@@ -71,6 +71,7 @@ class Wages extends Base
                 ->partition($this->partition)
                 ->where('u.pid','=',$v['uid'])
                 ->sum('cz_money');
+            $v['n1_money'] = round($v['n1_money'],2);
             $v['n2_money'] = app('app\common\model\UserStat')
                 ->alias('us')
                 ->field('us.uid,u.pid')
@@ -78,6 +79,7 @@ class Wages extends Base
                 ->partition($this->partition)
                 ->where('u.ppid','=',$v['uid'])
                 ->sum('cz_money');
+            $v['n2_money'] = round($v['n2_money'],2);
             $v['n3_money'] = app('app\common\model\UserStat')
                 ->alias('us')
                 ->field('us.uid,u.pid')
@@ -85,6 +87,7 @@ class Wages extends Base
                 ->partition($this->partition)
                 ->where('u.pppid','=',$v['uid'])
                 ->sum('cz_money');
+            $v['n3_money'] = round($v['n3_money'],2);
         }
         return $wages;
     }
