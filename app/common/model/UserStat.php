@@ -325,41 +325,17 @@ class UserStat extends Base
         sum(invite_user) as invite_user,
         u.money,
         ROUND(sum(cz_money),2) as cz_money, 
-        sum(cash_money) as cash_money';
-        $data = self::alias('us')
+        sum(cash_money) as cash_money,
+        sum(n1_cz_money) as n1_cz_money ,
+        sum(n2_cz_money) as n2_cz_money,
+        sum(n3_cz_money) as n3_cz_money';
+        return self::alias('us')
             ->field($filed)
             ->leftJoin("cp_user PARTITION({$this->partition}) `u`","us.uid = u.uid")
             ->group("us.uid")
             ->partition($this->partition)
             ->where('is_rebot',"=",0)
             ->select();
-        foreach($data as $k => &$v){
-            $v['n1_money'] = app('app\common\model\UserStat')
-                ->alias('us')
-                ->field('us.uid,u.pid')
-                ->leftJoin('cp_user PARTITION('.$this->partition.') u','u.uid = us.uid')
-                ->partition($this->partition)
-                ->where('u.pid','=',$v['uid'])
-                ->sum('cz_money');
-            $v['n1_money'] = round($v['n1_money'],2);
-            $v['n2_money'] = app('app\common\model\UserStat')
-                ->alias('us')
-                ->field('us.uid,u.pid')
-                ->leftJoin('cp_user PARTITION('.$this->partition.') u','u.uid = us.uid')
-                ->partition($this->partition)
-                ->where('u.ppid','=',$v['uid'])
-                ->sum('cz_money');
-            $v['n2_money'] = round($v['n2_money'],2);
-            $v['n3_money'] = app('app\common\model\UserStat')
-                ->alias('us')
-                ->field('us.uid,u.pid')
-                ->leftJoin('cp_user PARTITION('.$this->partition.') u','u.uid = us.uid')
-                ->partition($this->partition)
-                ->where('u.pppid','=',$v['uid'])
-                ->sum('cz_money');
-            $v['n3_money'] = round($v['n3_money'],2);
-        }
-        return $data;
     }
     //获取宝箱领取金额
     public function box_num($date=''){
