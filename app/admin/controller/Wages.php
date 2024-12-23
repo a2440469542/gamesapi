@@ -47,7 +47,7 @@ class Wages extends Base{
             return error("渠道ID不能为空");
         }
         $WagesModel = model('app\common\model\Wages',$cid);
-        $wages_total = $WagesModel->get_cz_total();
+        $wages_total = $WagesModel->get_total();
         return success("获取成功", $wages_total);
     }
 }

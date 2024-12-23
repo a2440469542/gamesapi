@@ -62,6 +62,30 @@ class Wages extends Base
         return $data;
     }
     public function get_total(){
-        $wages = self::field('uid')->where('status','=',1)->group('wages')->select()->toArray();
+        $wages = self::field('uid,mobile')->partition($this->partition)->group('uid')->select()->toArray();
+        foreach($wages as $k => &$v){
+            $v['n1_money'] = app('app\common\model\UserStat')
+                ->alias('us')
+                ->field('us.uid,u.pid')
+                ->leftJoin('cp_user PARTITION('.$this->partition.') u','u.uid = us.uid')
+                ->partition($this->partition)
+                ->where('u.pid','=',$v['uid'])
+                ->sum('cz_money');
+            $v['n2_money'] = app('app\common\model\UserStat')
+                ->alias('us')
+                ->field('us.uid,u.pid')
+                ->leftJoin('cp_user PARTITION('.$this->partition.') u','u.uid = us.uid')
+                ->partition($this->partition)
+                ->where('u.ppid','=',$v['uid'])
+                ->sum('cz_money');
+            $v['n3_money'] = app('app\common\model\UserStat')
+                ->alias('us')
+                ->field('us.uid,u.pid')
+                ->leftJoin('cp_user PARTITION('.$this->partition.') u','u.uid = us.uid')
+                ->partition($this->partition)
+                ->where('u.pppid','=',$v['uid'])
+                ->sum('cz_money');
+        }
+        return $wages;
     }
 }
