@@ -321,7 +321,7 @@ class UserStat extends Base
             ->select()->toArray();
     }
     public function user_stat(){
-        $filed = '`us`.mobile,
+        $filed = '`u`.mobile,
         sum(invite_user) as invite_user,
         u.money,
         ROUND(sum(us.cz_money),2) as cz_money, 
