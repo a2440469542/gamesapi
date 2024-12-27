@@ -324,15 +324,17 @@ class UserStat extends Base
         $filed = '`us`.mobile,
         sum(invite_user) as invite_user,
         u.money,
-        ROUND(sum(cz_money),2) as cz_money, 
-        sum(cash_money) as cash_money,
-        sum(n1_cz_money) as n1_cz_money ,
-        sum(n2_cz_money) as n2_cz_money,
-        sum(n3_cz_money) as n3_cz_money';
+        ROUND(sum(us.cz_money),2) as cz_money, 
+        sum(us.cash_money) as cash_money,
+        sum(us.n1_cz_money) as n1_cz_money ,
+        sum(us.n2_cz_money) as n2_cz_money,
+        sum(us.n3_cz_money) as n3_cz_money';
         $user = User::alias('u')->field($filed)
             ->leftJoin("cp_user_stat PARTITION({$this->partition}) `us`","u.uid = us.uid")
             ->partition($this->partition)
             ->where('is_rebot',"=",0)
+            ->group('u.uid')
+
             ->select();
         return  $user;
 
