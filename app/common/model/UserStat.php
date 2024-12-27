@@ -338,19 +338,19 @@ class UserStat extends Base
         foreach($user as $k=>&$v){
             if($v['invite_user'] > 0){
                 $v['n1_money'] = User::alias('u')
-                    ->leftJoin('cp_user_stat PARTITION('.$this->partition.') u','u.uid = us.uid')
+                    ->leftJoin('cp_user_stat PARTITION('.$this->partition.') us','u.uid = us.uid')
                     ->partition($this->partition)
                     ->where('u.pid','=',$v['uid'])
                     ->sum('cz_money');
                 $v['n1_money'] = round($v['n1_money'],2);
                 $v['n2_money'] = User::alias('u')
-                    ->leftJoin('cp_user_stat PARTITION('.$this->partition.') u','u.uid = us.uid')
+                    ->leftJoin('cp_user_stat PARTITION('.$this->partition.') us','u.uid = us.uid')
                     ->partition($this->partition)
                     ->where('u.ppid','=',$v['uid'])
                     ->sum('cz_money');
                 $v['n2_money'] = round($v['n2_money'],2);
                 $v['n3_money'] = User::alias('u')
-                    ->leftJoin('cp_user_stat PARTITION('.$this->partition.') u','u.uid = us.uid')
+                    ->leftJoin('cp_user_stat PARTITION('.$this->partition.') us','u.uid = us.uid')
                     ->partition($this->partition)
                     ->where('u.pppid','=',$v['uid'])
                     ->sum('cz_money');
