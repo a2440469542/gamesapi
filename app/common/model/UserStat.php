@@ -321,7 +321,7 @@ class UserStat extends Base
             ->select()->toArray();
     }
     public function user_stat(){
-        $filed = '`u`.mobile,
+        $filed = '`u`.uid,`u`.mobile,
         sum(invite_user) as invite_user,
         u.money,
         ROUND(sum(us.cz_money),2) as cz_money, 
@@ -334,7 +334,30 @@ class UserStat extends Base
             ->partition($this->partition)
             ->where('is_rebot',"=",0)
             ->group('u.uid')
-            ->select();
+            ->select()->toArray();
+        foreach($user as $k=>&$v){
+            if($v['invite_user'] > 0){
+                $v['n1_money'] = User::alias('u')
+                    ->leftJoin('cp_user_stat PARTITION('.$this->partition.') u','u.uid = us.uid')
+                    ->partition($this->partition)
+                    ->where('u.pid','=',$v['uid'])
+                    ->sum('cz_money');
+                $v['n1_money'] = round($v['n1_money'],2);
+                $v['n2_money'] = User::alias('u')
+                    ->leftJoin('cp_user_stat PARTITION('.$this->partition.') u','u.uid = us.uid')
+                    ->partition($this->partition)
+                    ->where('u.ppid','=',$v['uid'])
+                    ->sum('cz_money');
+                $v['n2_money'] = round($v['n2_money'],2);
+                $v['n3_money'] = User::alias('u')
+                    ->leftJoin('cp_user_stat PARTITION('.$this->partition.') u','u.uid = us.uid')
+                    ->partition($this->partition)
+                    ->where('u.pppid','=',$v['uid'])
+                    ->sum('cz_money');
+
+                $v['n3_money'] = round($v['n3_money'],2);
+            }
+        }
         return  $user;
 
 
