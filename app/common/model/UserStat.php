@@ -334,7 +334,6 @@ class UserStat extends Base
             ->partition($this->partition)
             ->where('is_rebot',"=",0)
             ->group('u.uid')
-
             ->select();
         return  $user;
 
