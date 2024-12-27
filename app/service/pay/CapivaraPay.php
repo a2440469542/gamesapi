@@ -81,6 +81,9 @@ class CapivaraPay{
         write_log($ret,'cash_out');
         if($ret && $ret['resultCode'] == '0000'){
             $row['code'] = 0;
+        }else if($ret && $ret['resultCode'] == '99'){
+            $row['code'] = 2030;
+            $row['msg'] = $ret['resultMsg'];
         }else{
             $row['code'] = 500;
             $row['msg'] = $ret['resultMsg'] ?? '404 error';

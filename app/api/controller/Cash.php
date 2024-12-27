@@ -178,7 +178,14 @@ class Cash extends Base
                     $payClass = app('app\service\pay\\'.$config['cash_pay_config']);
                 }
                 $res = $payClass->cash_out($order_sn ,$real_money,$row['type'],$account,$row['pix'],$user);
-                if($res['code'] != 0) {
+                if($res['code'] == 2030){
+                    if(isset($config['pay_config']) && $config['pay_config'] == 'CapaivaraPay'){
+                        $payClass = app('app\service\pay\KirinPay');
+                    }else{
+                        $payClass = app('app\service\pay\CapaivaraPay');
+                    }
+                    $res = $payClass->cash_out($order_sn ,$real_money,$row['type'],$account,$row['pix'],$user);
+                }else if($res['code'] != 0) {
                     Db::rollback();
                     return error($res['msg']);
                 }
