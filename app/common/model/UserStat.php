@@ -357,6 +357,7 @@ class UserStat extends Base
 
                 $v['n3_money'] = round($v['n3_money'],2);
             }
+            unset($v['uid']);
         }
         return  $user;
 
