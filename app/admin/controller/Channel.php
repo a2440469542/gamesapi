@@ -257,4 +257,14 @@ class Channel extends Base{
         $list = $userModel->user_stat();
         return success("获取成功", $list);
     }
+    public function all_user(){
+        $list = ChannelModel::lists([],1);
+        $lists = [];
+        foreach($list['data'] as $value){
+            $userModel = app('app\common\model\UserStat');
+            $userModel->setPartition($value['cid']);
+            $lists = $userModel->user_stat();
+        }
+        return $lists;
+    }
 }
