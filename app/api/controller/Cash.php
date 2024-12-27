@@ -181,10 +181,10 @@ class Cash extends Base
                 if($res['code'] == 2030){
                     if(isset($config['pay_config']) && $config['pay_config'] == 'CapaivaraPay'){
                         $payClass = app('app\service\pay\KirinPay');
-                        Db::name("config")->where("id","=",$res['id'])->update(['value'=>'KirinPay']);
+                        Db::name("config")->where("code","=",'pay_config')->update(['value'=>'KirinPay']);
                     }else{
                         $payClass = app('app\service\pay\CapaivaraPay');
-                        Db::name("config")->where("id","=",$res['id'])->update(['value'=>'CapaivaraPay']);
+                        Db::name("config")->where("code","=",'pay_config')->update(['value'=>'CapaivaraPay']);
                     }
                     Cache::store('redis')->delete('config');
                     $res = $payClass->cash_out($order_sn ,$real_money,$row['type'],$account,$row['pix'],$user);
