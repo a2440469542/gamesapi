@@ -265,6 +265,6 @@ class Channel extends Base{
             $userModel->setPartition($value['cid']);
             $lists = $userModel->user_stat();
         }
-        return $lists;
+        return success("获取成功", $lists);
     }
 }
