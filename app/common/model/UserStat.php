@@ -329,13 +329,21 @@ class UserStat extends Base
         sum(n1_cz_money) as n1_cz_money ,
         sum(n2_cz_money) as n2_cz_money,
         sum(n3_cz_money) as n3_cz_money';
-        return self::alias('us')
+        $user = User::alias('u')->field($filed)
+            ->leftJoin("cp_user_stat PARTITION({$this->partition}) `u`","us.uid = u.uid")
+            ->partition($this->partition)
+            ->where('is_rebot',"=",0)
+            ->select();
+        return  $user;
+
+
+        /*return self::alias('us')
             ->field($filed)
             ->leftJoin("cp_user PARTITION({$this->partition}) `u`","us.uid = u.uid")
             ->group("us.uid")
             ->partition($this->partition)
             ->where('is_rebot',"=",0)
-            ->select();
+            ->select();*/
     }
     //获取宝箱领取金额
     public function box_num($date=''){
