@@ -82,7 +82,7 @@ class CapivaraPay{
         if($ret && $ret['resultCode'] == '0000'){
             $row['code'] = 0;
         }else if($ret && $ret['resultCode'] == '99'){
-            $row['code'] = 2030;
+            $row['code'] = 2034;
             $row['msg'] = $ret['resultMsg'];
         }else{
             $row['code'] = 500;

@@ -127,6 +127,18 @@ if(!function_exists('isEmail')){
         return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
     }
 }
+if(!function_exists('isUser')){
+    function isUser($user_name){
+        // 定义正则表达式
+        $pattern = '/^[a-zA-Z0-9]{8,15}$/';
+        // 验证代码
+        if (preg_match($pattern, $user_name)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
 /**
  * 获取随机字符串
  */
