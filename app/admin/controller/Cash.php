@@ -127,4 +127,16 @@ class Cash extends Base{
         }
         return success("操作成功");
     }
+    public function userInfo(){
+        $uid =  input('uid');
+        $cid =  input('cid');
+        if(empty($uid) || empty($cid)) return error("参数错误");
+        $UserStatModel = model('app\common\model\UserStat', $cid);
+        $user = $UserStatModel->get_user_summary($uid);
+        if (empty($user)) {
+            return error("用户不存在");
+        }
+        $data[] = $user;
+        return success("获取成功", $data);
+    }
 }
