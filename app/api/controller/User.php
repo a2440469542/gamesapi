@@ -278,10 +278,14 @@ class User extends Base
      * @Apidoc\Author("")
      * @Apidoc\Tag("宝箱")
      * @Apidoc\Param(ref="pagingParam",desc="分页参数")
-     * @Apidoc\Param("type", type="int",require=true,default=1,desc="下级类型：1=一级；2=二级；3=三级")
+     * @Apidoc\Param("type", type="int",require=true,default=1,desc="下级类型：0=所有；1=一级；2=二级；3=三级")
      * @Apidoc\Param("date", type="int",require=true,default=5,desc="时间：1=今天；2=本周；3=本月；4=本年；5=全部")
      * @Apidoc\Returned(ref="pageReturn")
-     * @Apidoc\Returned("data",type="array",desc="团队投注，充值列表",ref="app\common\model\UserStat@team")
+     * @Apidoc\Returned("data",type="array",desc="团队投注，充值列表",ref="app\common\model\UserStat@team",children={
+     *      @Apidoc\Returned("inv_code",type="int",desc="他的下属人数"),
+     *      @Apidoc\Returned("is_bind",type="int",desc="是否冻结账号：0=否；1=是"),
+     *      @Apidoc\Returned("last_login_time",type="string",desc="登录日期")
+     *  })
      */
     public function team(){
         $cid = $this->request->cid;
@@ -296,6 +300,8 @@ class User extends Base
             $where[] = ['ppid',"=",$uid];
         }else if($type == 3){
             $where[] = ['pppid',"=",$uid];
+        }else{
+            $where[] = ['pid|ppid|pppid','=',$uid];
         }
         $date_where = $this->get_time($date);
         if($date_where){
