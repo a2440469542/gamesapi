@@ -161,7 +161,8 @@ class User extends Base
     }
     public function create_rebot($num,$cid){
         $info = self::where('is_rebot',"=",1)->partition($this->partition)->order('uid desc')->find();
-        $mobile = 558888801000;
+        $zzz = 8888801000;
+        $mobile = $zzz;
         if($info && (int) $info['mobile'] >= $mobile){
             $mobile = (int) $info['mobile'] + 1;
         }
@@ -197,7 +198,7 @@ class User extends Base
         }
     }
     public function team($where,$limit){
-        $list = self::field('uid,reg_time,inv_code')->where($where)
+        $list = self::field('uid,reg_time,inv_code,last_login_time,is_bind')->where($where)
             ->partition($this->partition)
             ->paginate($limit)->order('uid desc')->toArray();
         foreach ($list['data'] as &$v){
@@ -205,6 +206,7 @@ class User extends Base
                 ->where("uid","=",$v['uid'])
                 ->partition($this->partition)
                 ->find();
+            $v['invite'] = self::partition($this->partition)->alias('u')->where('u.pid',"=",$v['uid'])->count();//邀请人数
             if($count) {
                 $v['cz_money'] = round($count['cz_money'] ?? 0.00,2) ?? '0.00';
                 $v['bet_money'] = round($count['bet_money'] ?? 0.00,2) ?? '0.00';

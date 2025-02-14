@@ -33,18 +33,19 @@ class Login extends Base
         if(empty($mobile) && empty($pwd)){
             return error("Erro de parâmetro",500);   //参数错误
         }
-        if(!isPhoneNumber($mobile)){
-            return error("Número de telefone incorreto",500);    //手机号格式错误
+        if(!isUser($mobile)){
+            //return error("Número de telefone incorreto",500);    //账号格式错误
+            return error("O comprimento do nome de usuário é de 8 a 15 caracteres",500);    //账号格式错误
         }
         $config = get_config();
-        if(isset($config['sms_open']) && $config['sms_open'] == 1 && $mobile){
+        /*if(isset($config['sms_open']) && $config['sms_open'] == 1 && $mobile){
             if(empty($code)) {return error("Por favor, preenche o código de verificação",500);}  //请填写验证码
             $cache_code = Cache::get('code_'.$mobile);
             if($code != $cache_code){
                 return error("Erro de código de verificação");  //验证码错误
             }
             Cache::delete('code_'.$mobile);
-        }
+        }*/
         $ip = get_real_ip__();
         $black = app('app\common\model\BankBlack')->where('pix',"=",$ip)->count();
         if($black > 0) {return error("Refusa-se a registrar",500);}  //ip禁止
