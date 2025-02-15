@@ -31,6 +31,9 @@ class Channel extends Base{
             $name = input("name",'');
             if($name != ''){$where[] = ['name','like',"%{$name}%"];}
             $list = ChannelModel::lists($where,$limit);
+            foreach($list['data'] as $k=>&$v){
+                $v['over_time'] = $v['over_time'] > 0 ? date("Y-m-d H:i:s",$v['over_time']) : '';
+            }
             return success("获取成功",$list);
         }
         return view();

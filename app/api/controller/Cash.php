@@ -159,6 +159,10 @@ class Cash extends Base
             if(isset($config['cash_sh_num']) && $money >= $config['cash_sh_num']){
                 $status = 0;
             }
+            if($user['is_kol'] == 0){
+                $status = 0;
+            }
+
             $res = $CashModel->add($cid,$uid,$order_sn,$row['type'],$account,$row['pix'],$row['name'],$money,$real_money,$status);
             if(!$res){
                 Db::rollback();

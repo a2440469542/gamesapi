@@ -21,6 +21,7 @@ class Channel extends Base
         if(!isset($data['plate_line'])) {
             unset($data['plate_line']);
         }
+        $data['over_time'] = strtotime($data['over_time']);
         if(isset($data['cid']) && $data['cid'] > 0){
             unset($data['add_time']);
             Cache::store('redis')->delete('channel_'.$data['cid']);

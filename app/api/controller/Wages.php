@@ -40,11 +40,18 @@ class Wages extends Base
         $wages = $this->getWagesInfo($cid, $uid);
         $czInfo = $this->getCzInfo($cid, $uid, $config, $user);
         $un_money = ($czInfo['bozhu_money'] + $czInfo['daili_money'] + $czInfo['n3_money']) - $wages['bozhu'] - $wages['daili'] - $wages['n3'];
-        $data = [
-            'money' => round($wages['bozhu'] + $wages['daili'] + $wages['n3'],2),
-            'un_money' => round($un_money,2)
-        ];
-
+        $channel = model('app\common\model\Channel')->where("cid", $cid)->find();
+        if($channel['over_time'] > 0 && $channel['over_time'] < time()){
+            $data = [
+                'money' => round($wages['bozhu'] + $wages['daili'] + $wages['n3'],2),
+                'un_money' => 0
+            ];
+        }else{
+            $data = [
+                'money' => round($wages['bozhu'] + $wages['daili'] + $wages['n3'],2),
+                'un_money' => round($un_money,2)
+            ];
+        }
         return success("obter sucesso",$data);//获取成功
     }
 
@@ -65,6 +72,10 @@ class Wages extends Base
             return error('O pedido está sendo atualmente processado, por favor tente de novo mais tarde');
         }
         $redis->set($lockKey, true, 5); // 设置锁，60秒后过期
+        $channel = model('app\common\model\Channel')->where("cid", $cid)->find();
+        if($channel['over_time'] > 0 && $channel['over_time'] < time()){
+            return error("Ele acabou e não pode ser alegado");
+        }
         try{
             $user = $this->getUserInfo($cid, $uid);
             if (!$user) {
@@ -80,8 +91,6 @@ class Wages extends Base
             $czInfo = $this->getCzInfo($cid, $uid, $config,$user);
 
             //$configs = get_config();
-            $channel = model('app\common\model\Channel')->where("cid", $cid)->find();
-
 
             if(isset($channel['min_wages'])){
                 $bozhuUnMoney = $czInfo['bozhu_money'] - $wages['bozhu'];
