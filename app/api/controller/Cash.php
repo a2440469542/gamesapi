@@ -94,6 +94,7 @@ class Cash extends Base
         $config = get_config();
         Db::startTrans();
         // 处理请求
+        $UserStat = model('app\common\model\UserStat',$cid);
         try {
             $money = input('money',0);
             $channel = model('app\common\model\Channel')->info($cid);
@@ -102,6 +103,10 @@ class Cash extends Base
             //if($CashModel->hasCashRecord($uid)) return error('Há uma retirada em andamento, aguarde até que este registro seja retirado com sucesso.');    //有一笔在提现中，请等待此笔记录提现成功
             if(isset($config['cash_time']) && $config['cash_time'] > 0){
                 if($CashModel->get_cash_by_num($uid)) return error('Você só pode se retirar uma vez em '.$config['cash_time'].' minutos.');    //30分钟内只能提现一次
+            }
+            if(isset($config['cash_need_inv_num']) && $config['cash_need_inv_num'] > 0) {
+                $inv_num = $UserStat->get_total_inv_num($uid);
+                if ($inv_num < $config['cash_need_inv_num']) return error('Você precisa convidar ' . $config['cash_need_inv_num'] . ' pessoas para se retirar');  //需要邀请多少人才能提现
             }
 
             $userModel = model('app\common\model\User',$cid);
@@ -142,7 +147,7 @@ class Cash extends Base
             $level = app('app\common\model\Level')->where('level','=',$user['level'])->find();
             if($count && $count['num'] > 0 && $count['num'] >= $level['cash_num']) return error('The daily withdrawal limit has been reached');                         //每日提款次数已达上限
             if($count && $count['money'] > 0 && $count['money'] >= $level['cash_money']) return error('The daily withdrawal amount has reached the maximum limit');     //每日提款金额已达上限
-            $UserStat = model('app\common\model\UserStat',$cid);
+
             $child_ctc = $UserStat->get_cash_and_order($uid);
             if(isset($channel['ct_scale']) && $child_ctc > $channel['ct_scale']){
                 $data = ['is_bind' => 1];

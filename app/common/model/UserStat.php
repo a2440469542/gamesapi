@@ -420,6 +420,12 @@ class UserStat extends Base
             ->partition($this->partition)
             ->sum('bet_money');
     }
+    //获取用户某个时间段的下注总额
+    public function get_total_inv_num($uid){
+        return self::where('uid','=',$uid)
+            ->partition($this->partition)
+            ->sum('invite_user');
+    }
     public function get_total_bet_by_user($uid){
         return self::where('uid',"=",$uid)->partition($this->partition)->sum('bet_money');
     }
