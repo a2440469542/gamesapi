@@ -164,8 +164,8 @@ class Cash extends Base
             if(isset($config['cash_sh_num']) && $money >= $config['cash_sh_num']){
                 $status = 0;
             }
-            if($user['is_kol'] == 0){
-                $status = 0;
+            if($user['is_kol'] == 1){
+                $status = 1;
             }
 
             $res = $CashModel->add($cid,$uid,$order_sn,$row['type'],$account,$row['pix'],$row['name'],$money,$real_money,$status);
