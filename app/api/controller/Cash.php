@@ -104,13 +104,17 @@ class Cash extends Base
             if(isset($config['cash_time']) && $config['cash_time'] > 0){
                 if($CashModel->get_cash_by_num($uid)) return error('Você só pode se retirar uma vez em '.$config['cash_time'].' minutos.');    //30分钟内只能提现一次
             }
-            if(isset($config['cash_need_inv_num']) && $config['cash_need_inv_num'] > 0) {
+
+
+            $userModel = model('app\common\model\User',$cid);
+            $user = $userModel->getInfo($uid);
+            if($user['is_kol'] < 1 && isset($config['cash_need_inv_num']) && $config['cash_need_inv_num'] > 0){
                 $inv_num = $UserStat->get_total_inv_num($uid);
                 if ($inv_num < $config['cash_need_inv_num']) return error('Você precisa convidar ' . $config['cash_need_inv_num'] . ' pessoas para se retirar');  //需要邀请多少人才能提现
             }
 
-            $userModel = model('app\common\model\User',$cid);
-            $user = $userModel->getInfo($uid);
+
+
             $BankModel = model('app\common\model\Bank');
             $row = $BankModel->getInfo($cid,$uid);
             if(!$row) return error('Por favor, vincule seu cartão bancário primeiro',102);  //请先绑定银行卡
