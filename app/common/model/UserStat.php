@@ -219,9 +219,11 @@ class UserStat extends Base
         return $summary;
     }
     //充值人数
-    public function get_cz_num($date=''){
+    public function get_cz_num($date='',$cid=0){
         if($date){
             return self::where("cz_money",">",0)->where('date','=',$date)->partition($this->partition)->group('uid')->count();
+        }else if($cid === 0 && $date != ''){
+            return self::where("cz_money",">",0)->where('date','=',$date)->group('uid')->count();
         }else{
             return self::where("cz_money",">",0)->partition($this->partition)->group('uid')->count();
         }
@@ -373,12 +375,17 @@ class UserStat extends Base
             ->select();*/
     }
     //获取宝箱领取金额
-    public function box_num($date=''){
+    public function box_num($date='',$cid=0){
         $where[] = ["box_money",">",0];
         if($date!=''){
             $where[] = ['date','=',$date];
         }
-        return self::where($where)->partition($this->partition)->count();
+        if($cid>0){
+            return self::where($where)->partition($this->partition)->count();
+        }else{
+            return self::where($where)->count();
+        }
+
     }
     public function get_child($cid,$uid,$type=1){
         $filed = '`us`.uid,`us`.mobile,`u`.last_login_ip,

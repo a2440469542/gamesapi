@@ -227,6 +227,12 @@ class User extends Base
             return self::where('is_rebot','=',0)
                 ->where('reg_time','between',[$sttime,$ettime])
                 ->partition($this->partition)->count();
+        }elseif($cid == 0 && $date !== ''){
+            $sttime = strtotime($date);
+            $ettime = $sttime + 24*60*60;
+            return self::where('is_rebot','=',0)
+                ->where('reg_time','between',[$sttime,$ettime])
+                ->count();
         }else{
             return self::where('is_rebot','=',0)->partition($this->partition)->count();
         }
