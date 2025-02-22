@@ -183,10 +183,15 @@ class UserStat extends Base{
             $item['cz_money'] = round($item['cz_money']   ?? '0.00',2);   //总充值金额
             $item['cash_money'] = round($item['cash_money'] ?? '0.00',2);   //总提现金额
             $item['bet_money'] = round($item['bet_money'] ?? '0.00',2);   //总投注金额
-            $item['reg_num'] = $UserModel->reg_num($item['cid'],$item['date']);     //注册人数
-            $item['cz_num']  = $UserStatModel->get_cz_num($item['date']);           //充值人数
-            $item['box_num'] = $UserStatModel->box_num($item['date']);              //宝箱领取人数
-            if($cid == 0){
+
+            if($cid > 0){
+                $item['reg_num'] = $UserModel->reg_num($item['cid'],$item['date']);     //注册人数
+                $item['cz_num']  = $UserStatModel->get_cz_num($item['date']);           //充值人数
+                $item['box_num'] = $UserStatModel->box_num($item['date']);              //宝箱领取人数
+            }else{
+                $item['reg_num'] = $UserModel->reg_num(0,$item['date']);     //注册人数
+                $item['cz_num']  = $UserStatModel->get_cz_num($item['date']);    //充值人数
+                $item['box_num'] = $UserStatModel->box_num($item['date'],0);     //宝箱领取人数
                 $item['name'] = '全部';
             }
         }
