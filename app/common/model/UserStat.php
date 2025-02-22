@@ -133,7 +133,7 @@ class UserStat extends Base
                 ->leftJoin("user `u`","us.uid = u.uid")
                 ->where($where)
                 ->where("u.is_rebot","=",0)
-                ->group('us.cid,us.date')
+                ->group('us.date')
                 ->order($orderBy)
                 ->paginate($limit)->toArray();
         }

@@ -186,6 +186,9 @@ class UserStat extends Base{
             $item['reg_num'] = $UserModel->reg_num($item['cid'],$item['date']);     //注册人数
             $item['cz_num']  = $UserStatModel->get_cz_num($item['date']);           //充值人数
             $item['box_num'] = $UserStatModel->box_num($item['date']);              //宝箱领取人数
+            if($cid>0){
+                $item['name'] = '全部';
+            }
         }
         return success("获取成功",$list);
     }
