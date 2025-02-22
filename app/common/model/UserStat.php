@@ -221,9 +221,11 @@ class UserStat extends Base
     //充值人数
     public function get_cz_num($date='',$cid=0){
         if($date){
-            return self::where("cz_money",">",0)->where('date','=',$date)->partition($this->partition)->group('uid')->count();
-        }else if($cid === 0 && $date != ''){
-            return self::where("cz_money",">",0)->where('date','=',$date)->group('uid')->count();
+            if($cid > 0){
+                return self::where("cz_money",">",0)->where('date','=',$date)->partition($this->partition)->group('uid')->count();
+            }else{
+                return self::where("cz_money",">",0)->where('date','=',$date)->group('uid')->count();
+            }
         }else{
             return self::where("cz_money",">",0)->partition($this->partition)->group('uid')->count();
         }
