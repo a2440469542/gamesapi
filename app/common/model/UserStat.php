@@ -124,6 +124,7 @@ class UserStat extends Base
                 ->where("u.is_rebot","=",0)
                 ->partition($this->partition)
                 ->group('us.cid,us.date')
+                ->order($orderBy)
                 ->paginate($limit)->toArray();
         }else{
             $list = self::alias('us')
@@ -133,6 +134,7 @@ class UserStat extends Base
                 ->where($where)
                 ->where("u.is_rebot","=",0)
                 ->group('us.cid,us.date')
+                ->order($orderBy)
                 ->paginate($limit)->toArray();
         }
         return $list;
