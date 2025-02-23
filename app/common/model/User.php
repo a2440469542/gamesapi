@@ -161,7 +161,7 @@ class User extends Base
     }
     public function create_rebot($num,$cid){
         $info = self::where('is_rebot',"=",1)->partition($this->partition)->order('uid desc')->find();
-        $zzz = 8888801000;
+        $zzz = 558888801000;
         $mobile = $zzz;
         if($info && (int) $info['mobile'] >= $mobile){
             $mobile = (int) $info['mobile'] + 1;
