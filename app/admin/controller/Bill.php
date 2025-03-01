@@ -79,6 +79,7 @@ class Bill extends Base{
      * @Apidoc\Param("money", type="float",require=true, desc="账变金额：增加正数；扣除负数")
      */
     public function bill(){
+        return error("已关闭");
         $uid = input("uid", 0);
         $cid  = input("cid", '');
         $money = input("money", '');
